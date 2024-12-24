@@ -1,26 +1,41 @@
 import React from 'react';
-import {Card, CardContent, CardHeader} from "../../../components/ui/card";
+import Anecdote from "@/components/Anecdote";
 
 const getData = async () => {
     const res = await fetch(`${process.env.NEXTAUTH_URL}/api/categories`, {
         cache: 'no-cache',
     });
 
+    if (!res.ok) {
+        throw new Error("Failed to fetch categories");
+    }
+
+    const {data} = await res.json();
+    return data;
+};
+
+const getAnecdotes = async (page: number) => {
+    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/anecdotes?page=${page}`, {
+        cache: 'no-cache',
+    })
+
     if(!res.ok) {
         throw new Error("Failed");
     }
 
-    return res.json();
+    const {data} = await res.json();
+    return data;
 }
 
 const Page = async () => {
-    const data = await getData()
-    console.log(data)
+    const categories = await getData();
+    const anecdotes = await getAnecdotes(1);
+
     return (
-        <div>
+        <div >
             <ul>
                 {
-                    data?.map((item: object) => {
+                    categories?.map((item: Category) => {
                         return <li key={item.id}>{item.title}</li>
                     })
                 }
@@ -28,14 +43,11 @@ const Page = async () => {
 
 
             <section className="flex flex-wrap gap-8">
-                <Card className="w-fit">
-                    <CardHeader>
-
-                    </CardHeader>
-                    <CardContent>
-
-                    </CardContent>
-                </Card>
+                {
+                    anecdotes?.map((anecdote: Anecdote) => (
+                        <Anecdote anecdote={anecdote} key={anecdote.id} />
+                    ))
+                }
             </section>
         </div>
     );

@@ -1,0 +1,119 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  // Optional for WebAuthn support
+  Authenticator Authenticator[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Anecdote  Anecdote[]
+  Comment   Comment[]
+  Like      Like[]
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  slug      String     @unique
+  title     String
+  Anecdotes Anecdote[]
+}
+
+model Anecdote {
+  id         String     @id @default(cuid())
+  slug       String     @unique
+  title      String
+  content    String
+  catSlug    String
+  categories Category[]
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+  Comment    Comment[]
+  likes      Like[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  content   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  postSlug  String
+  post      Anecdote @relation(fields: [postSlug], references: [slug])
+}
+
+model Like {
+  id         String   @id @default(cuid())
+  isLiked    Boolean  @default(false)
+  anecdoteId String
+  userId     String
+  anecdote   Anecdote @relation(fields: [anecdoteId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+}
