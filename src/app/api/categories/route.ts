@@ -1,5 +1,6 @@
 import {NextRequest, NextResponse} from "next/server";
 import {prisma} from "@/utils/connect";
+import {getAuthSession} from "@/lib/auth";
 
 export const GET = async() => {
     try {
@@ -15,6 +16,12 @@ export const GET = async() => {
 
 export const POST = async(req: NextRequest) => {
     try {
+        const session = await getAuthSession();
+
+        if (!session) {
+            return new NextResponse(JSON.stringify({ message: "Unauthorized" }), { status: 403 });
+        }
+
         const body = await req.json()
         const categoryTitle = body.categoryTitle;
 
@@ -31,6 +38,7 @@ export const POST = async(req: NextRequest) => {
         const category = await prisma.category.create({
             data: {
                 title: categoryTitle,
+                userId: session.user.id
             }
         })
 

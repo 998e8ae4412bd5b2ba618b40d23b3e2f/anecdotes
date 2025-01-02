@@ -159,24 +159,6 @@ export const DELETE = async (req: NextRequest) => {
             return new NextResponse(JSON.stringify({ message: "You can only delete your own anecdote" }), { status: 403 });
         }
 
-        await prisma.like.deleteMany({
-            where: {
-                anecdoteId: anecdoteId,
-            }
-        });
-
-        await prisma.saved.deleteMany({
-            where: {
-                anecdoteId: anecdoteId,
-            }
-        });
-
-        await prisma.comment.deleteMany({
-            where: {
-                postId: anecdoteId,
-            }
-        });
-
         await prisma.anecdote.delete({
             where: {
                 id: anecdoteId,

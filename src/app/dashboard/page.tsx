@@ -16,6 +16,28 @@ const getData = async () => {
     const { data } = await res.json();
     return data;
 };
+const getAnecdotes = async (page: number, categories: string[]) => {
+    const categoryParams = categories.length > 0 ? `&categories=${categories.join(',')}` : '';
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes?page=${page}${categoryParams}`, {
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            method: 'GET'
+        });
+
+        if (!res.ok) {
+            throw new Error("Failed to fetch anecdotes");
+        }
+
+        const { data } = await res.json();
+        return data;
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+}
 
 const Page = () => {
     const [categories, setCategories] = useState([]);
@@ -32,7 +54,15 @@ const Page = () => {
                 console.error("Error fetching categories:", error);
             }
         };
-
+        const fetchAnecdotes = async () => {
+            try {
+                const userAnecdotes = await getAnecdotes(1, []);
+                setAnecdotes(userAnecdotes);
+            } catch (error) {
+                console.error("Error fetching anecdotes:", error);
+            }
+        };
+        fetchAnecdotes();
         fetchData();
     }, []);
 
@@ -121,7 +151,6 @@ const Page = () => {
             <AnecdotesGrid
                 anecdotes={anecdotes}
                 setAnecdotes={setAnecdotes}
-                selectedCategories={selectedCategories}
             />
         </div>
     );

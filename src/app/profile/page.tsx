@@ -6,22 +6,13 @@ import { useRouter } from 'next/navigation';
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import Image from "next/image";
+import AnecdotesGrid from "@/app/dashboard/(components)/AnecdotesGrid/AnecdotesGrid";
 
 const getUser = async (id: string) => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/user?userId=${id}`);
 
     if (!res.ok) {
         throw new Error("Failed to fetch user");
-    }
-
-    const { data } = await res.json();
-    return data;
-};
-
-const getAnecdotes = async (id: string) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes?userId=${id}`);
-    if (!res.ok) {
-        throw new Error("Failed to fetch anecdotes");
     }
 
     const { data } = await res.json();
@@ -50,10 +41,34 @@ const updateUser = async (name: string, image: string) => {
     }
 }
 
+const getAnecdotes = async (id: string, page: number, categories: string[]) => {
+    const userId = id ? `&userId=${id}` : ''
+    const categoryParams = categories.length > 0 ? `&categories=${categories.join(',')}` : '';
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes?page=${page}${categoryParams}${userId}`, {
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            method: 'GET'
+        });
+
+        if (!res.ok) {
+            throw new Error("Failed to fetch anecdotes");
+        }
+
+        const { data } = await res.json();
+        return data;
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+}
+
 const Page = () => {
     const { status, data: sessionData } = useSession();
     const router = useRouter();
-    // const [anecdotes, setAnecdotes] = useState<Anecdote[]>([]);
+    const [anecdotes, setAnecdotes] = useState<Anecdote[]>([]);
     const [user, setUser] = useState<User>()
     const { name, email, emailVerified, image } = user || {};
     const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -61,27 +76,6 @@ const Page = () => {
         name: '',
         image: ''
     });
-
-    // const deleteAnecdote = async (id: string) => {
-    //     try {
-    //         const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes/${id}`, {
-    //             method: 'DELETE',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //         });
-    //
-    //         if (res.ok) {
-    //             setAnecdotes((prevAnecdotes) =>
-    //                 prevAnecdotes.filter((anecdote) => anecdote.id !== id)
-    //             );
-    //         } else {
-    //             console.error('Failed to delete anecdote');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error deleting anecdote:', error);
-    //     }
-    // };
 
     const handleUpdateUser = async () => {
         await updateUser(userEditData.name, userEditData.image)
@@ -95,14 +89,14 @@ const Page = () => {
             return;
         }
 
-        // const fetchAnecdotes = async () => {
-        //     try {
-        //         const userAnecdotes = await getAnecdotes(sessionData.user.id);
-        //         setAnecdotes(userAnecdotes);
-        //     } catch (error) {
-        //         console.error("Error fetching anecdotes:", error);
-        //     }
-        // };
+        const fetchAnecdotes = async () => {
+            try {
+                const userAnecdotes = await getAnecdotes(sessionData.user.id,1, []);
+                setAnecdotes(userAnecdotes);
+            } catch (error) {
+                console.error("Error fetching anecdotes:", error);
+            }
+        };
         const fetchUser = async (id: string) => {
             try {
                 const userData = await getUser(id)
@@ -113,8 +107,7 @@ const Page = () => {
         }
 
         fetchUser(sessionData.user.id)
-        // fetchAnecdotes();
-
+        fetchAnecdotes();
     }, [status, sessionData?.user.id, router]);
 
     const isEmailVerified = emailVerified === null ? 'no' : 'yes';
@@ -128,7 +121,6 @@ const Page = () => {
         }
     };
 
-
     return (
         <div>
             <Card>
@@ -136,7 +128,7 @@ const Page = () => {
                     <div className="max-w-20 h-20 border-solid border-gray-200 border-2">
                         <Image
                             className="rounded-full w-full h-full inline object-cover"
-                            src={isValidUrl(userEditData.image || image || '')}
+                            src={isValidUrl(userEditData.image || image || ' ')}
                             alt="kracen"
                             width={100}
                             height={100}
@@ -185,13 +177,10 @@ const Page = () => {
 
             <section className="pt-48">
                 <h1>Anecdotes</h1>
-                {/*{anecdotes?.map((anecdote: Anecdote) => (*/}
-                {/*    <Anecdote*/}
-                {/*        anecdote={anecdote}*/}
-                {/*        deleteAnecdote={() => deleteAnecdote(anecdote.id)}*/}
-                {/*        key={anecdote.id}*/}
-                {/*    />*/}
-                {/*))}*/}
+                <AnecdotesGrid
+                    anecdotes={anecdotes}
+                    setAnecdotes={setAnecdotes}
+                />
             </section>
         </div>
     );

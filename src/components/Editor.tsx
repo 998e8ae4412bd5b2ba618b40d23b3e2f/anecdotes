@@ -1,11 +1,11 @@
 'use client'
-import React, { useState, useCallback } from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import dynamic from 'next/dynamic';
 import { EditorState, ContentState, RichUtils, convertToRaw } from 'draft-js';
 import "draft-js/dist/Draft.css";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bold, Italic, Underline, Save } from 'lucide-react';
+import { Bold, Italic, Underline } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 
 const DraftEditor = dynamic(
@@ -14,20 +14,19 @@ const DraftEditor = dynamic(
 );
 
 interface ArticleEditorProps {
-    onSave?: (content: string, title: string) => void;
+    title: string;
+    setTitle: (title: string) => void;
+    editorState: EditorState;
+    setEditorState: (editorState: EditorState) => void;
+    onSave: (content: string, title: string) => void;
 }
 
-const Editor: React.FC<ArticleEditorProps> = ({onSave}) => {
-    const [title, setTitle] = useState('');
-    const [editorState, setEditorState] = useState(() =>
-        EditorState.createWithContent(
-            ContentState.createFromText('')
-        )
-    );
-
+const ArticleEditor: React.FC<ArticleEditorProps> = ({
+                                                         title, setTitle, editorState, setEditorState, onSave
+                                                     }) => {
     const handleChange = useCallback((newState: EditorState) => {
         setEditorState(newState);
-    }, []);
+    }, [setEditorState]);
 
     const handleKeyCommand = (command: string, state: EditorState) => {
         const newState = RichUtils.handleKeyCommand(state, command);
@@ -39,50 +38,21 @@ const Editor: React.FC<ArticleEditorProps> = ({onSave}) => {
     };
 
     const toggleStyle = (style: string) => {
-        handleChange(RichUtils.toggleInlineStyle(editorState, style));
+        setEditorState(RichUtils.toggleInlineStyle(editorState, style));
     };
 
+    useEffect(() => {
+        handleSave()
+    }, [title, editorState]);
+
     const handleSave = () => {
-        const contentState = editorState.getCurrentContent();
-        const rawContent = JSON.stringify(convertToRaw(contentState));
-        onSave?.(rawContent, title);
+        const rawContent = JSON.stringify(convertToRaw(editorState.getCurrentContent()));
+        onSave(rawContent, title);
     };
 
     return (
         <Card className="w-full max-w-4xl">
             <CardContent className="p-4 space-y-4">
-                <div className="flex gap-2">
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => toggleStyle('BOLD')}
-                    >
-                        <Bold className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => toggleStyle('ITALIC')}
-                    >
-                        <Italic className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => toggleStyle('UNDERLINE')}
-                    >
-                        <Underline className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="default"
-                        onClick={handleSave}
-                        className="ml-auto"
-                        disabled={!title.trim()}
-                    >
-                        <Save className="h-4 w-4 mr-2" />
-                        Save
-                    </Button>
-                </div>
                 <Input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
@@ -90,6 +60,29 @@ const Editor: React.FC<ArticleEditorProps> = ({onSave}) => {
                     className="font-semibold text-lg"
                     required
                 />
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => toggleStyle('BOLD')}
+                    >
+                        <Bold className="h-4 w-4"/>
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => toggleStyle('ITALIC')}
+                    >
+                        <Italic className="h-4 w-4"/>
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => toggleStyle('UNDERLINE')}
+                    >
+                        <Underline className="h-4 w-4"/>
+                    </Button>
+                </div>
                 <div className="min-h-[200px] border rounded-md p-3 focus-within:ring-2 focus-within:ring-blue-500">
                     <DraftEditor
                         editorState={editorState}
@@ -103,4 +96,4 @@ const Editor: React.FC<ArticleEditorProps> = ({onSave}) => {
     );
 };
 
-export default Editor;
+export default ArticleEditor;

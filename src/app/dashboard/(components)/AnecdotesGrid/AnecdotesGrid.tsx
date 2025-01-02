@@ -4,29 +4,6 @@ import Anecdote from "@/components/Anecdote";
 import AnecdotePopup from "@/components/AnecdotePopup";
 import { usePathname } from "next/navigation";
 
-const getAnecdotes = async (page: number, categories: string[] = []) => {
-    const categoryParams = categories.length > 0 ? `&categories=${categories.join(',')}` : '';
-    try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes?page=${page}${categoryParams}`, {
-            cache: 'no-cache',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            method: 'GET'
-        });
-
-        if (!res.ok) {
-            throw new Error("Failed to fetch anecdotes");
-        }
-
-        const { data } = await res.json();
-        return data;
-    } catch (e) {
-        console.log(e);
-        throw e;
-    }
-}
-
 const saveAnecdote = async (id: string) => {
     return await fetch("${process.env.NEXT_PUBLIC_URL}/api/saved", {
         cache: 'no-cache',
@@ -40,9 +17,20 @@ const saveAnecdote = async (id: string) => {
     });
 }
 
-const AnecdotesGrid = ({ selectedCategories, anecdotes, setAnecdotes }: { selectedCategories: string[], anecdotes: Anecdote[], setAnecdotes: (anecdotes: Anecdote[]) => void }) => {
+const deleteAnecdote = async (id: string) => {
+    return await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes/${id}`, {
+        cache: 'no-cache',
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+}
+
+const AnecdotesGrid = ({ anecdotes, setAnecdotes }: { anecdotes: Anecdote[], setAnecdotes: (anecdotes: Anecdote[]) => void }) => {
     const [openAnecdotePopup, setOpenAnecdotePopup] = useState<boolean>(false);
     const [popupAnecdote, setPopupAnecdote] = useState<string>('');
+    const pathname = usePathname();
 
     const handelSave = (anecdoteId?: string) => {
         const id = anecdoteId || popupAnecdote;
@@ -58,6 +46,14 @@ const AnecdotesGrid = ({ selectedCategories, anecdotes, setAnecdotes }: { select
         }
     };
 
+    const handleDeleteAnecdote = (id: string) => {
+        deleteAnecdote(id)
+        const anecdotesCopy = anecdotes.filter(anecdote => {
+            return anecdote.id !== id;
+        })
+
+        setAnecdotes(anecdotesCopy)
+    }
 
     const handleOpenPopup = (id: string) => {
         document.documentElement.style.overflow = 'hidden';
@@ -69,27 +65,12 @@ const AnecdotesGrid = ({ selectedCategories, anecdotes, setAnecdotes }: { select
         document.documentElement.style.overflow = 'auto';
         setOpenAnecdotePopup(false)
         setPopupAnecdote('')
-        window.history.replaceState({}, '', `${process.env.NEXT_PUBLIC_URL}/dashboard`);
+        pathname !== '/profile' && window.history.replaceState({}, '', `${process.env.NEXT_PUBLIC_URL}/dashboard`);
     }
-
-    useEffect(() => {
-        const fetchAnecdotes = async () => {
-            try {
-                const data = await getAnecdotes(1, selectedCategories);
-                setAnecdotes(data);
-            } catch (e) {
-                console.error('Failed to fetch anecdotes', e);
-            }
-        }
-
-        fetchAnecdotes();
-    }, [selectedCategories]);
 
     const save = (newAnecdotes: Anecdote[]) => {
         setAnecdotes([...newAnecdotes])
     }
-
-    const pathname = usePathname();
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -101,7 +82,7 @@ const AnecdotesGrid = ({ selectedCategories, anecdotes, setAnecdotes }: { select
     }, [pathname]);
 
     return (
-        <section className="flex flex-wrap gap-8">
+        <section className="flex w-full  flex-wrap gap-8">
             {openAnecdotePopup &&
                 <AnecdotePopup
                     anecdoteId={popupAnecdote}
@@ -117,6 +98,7 @@ const AnecdotesGrid = ({ selectedCategories, anecdotes, setAnecdotes }: { select
                     }}
                     saveAnecdote={() => handelSave(anecdote.id)}
                     openPopup={() => handleOpenPopup(anecdote.id)}
+                    deleteAnecdote={() => handleDeleteAnecdote(anecdote.id)}
                     key={anecdote.id}
                 />
             ))}

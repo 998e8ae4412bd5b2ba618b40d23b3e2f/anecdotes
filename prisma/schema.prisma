@@ -22,6 +22,7 @@ model User {
   Like          Like[]
   sessions      Session[]
   saved         Saved[]
+  Category      Category[]
 }
 
 model Account {
@@ -78,6 +79,8 @@ model Category {
   id        String     @id @default(cuid())
   title     String
   Anecdotes Anecdote[] @relation("AnecdoteToCategory")
+  user      User       @relation(fields: [userId], references: [id])
+  userId    String
 }
 
 model Anecdote {
@@ -96,20 +99,20 @@ model Saved {
   id         String   @id @default(cuid())
   userId     String
   anecdoteId String
-  user       User     @relation(fields: [userId], references: [id])
-  anecdote   Anecdote @relation(fields: [anecdoteId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  anecdote   Anecdote @relation(fields: [anecdoteId], references: [id], onDelete: Cascade)
 
   @@unique([userId, anecdoteId])
 }
 
 model Comment {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  content   String
-  postId    String
-  userId    String
-  post      Anecdote @relation(fields: [postId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  content    String
+  anecdoteId String
+  userId     String
+  anecdote   Anecdote @relation(fields: [anecdoteId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Like {
@@ -118,7 +121,7 @@ model Like {
   userId     String
   isLiked    Boolean  @default(false)
   anecdote   Anecdote @relation(fields: [anecdoteId], references: [id], onDelete: Cascade)
-  user       User     @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, anecdoteId])
 }

@@ -7,18 +7,18 @@ interface Anecdote {
     content: string,
     views: number,
     likeCount: number,
-    comments: Comment[],
     dislikeCount: number,
-    categories: Category[],
-    deleteAnecdote?: () => void,
-    saveAnecdote?: () => void,
-    openPopup?: () => void,
     isSaved?: boolean,
     commentsAmount?: number,
     user: {
         image: string,
         name: string
     }
+    comments: Comment[],
+    categories: Category[],
+    deleteAnecdote?: () => void,
+    saveAnecdote?: () => void,
+    openPopup?: () => void,
 }
 
 interface User {

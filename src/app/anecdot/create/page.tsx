@@ -1,6 +1,6 @@
 'use client'
 import React, {useEffect, useState} from 'react';
-import { convertFromRaw } from 'draft-js';
+import {ContentState, convertFromRaw, EditorState} from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import ArticleEditor from "@/components/Editor";
 import {Button} from "@/components/ui/button";
@@ -9,7 +9,6 @@ import {ChevronsUpDown} from "lucide-react";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 import {Dialog, DialogContent, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
 import {Input} from "@/components/ui/input";
-import {Category} from "@prisma/client";
 
 interface AnecdoteCreateData {
     title: string
@@ -33,8 +32,7 @@ const createCategory = async (title: string) => {
         throw new Error("Failed");
     }
 
-    const data = await res.json();
-    return data;
+    return await res.json();
 }
 
 const getCategories = async () => {
@@ -63,7 +61,7 @@ const publishAnecdote = async (anecdote: AnecdoteCreateData) => {
             title: title,
             content: content,
             categories: {
-                connect: categories.map(category => ({ id: category.id }))
+                connect: categories.map((category: Category) => ({ id: category.id }))
             }
         })
     })
@@ -72,8 +70,7 @@ const publishAnecdote = async (anecdote: AnecdoteCreateData) => {
         throw new Error("Failed");
     }
 
-    const data = await res.json();
-    return data;
+    return await res.json();
 }
 
 const Page = () => {
@@ -157,10 +154,25 @@ const Page = () => {
         fetchAnecdotes()
     }, [])
 
+
+
+    const [title, setTitle] = useState('');
+    const [editorState, setEditorState] = useState(() =>
+        EditorState.createWithContent(
+            ContentState.createFromText('')
+        )
+    );
+
+
     return (
         <div className="flex w-full p-24 gap-8">
             <div className="flex flex-1 flex-col gap-4">
-                <ArticleEditor onSave={handleSaveContent}/>
+                <ArticleEditor
+                    title={title}
+                    setTitle={setTitle}
+                    editorState={editorState}
+                    setEditorState={setEditorState}
+                    onSave={handleSaveContent}/>
 
                 <div>
                     <Popover open={openCategorySelect} onOpenChange={setOpenCategorySelect}>
@@ -238,9 +250,6 @@ const Page = () => {
 
                 <Button className="w-fit" onClick={() => publishAnecdote(anecdoteDraft)}
                         disabled={isReadyToPublish}>Publish</Button>
-            </div>
-            <div className="w-[400px]">
-                {/*<Anecdote anecdote={anecdoteDraft}/>*/}
             </div>
         </div>
     );

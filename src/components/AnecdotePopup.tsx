@@ -3,6 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {Bookmark, HelpCircle, Send, ThumbsUp, X} from 'react-feather';
 import {Input} from "@/components/ui/input";
 import Comment from "@/components/Comment"
+import {usePathname} from "next/navigation";
 
 const fetchAnecdote = async (id: string): Promise<Anecdote> => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes/${id}`);
@@ -40,6 +41,7 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
     const [commentContent, setCommentContent] = useState<string>('');
     const [likeCount, setLikeCount] = useState(0);
     const [dislikeCount, setDislikeCount] = useState(0);
+    const pathname = usePathname();
 
     const handleLike = async (isLiked: boolean) => {
         try {
@@ -103,6 +105,7 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
     };
 
     useEffect(() => {
+        console.log(123)
         const getAnecdote = async () => {
             const anecdoteRes = await fetchAnecdote(anecdoteId);
             setAnecdote(anecdoteRes);
@@ -112,7 +115,9 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
 
         getAnecdote();
 
-        window.history.replaceState({}, '', `${process.env.NEXT_PUBLIC_URL}/dashboard/?id=${anecdoteId}`);
+        if (pathname === '/dashboard') {
+            window.history.replaceState({}, '', `${process.env.NEXT_PUBLIC_URL}/dashboard/?id=${anecdoteId}`);
+        }
     }, [anecdoteId]);
 
     return (

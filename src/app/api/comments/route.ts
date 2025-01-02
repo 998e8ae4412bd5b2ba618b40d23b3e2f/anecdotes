@@ -28,7 +28,7 @@ export const POST = async (req: NextRequest) => {
             data: {
                 content,
                 userId,
-                postId: anecdoteId,
+                anecdoteId: anecdoteId,
             },
         });
 

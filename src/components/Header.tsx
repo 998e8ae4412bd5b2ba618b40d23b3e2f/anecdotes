@@ -1,8 +1,11 @@
 import React from 'react';
 import Link from "next/link";
 import {Bookmark, Box, User} from "react-feather";
+import {getAuthSession} from "@/lib/auth";
 
-const Header = () => {
+const Header = async () => {
+    const session =  await getAuthSession();
+
     return (
         <header className="relative w-full flex items-center justify-between py-8">
             <Link
@@ -28,27 +31,30 @@ const Header = () => {
             </nav>
 
             <div className="flex gap-5">
-                <div className="flex items-center gap-2">
+                {
+                    session && <div className="flex items-center gap-2">
                     Збережені
                     <Bookmark fill='bleck'/>
-                </div>
+                </div>}
 
-                <div className="hidden items-center gap-4">
-                    <div>
-                        Вхід
+
+                {
+                    session ? <Link
+                        href='/profile'
+                        className="w-[50px] h-[50px]  justify-start items-center gap-2.5 inline-flex">
+                        <img src={session.user.image || ''} className="w-full h-full rounded-[90px] object-cover" alt=""/>
+                    </Link> : <div className="flex items-center gap-4">
+                        <Link
+                            href={'/auth/login'}>
+                            Вхід
+                        </Link>
+                        <Link
+                            className="px-5 py-2.5 bg-blackPrimary flex text-white rounded-[10px] justify-center items-center gap-2.5"
+                            href={'/auth/login'}>
+                            Реєстрація
+                        </Link>
                     </div>
-                    <Link
-                        className="px-5 py-2.5 bg-blackPrimary flex text-white rounded-[10px] justify-center items-center gap-2.5"
-                        href={'/auth/login'}>
-                        Реєстрація
-                    </Link>
-                </div>
-
-                <Link
-                    href='/profile'
-                    className="p-[13px] bg-blackPrimary rounded-[10px] justify-start items-center gap-2.5 inline-flex">
-                    <User stroke="white"/>
-                </Link>
+                }
             </div>
         </header>
     );
