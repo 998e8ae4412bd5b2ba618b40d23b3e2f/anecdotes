@@ -1,10 +1,10 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-generator client {
-  provider = "prisma-client-js"
 }
 
 model User {
@@ -13,16 +13,15 @@ model User {
   email         String          @unique
   emailVerified DateTime?
   image         String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
   accounts      Account[]
-  sessions      Session[]
-  // Optional for WebAuthn support
+  Anecdote      Anecdote[]
   Authenticator Authenticator[]
-
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  Anecdote  Anecdote[]
-  Comment   Comment[]
-  Like      Like[]
+  Comment       Comment[]
+  Like          Like[]
+  sessions      Session[]
+  saved         Saved[]
 }
 
 model Account {
@@ -37,11 +36,9 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
 }
@@ -50,10 +47,9 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model VerificationToken {
@@ -73,47 +69,56 @@ model Authenticator {
   credentialDeviceType String
   credentialBackedUp   Boolean
   transports           String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
 }
 
 model Category {
   id        String     @id @default(cuid())
-  slug      String     @unique
   title     String
-  Anecdotes Anecdote[]
+  Anecdotes Anecdote[] @relation("AnecdoteToCategory")
 }
 
 model Anecdote {
   id         String     @id @default(cuid())
-  slug       String     @unique
   title      String
   content    String
-  catSlug    String
-  categories Category[]
   userId     String
   user       User       @relation(fields: [userId], references: [id])
   Comment    Comment[]
   likes      Like[]
+  categories Category[] @relation("AnecdoteToCategory")
+  saved      Saved[]
+}
+
+model Saved {
+  id         String   @id @default(cuid())
+  userId     String
+  anecdoteId String
+  user       User     @relation(fields: [userId], references: [id])
+  anecdote   Anecdote @relation(fields: [anecdoteId], references: [id])
+
+  @@unique([userId, anecdoteId])
 }
 
 model Comment {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   content   String
+  postId    String
   userId    String
+  post      Anecdote @relation(fields: [postId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
-  postSlug  String
-  post      Anecdote @relation(fields: [postSlug], references: [slug])
 }
 
 model Like {
   id         String   @id @default(cuid())
-  isLiked    Boolean  @default(false)
   anecdoteId String
   userId     String
-  anecdote   Anecdote @relation(fields: [anecdoteId], references: [id])
+  isLiked    Boolean  @default(false)
+  anecdote   Anecdote @relation(fields: [anecdoteId], references: [id], onDelete: Cascade)
   user       User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, anecdoteId])
 }

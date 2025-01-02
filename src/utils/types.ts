@@ -1,8 +1,4 @@
-interface Category {
-    id: string,
-    slug: string,
-    title: string
-}
+/* eslint-disable */
 
 interface Anecdote {
     id: string,
@@ -11,7 +7,18 @@ interface Anecdote {
     content: string,
     views: number,
     likeCount: number,
-    dislikeCount: number
+    comments: Comment[],
+    dislikeCount: number,
+    categories: Category[],
+    deleteAnecdote?: () => void,
+    saveAnecdote?: () => void,
+    openPopup?: () => void,
+    isSaved?: boolean,
+    commentsAmount?: number,
+    user: {
+        image: string,
+        name: string
+    }
 }
 
 interface User {
@@ -20,4 +27,17 @@ interface User {
     email: string,
     emailVerified: boolean,
     image: string,
+}
+
+interface Category {
+    id: string,
+    title: string
+}
+
+interface Comment {
+    id: string,
+    content: string,
+    user: string,
+    image: string,
+    date: string
 }

@@ -1,4 +1,4 @@
-import { NextAuthOptions } from "next-auth";
+import {getServerSession, NextAuthOptions} from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -19,12 +19,13 @@ export const authConfig: NextAuthOptions = {
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
-        // @ts-ignore
         session.user.id = user.id;
-        session.user.name = `Custom Name: ${session.user.name}`;
+        session.user.name = `${session.user.name}`;
         session.user.image = session.user.image || "default-image-url";
       }
       return session;
     },
   },
 };
+
+export const getAuthSession = () => getServerSession(authConfig);

@@ -65,7 +65,39 @@
   }
 }
 
+@font-face {
+  font-family: 'e-Ukraine';
+  src: url('/fonts/e-Ukraine-Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+
 
 html, body {
   height: 100%;
+}
+
+body {
+  font-family: "Manrope", serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+
+  /*background: gray;*/
+}
+
+
+
+
+
+
+
+/* Hide the scrollbar but keep scrolling */
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hidden {
+  -ms-overflow-style: none;  /* For Internet Explorer */
+  scrollbar-width: none;  /* For Firefox */
 }

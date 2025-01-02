@@ -28,7 +28,7 @@ const Login = () => {
                         <FaGoogle/>
                         Google
                     </Button>
-                    <Button>
+                    <Button onClick={() => signIn("github")}>
                         <FaGithub/>
                         Github
                     </Button>

@@ -49,13 +49,17 @@ export default {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
-  			}
+  			},
+			blackPrimary: '#1E1E1E',
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+		backgroundImage: {
+			'random-anecdote-button-gradient': 'linear-gradient(133deg, rgba(195, 253, 254, 0.00) 1.65%, rgba(207, 252, 192, 0.00) 120.13%), linear-gradient(91deg, #F6C4CF -5.81%, #BEAEFB 54%, #FF99C8 104.99%)',
+		},
   	}
   },
   plugins: [require("tailwindcss-animate")],
