@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/utils/connect";
+import {transformAnecdotesWithStats} from "@/utils/transformAnecdotesWithStats";
 
 export const GET = async (req: NextRequest) => {
     try {
@@ -27,9 +28,6 @@ export const GET = async (req: NextRequest) => {
             return new NextResponse(JSON.stringify({ message: 'No anecdote' }), { status: 400 });
         }
 
-        const likeCount = anecdote.likes.filter(like => like.isLiked).length;
-        const dislikeCount = anecdote.likes.filter(like => !like.isLiked).length;
-        const isSavedByUser = anecdote.saved.some(save => save.userId === session?.user.id);
         const comments = anecdote.Comment.map(comment => {
             return {
                 id: comment.id,
@@ -39,22 +37,18 @@ export const GET = async (req: NextRequest) => {
             }
         })
 
-        const anecdotesWithCounts= {
-            id: anecdote.id,
-            title: anecdote.title,
-            content: anecdote.content,
-            likeCount,
-            dislikeCount,
+        const anecdotesWithCounts = transformAnecdotesWithStats([anecdote], session?.user.id || '');
+
+        const anecdotesWithCountsFull= {
+            ...anecdotesWithCounts[0],
             comments,
-            categories: anecdote.categories,
-            isSaved: isSavedByUser,
             user: {
                 name: anecdote.user.name,
                 image: anecdote.user.image
             }
         }
 
-        return new NextResponse(JSON.stringify({data: anecdotesWithCounts}), { status: 200 });
+        return new NextResponse(JSON.stringify({data: anecdotesWithCountsFull}), { status: 200 });
     } catch (e) {
         console.log(e);
         return new NextResponse(JSON.stringify({ message: 'Something went wrong' }), { status: 500 });

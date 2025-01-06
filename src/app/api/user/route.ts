@@ -13,7 +13,16 @@ export const GET = async(req: NextRequest) => {
             }
         });
 
-        return new NextResponse(JSON.stringify({data: user}), { status: 200 });
+        if (!user) {
+            return new NextResponse(JSON.stringify({message: "error"}), {status: 500});
+        }
+
+        const useRes = {
+            name: user.name,
+            image: user.image
+        }
+
+        return new NextResponse(JSON.stringify({data: useRes}), { status: 200 });
     } catch(e) {
         console.log(e)
         return new NextResponse(JSON.stringify({message: 'smth went wrong'}), {status: 500})

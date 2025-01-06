@@ -14,7 +14,7 @@ export const GET = async() => {
 }
 
 
-export const POST = async(req: NextRequest) => {
+export const POST = async (req: NextRequest) => {
     try {
         const session = await getAuthSession();
 
@@ -22,8 +22,15 @@ export const POST = async(req: NextRequest) => {
             return new NextResponse(JSON.stringify({ message: "Unauthorized" }), { status: 403 });
         }
 
-        const body = await req.json()
+        const body = await req.json();
         const categoryTitle = body.categoryTitle;
+
+        if (!categoryTitle || categoryTitle.length > 10) {
+            return new NextResponse(
+                JSON.stringify({ message: "Category title must be 10 characters or less" }),
+                { status: 200 }
+            );
+        }
 
         const categoryExist = await prisma.category.findFirst({
             where: {
@@ -31,20 +38,20 @@ export const POST = async(req: NextRequest) => {
             }
         });
 
-        if (categoryExist) {{
-            return new NextResponse(JSON.stringify({message: "category already exist"}), { status: 200 });
-        }}
+        if (categoryExist) {
+            return new NextResponse(JSON.stringify({ message: "Category already exists" }), { status: 200 });
+        }
 
         const category = await prisma.category.create({
             data: {
                 title: categoryTitle,
                 userId: session.user.id
             }
-        })
+        });
 
-        return new NextResponse(JSON.stringify({data: category}), { status: 200 });
-    } catch(e) {
-        console.log(e)
-        return new NextResponse(JSON.stringify({message: 'smth went wrong'}), {status: 500})
+        return new NextResponse(JSON.stringify({ data: category }), { status: 200 });
+    } catch (e) {
+        console.log(e);
+        return new NextResponse(JSON.stringify({ message: 'Something went wrong' }), { status: 500 });
     }
-}
+};

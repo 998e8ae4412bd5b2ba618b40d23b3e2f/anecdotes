@@ -1,12 +1,13 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { Card, CardHeader } from "@/components/ui/card";
+import React, {Suspense, useEffect, useState} from 'react';
+import {Card, CardContent, CardFooter, CardHeader} from "@/components/ui/card";
 import {signOut, useSession} from "next-auth/react";
 import { useRouter } from 'next/navigation';
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import Image from "next/image";
 import AnecdotesGrid from "@/app/dashboard/(components)/AnecdotesGrid/AnecdotesGrid";
+import {Settings} from "react-feather";
 
 const getUser = async (id: string) => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/user?userId=${id}`);
@@ -57,7 +58,7 @@ const getAnecdotes = async (id: string, page: number, categories: string[]) => {
             throw new Error("Failed to fetch anecdotes");
         }
 
-        const { data } = await res.json();
+        const data = await res.json();
         return data;
     } catch (e) {
         console.log(e);
@@ -68,7 +69,7 @@ const getAnecdotes = async (id: string, page: number, categories: string[]) => {
 const Page = () => {
     const { status, data: sessionData } = useSession();
     const router = useRouter();
-    const [anecdotes, setAnecdotes] = useState<Anecdote[]>([]);
+    const [anecdotes, setAnecdotes] = useState<AnecdoteBase[]>([]);
     const [user, setUser] = useState<User>()
     const { name, email, emailVerified, image } = user || {};
     const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -76,6 +77,8 @@ const Page = () => {
         name: '',
         image: ''
     });
+    const [pagesAmount, setPagesAmount] = useState<number>(1);
+    const [currentPage, setCurrentPage] = useState<number>(1)
 
     const handleUpdateUser = async () => {
         await updateUser(userEditData.name, userEditData.image)
@@ -85,14 +88,14 @@ const Page = () => {
     useEffect(() => {
         if (status === "loading") return;
         if (status !== "authenticated") {
-            router.push('/');
             return;
         }
 
         const fetchAnecdotes = async () => {
             try {
-                const userAnecdotes = await getAnecdotes(sessionData.user.id,1, []);
-                setAnecdotes(userAnecdotes);
+                const userAnecdotes = await getAnecdotes(sessionData.user.id, currentPage, []);
+                setAnecdotes(userAnecdotes.data);
+                setPagesAmount(userAnecdotes.totalPages);
             } catch (error) {
                 console.error("Error fetching anecdotes:", error);
             }
@@ -108,9 +111,7 @@ const Page = () => {
 
         fetchUser(sessionData.user.id)
         fetchAnecdotes();
-    }, [status, sessionData?.user.id, router]);
-
-    const isEmailVerified = emailVerified === null ? 'no' : 'yes';
+    }, [status, sessionData?.user.id, router, currentPage]);
 
     const isValidUrl = (string: string) => {
         try {
@@ -122,12 +123,12 @@ const Page = () => {
     };
 
     return (
-        <div>
-            <Card>
-                <CardHeader>
-                    <div className="max-w-20 h-20 border-solid border-gray-200 border-2">
+        <div className="flex gap-6">
+            <Card className="min-w-64 p-0">
+                <CardHeader className="p-6">
+                    <div className="">
                         <Image
-                            className="rounded-full w-full h-full inline object-cover"
+                            className="w-full rounded-lg h-full inline object-cover aspect-square"
                             src={isValidUrl(userEditData.image || image || ' ')}
                             alt="kracen"
                             width={100}
@@ -140,30 +141,35 @@ const Page = () => {
                         placeholder={'url'}
                         className="font-semibold text-lg"
                         required
-                    /> }
-                    <div>name:
-                        {!isEdit ? userEditData.name || name : <Input
+                    />}
+                    <div>
+                        <span className="text-[#4c4c4c] text-xs font-light font-['Manrope']">Імя:</span>
+                        {!isEdit ? <p className='truncate'>{userEditData.name || name}</p> : <Input
                             value={userEditData.name}
                             onChange={(e) => setUserEditData({...userEditData, name: e.target.value})}
                             placeholder={sessionData?.user.name || ''}
                             className="font-semibold text-lg"
                             required
-                        /> }
+                        />}
                     </div>
-                    <div>email: {email}</div>
-                    <div>emailVerified: {isEmailVerified}</div>
-
-                    <div>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-3 p-0">
+                    <div className="w-full">
                         {
                             !isEdit ?
-                                <Button className="w-fit" onClick={() => setIsEdit(!isEdit)}>Edit</Button>
+                                <Button className="h-12 w-full" onClick={() => setIsEdit(!isEdit)}>
+                                    <Settings/>
+                                    Редагувати Інформацію
+                                </Button>
                                 : <div className="flex gap-4">
                                     <Button
+                                        className="w-full"
                                         onClick={handleUpdateUser}
                                     >
                                         Save
                                     </Button>
                                     <Button
+                                        className="w-full"
                                         onClick={() => setIsEdit(false)}
                                     >
                                         Cancel
@@ -171,16 +177,25 @@ const Page = () => {
                                 </div>
                         }
                     </div>
-                    <Button className="w-fit" onClick={() => signOut()}>Sign out</Button>
-                </CardHeader>
+                    {!isEdit && <Button variant='ghost' className="w-full p-0 text-[#d32e2e] text-xs font-light font-['Manrope']" onClick={() => signOut()}>Вийти з аккаунту</Button>}
+                </CardContent>
+                <CardFooter>
+
+                </CardFooter>
             </Card>
 
-            <section className="pt-48">
-                <h1>Anecdotes</h1>
+            <section className="">
+                <h1 className="text-[#1e1e1e] text-2xl font-extrabold font-['Manrope'] leading-[30px] mb-4 pl-2">Мої
+                    анекдоти</h1>
+                <Suspense fallback={<div>Loading...</div>}>
                 <AnecdotesGrid
+                    currentPage={currentPage}
+                    pagesAmount={pagesAmount}
+                    setCurrentPage={setCurrentPage}
                     anecdotes={anecdotes}
                     setAnecdotes={setAnecdotes}
                 />
+                </Suspense>
             </section>
         </div>
     );

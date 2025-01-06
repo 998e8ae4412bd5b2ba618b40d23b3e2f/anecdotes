@@ -1,6 +1,7 @@
 import {NextRequest, NextResponse} from "next/server";
 import {prisma} from "@/utils/connect";
 import {getAuthSession} from "@/lib/auth";
+import {transformAnecdotesWithStats} from "@/utils/transformAnecdotesWithStats";
 
 export const GET = async() => {
     try {
@@ -10,14 +11,25 @@ export const GET = async() => {
             return new NextResponse(JSON.stringify({message: "Unauthorized"}), {status: 401});
         }
 
-        const anecdotes = await prisma.saved.findMany({
+        const savedAnecdotes  = await prisma.saved.findMany({
             where: {userId: session.user.id},
             include: {
-                anecdote: true,
+                anecdote: {
+                    include: {
+                        likes: true,
+                        categories: true,
+                        saved: true,
+                        Comment: true
+                    }
+                }
             }
         });
 
-        return new NextResponse(JSON.stringify({data: anecdotes}), { status: 200 });
+        const anecdotes= savedAnecdotes.map(item => item.anecdote);
+
+        const anecdotesWithCounts = transformAnecdotesWithStats(anecdotes, session.user.id);
+
+        return new NextResponse(JSON.stringify({data: anecdotesWithCounts}), { status: 200 });
     } catch(e) {
         console.log(e)
         return new NextResponse(JSON.stringify({message: 'smth went wrong'}), {status: 500})

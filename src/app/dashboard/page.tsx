@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, {Suspense, useEffect, useState} from 'react';
 import AnecdotesGrid from "@/app/dashboard/(components)/AnecdotesGrid/AnecdotesGrid";
 import { Button } from "@/components/ui/button";
 
@@ -31,7 +31,7 @@ const getAnecdotes = async (page: number, categories: string[]) => {
             throw new Error("Failed to fetch anecdotes");
         }
 
-        const { data } = await res.json();
+        const data = await res.json();
         return data;
     } catch (e) {
         console.log(e);
@@ -42,7 +42,9 @@ const getAnecdotes = async (page: number, categories: string[]) => {
 const Page = () => {
     const [categories, setCategories] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    const [anecdotes, setAnecdotes] = useState<Anecdote[]>([]);
+    const [anecdotes, setAnecdotes] = useState<AnecdoteBase[]>([]);
+    const [pagesAmount, setPagesAmount] = useState<number>(0);
+    const [currentPage, setCurrentPage] = useState<number>(1)
     const categoriesColors = ['#beaefb', '#fccdf1', '#f6c4cf'];
 
     useEffect(() => {
@@ -54,20 +56,24 @@ const Page = () => {
                 console.error("Error fetching categories:", error);
             }
         };
+        fetchData();
+    }, []);
+    useEffect(() => {
         const fetchAnecdotes = async () => {
             try {
-                const userAnecdotes = await getAnecdotes(1, []);
-                setAnecdotes(userAnecdotes);
+                const userAnecdotes = await getAnecdotes(currentPage, selectedCategories);
+                setAnecdotes(userAnecdotes.data);
+                setPagesAmount(userAnecdotes.totalPages);
             } catch (error) {
                 console.error("Error fetching anecdotes:", error);
             }
         };
         fetchAnecdotes();
-        fetchData();
-    }, []);
+    }, [selectedCategories, currentPage]);
 
     const handleCategorySelect = (category: string) => {
         setSelectedCategories(prev => {
+            setCurrentPage(1)
             if (prev.includes(category)) {
                 return prev.filter(c => c !== category);
             } else {
@@ -77,14 +83,14 @@ const Page = () => {
     };
 
     return (
-        <div className="flex mx-auto justify-between gap-5 mt-11">
+        <div className="flex mx-auto gap-5 mt-11">
             <div className="w-full max-w-64">
                 <div className="flex flex-col gap-6 mb-3.5">
-                    <span
-                        className="text-blackPrimary text-2xl font-extrabold font-['Manrope'] leading-[30px]"
-                    >
-                        Категорії
-                    </span>
+                        <span
+                            className="text-blackPrimary text-2xl font-extrabold font-['Manrope'] leading-[30px]"
+                        >
+                            Категорії
+                        </span>
 
                     <Button
                         onClick={() => setSelectedCategories([])}
@@ -95,20 +101,20 @@ const Page = () => {
                 </div>
 
                 <div className="mb-2.5">
-                    <span
-                        className="text-blackPrimary text-xs font-semibold font-['Manrope'] leading-[15px]"
-                    >
-                        Топ категорії
-                    </span>
+                        <span
+                            className="text-blackPrimary text-xs font-semibold font-['Manrope'] leading-[15px]"
+                        >
+                            Топ категорії
+                        </span>
 
                     <ul className="flex flex-col gap-1.5">
                         {
                             categories.slice(0, 3).map((item: Category, i: number) => {
-                                const categoryColor = selectedCategories.includes(item.title) ? 'black' :  categoriesColors[i];
+                                const categoryColor = selectedCategories.includes(item.title) ? 'black' : categoriesColors[i];
 
                                 return (
                                     <li
-                                        style={{ backgroundColor: categoryColor }}
+                                        style={{backgroundColor: categoryColor}}
                                         className={`rounded-[12px] px-6 py-1 text-blackPrimary text-sm font-normal font-['Manrope'] leading-[30px] cursor-pointer ${selectedCategories.includes(item.title) ? 'text-white' : ''}`}
                                         key={item.id}
                                         onClick={() => handleCategorySelect(item.title)}
@@ -148,10 +154,17 @@ const Page = () => {
                 {/*</Button>*/}
             </div>
 
-            <AnecdotesGrid
-                anecdotes={anecdotes}
-                setAnecdotes={setAnecdotes}
-            />
+            <section className="pb-16">
+                <Suspense fallback={<div>Loading...</div>}>
+                    <AnecdotesGrid
+                        currentPage={currentPage}
+                        pagesAmount={pagesAmount}
+                        setCurrentPage={setCurrentPage}
+                        anecdotes={anecdotes}
+                        setAnecdotes={setAnecdotes}
+                    />
+                </Suspense>
+            </section>
         </div>
     );
 };

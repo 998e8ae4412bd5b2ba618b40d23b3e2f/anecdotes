@@ -2,10 +2,17 @@
 import React, { useEffect, useState } from 'react';
 import Anecdote from "@/components/Anecdote";
 import AnecdotePopup from "@/components/AnecdotePopup";
-import { usePathname } from "next/navigation";
+import {usePathname, useSearchParams} from "next/navigation";
+
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+} from "@/components/ui/pagination"
 
 const saveAnecdote = async (id: string) => {
-    return await fetch("${process.env.NEXT_PUBLIC_URL}/api/saved", {
+    return await fetch(`${process.env.NEXT_PUBLIC_URL}/api/saved`, {
         cache: 'no-cache',
         method: 'POST',
         headers: {
@@ -27,10 +34,17 @@ const deleteAnecdote = async (id: string) => {
     });
 }
 
-const AnecdotesGrid = ({ anecdotes, setAnecdotes }: { anecdotes: Anecdote[], setAnecdotes: (anecdotes: Anecdote[]) => void }) => {
+const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, setAnecdotes }:
+                           {
+                               currentPage: number,
+                               pagesAmount: number,
+                               setCurrentPage: (currentPage: number) => void,
+                               anecdotes: AnecdoteBase[],
+                               setAnecdotes: (anecdotes: AnecdoteBase[]) => void }) => {
     const [openAnecdotePopup, setOpenAnecdotePopup] = useState<boolean>(false);
     const [popupAnecdote, setPopupAnecdote] = useState<string>('');
     const pathname = usePathname();
+
 
     const handelSave = (anecdoteId?: string) => {
         const id = anecdoteId || popupAnecdote;
@@ -45,7 +59,6 @@ const AnecdotesGrid = ({ anecdotes, setAnecdotes }: { anecdotes: Anecdote[], set
             setAnecdotes(updatedAnecdotes);
         }
     };
-
     const handleDeleteAnecdote = (id: string) => {
         deleteAnecdote(id)
         const anecdotesCopy = anecdotes.filter(anecdote => {
@@ -54,13 +67,11 @@ const AnecdotesGrid = ({ anecdotes, setAnecdotes }: { anecdotes: Anecdote[], set
 
         setAnecdotes(anecdotesCopy)
     }
-
     const handleOpenPopup = (id: string) => {
         document.documentElement.style.overflow = 'hidden';
         setOpenAnecdotePopup(true)
         setPopupAnecdote(id)
     }
-
     const handleClosePopup = () => {
         document.documentElement.style.overflow = 'auto';
         setOpenAnecdotePopup(false)
@@ -68,10 +79,10 @@ const AnecdotesGrid = ({ anecdotes, setAnecdotes }: { anecdotes: Anecdote[], set
         pathname !== '/profile' && window.history.replaceState({}, '', `${process.env.NEXT_PUBLIC_URL}/dashboard`);
     }
 
-    const save = (newAnecdotes: Anecdote[]) => {
+    const updateAnecdotes = (newAnecdotes: AnecdoteBase[]) => {
         setAnecdotes([...newAnecdotes])
     }
-
+    const searchParams = useSearchParams();
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
@@ -79,29 +90,82 @@ const AnecdotesGrid = ({ anecdotes, setAnecdotes }: { anecdotes: Anecdote[], set
         if (id) {
             handleOpenPopup(id);
         }
-    }, [pathname]);
+    }, [searchParams]);
 
     return (
-        <section className="flex w-full  flex-wrap gap-8">
+        <section className="flex">
             {openAnecdotePopup &&
                 <AnecdotePopup
                     anecdoteId={popupAnecdote}
                     anecdotes={anecdotes}
-                    setNewAnecdotes={save}
+                    setNewAnecdotes={updateAnecdotes}
                     closePopup={handleClosePopup}
                     saveAnecdote={handelSave}
                 />}
-            {anecdotes?.map((anecdote: Anecdote) => (
-                <Anecdote
-                    anecdote={{
-                        ...anecdote,
-                    }}
-                    saveAnecdote={() => handelSave(anecdote.id)}
-                    openPopup={() => handleOpenPopup(anecdote.id)}
-                    deleteAnecdote={() => handleDeleteAnecdote(anecdote.id)}
-                    key={anecdote.id}
-                />
-            ))}
+            <div className="flex flex-col justify-center items-center gap-8">
+                <div className="grid grid-cols-3 w-fit gap-8">
+                    {anecdotes?.map((anecdote: AnecdoteBase) => (
+                        <Anecdote
+                            anecdote={{
+                                ...anecdote,
+                            }}
+                            saveAnecdote={() => handelSave(anecdote.id)}
+                            openPopup={() => handleOpenPopup(anecdote.id)}
+                            deleteAnecdote={() => handleDeleteAnecdote(anecdote.id)}
+                            key={anecdote.id}
+                        />
+                    ))}
+                </div>
+
+
+                <div className="flex w-full justify-center">
+                    {pagesAmount > 1 && <Pagination>
+                        <PaginationContent>
+                            {currentPage > 1 && (
+                                <PaginationItem onClick={() => setCurrentPage(currentPage - 1)}>
+                                    <PaginationLink href="#"> {'<'} </PaginationLink>
+                                </PaginationItem>
+                            )}
+
+                            {currentPage > 3 && <span>...</span>}
+
+                            {Array.from({ length: 3 }, (_, index) => {
+                                const page = Math.max(1, currentPage - 1) + index;
+                                if (page >= pagesAmount) return null;
+                                return (
+                                    <PaginationItem
+                                        key={page}
+                                        onClick={() => setCurrentPage(page)}
+                                        className={page === currentPage ? 'active' : ''}
+                                    >
+                                        <PaginationLink href="#" isActive={currentPage === page}>{page}</PaginationLink>
+                                    </PaginationItem>
+                                );
+                            })}
+
+                            {currentPage < pagesAmount - 2 && <span>...</span>}
+                            {currentPage < pagesAmount - 1 && (
+                                <PaginationItem onClick={() => setCurrentPage(pagesAmount - 1)}>
+                                    <PaginationLink href="#" isActive={currentPage === pagesAmount}>{pagesAmount - 1}</PaginationLink>
+                                </PaginationItem>
+                            )}
+                            <PaginationItem
+                                key={pagesAmount}
+                                onClick={() => setCurrentPage(pagesAmount)}
+                                className={currentPage === pagesAmount ? 'active' : ''}
+                            >
+                                <PaginationLink href="#" isActive={currentPage === pagesAmount}>{pagesAmount}</PaginationLink>
+                            </PaginationItem>
+
+                            {currentPage < pagesAmount && (
+                                <PaginationItem onClick={() => setCurrentPage(currentPage + 1)}>
+                                    <PaginationLink href="#"></PaginationLink>
+                                </PaginationItem>
+                            )}
+                        </PaginationContent>
+                    </Pagination>}
+                </div>
+            </div>
         </section>
     );
 };

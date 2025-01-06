@@ -3,31 +3,36 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import {Bookmark, MessageSquare, ThumbsDown, ThumbsUp, Trash} from "react-feather";
+import {Bookmark, MessageSquare, ThumbsDown, ThumbsUp, Trash2} from "react-feather";
 import {usePathname} from "next/navigation";
+import {useRequireAuth} from "@/hooks/useRequireAuth";
 
 const ActionButton = ({ onClick, className, variant, children }: {
     onClick?: (e: React.MouseEvent) => void,
     className?: string, variant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | null,
     children: React.ReactNode
-}) => (
-    <Button
-        onClick={e => {
-            e.stopPropagation();
-            onClick && onClick(e);
-        }}
-        variant={variant || 'default'}
-        className={`${className || ''}`}
-    >
-        {children}
-    </Button>
-);
+}) => {
+    return (
+            <Button
+                onClick={e => {
+                    e.stopPropagation();
+                    onClick && onClick(e);
+                }}
+                variant={variant || 'default'}
+                className={`${className || ''}`}
+            >
+                {children}
+            </Button>
+        )
 
-const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecdote: Anecdote, saveAnecdote: () => void, openPopup: () => void, deleteAnecdote?: () => void }) => {
+};
+
+const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecdote: AnecdoteBase, saveAnecdote: () => void, openPopup: () => void, deleteAnecdote?: (id: string) => void }) => {
     const { id, title, content, categories, isSaved} = anecdote;
     const pathname = usePathname();
     const [likeCount, setLikeCount] = useState(anecdote.likeCount);
     const [dislikeCount, setDislikeCount] = useState(anecdote.dislikeCount);
+    const cornerColors: string[] = ['#CFFCC0', '#BEAEFB', '#FF99C8']
 
     useEffect(() => {
         setLikeCount(anecdote.likeCount);
@@ -55,36 +60,41 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
             console.error('Error liking the anecdote:', error);
         }
     };
+    const { requireAuth, AuthModalComponent } = useRequireAuth();
+    const [cornerColor] = useState(cornerColors[Math.floor(Math.random() * cornerColors.length)]);
 
     return (
         <div className="group relative">
-            <Card className="relative w-[251px] h-fit cursor-pointer" onClick={openPopup}>
+            <Card
+                className="relative w-64 h-fit cursor-pointer shadow-[0px_7px_19.600000381469727px_-13px_rgba(0,0,0,0.25)]"
+                onClick={openPopup}>
                 <CardHeader>
-                    <CardTitle className="text-blackPrimary break-words text-base font-bold font-['Manrope']">{title}</CardTitle>
+                    <CardTitle
+                        className="text-blackPrimary break-words text-base font-bold font-['Manrope']">{title}</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-8">
                     <div
                         className="text-[#4b4b4b] text-sm break-words font-normal font-['Manrope'] leading-tight"
-                        dangerouslySetInnerHTML={{ __html: content }}
+                        dangerouslySetInnerHTML={{__html: content}}
                     />
 
                     <div className="flex items-center justify-end gap-2.5">
                         <ActionButton
-                            onClick={() => handleLike(true)}
+                            onClick={() => requireAuth(() => handleLike(true))}
                             variant="ghost"
                             className="flex h-fit p-0 gap-2 items-center"
                         >
-                            <ThumbsUp stroke="black" fill="white" /> {likeCount}
+                            <ThumbsUp stroke="black" fill="white"/> {likeCount}
                         </ActionButton>
                         <ActionButton
-                            onClick={() => handleLike(false)}
+                            onClick={() => requireAuth(() => handleLike(false))}
                             variant="ghost"
                             className="flex h-fit p-0 gap-2 items-center"
                         >
-                            <ThumbsDown /> {dislikeCount}
+                            <ThumbsDown/> {dislikeCount}
                         </ActionButton>
                         <div className="flex h-fit gap-2 pl-1 items-center">
-                            <MessageSquare className="w-4 h-5" />
+                            <MessageSquare className="w-4 h-5"/>
                             {anecdote.commentsAmount}
                         </div>
                     </div>
@@ -100,36 +110,43 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
                     {/*</ul>*/}
 
                     <ActionButton
-                        className="absolute bg-black hover:bg-initial rounded-[10px] border-none h-11 w-11 items-center justify-center -top-5 -right-5 p-0 hidden group-hover:flex"
+                        className="absolute bg-black hover:bg-initial rounded-[10px] border-none h-11 w-11 items-center justify-center -top-5 -right-5 p-0 opacity-0 group-hover:opacity-100 transition-all"
                         variant="outline"
-                        onClick={saveAnecdote}
+                        onClick={() => requireAuth(saveAnecdote)}
                     >
-                        <Bookmark fill={isSaved ? 'white' : 'black'} stroke="white" />
+                        <Bookmark fill={isSaved ? 'white' : 'black'} stroke="white"/>
                     </ActionButton>
                 </CardContent>
+
+                <div style={{borderRightColor: cornerColor}}
+                     className="w-0 h-0 border-t-[1rem] border-r-[1rem] border-t-transparent -rotate-90"></div>
+
+
             </Card>
             {
                 pathname === '/profile' && <Dialog>
                     <DialogTrigger asChild>
                         <ActionButton
-                            className="absolute bg-black hover:bg-initial rounded-[10px] border-none h-11 w-11 items-center justify-center -bottom-5 -left-5 p-0 hidden group-hover:flex"
+                            className="absolute bg-[#FFC7C7] hover:bg-initial rounded-2.5 border-none h-11 w-11 items-center justify-center -bottom-5 -left-5 p-0 opacity-0 group-hover:opacity-100 transition-all delay-100"
                             variant="outline"
                         >
-                            <Trash stroke='red' />
+                            <Trash2 stroke='red' />
                         </ActionButton>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>
                             <DialogTitle>Are you sure you want to delete?</DialogTitle>
                         </DialogHeader>
-                        <div>
-                            <Button onClick={deleteAnecdote}>
+                        {deleteAnecdote && <div>
+                            <Button onClick={() => requireAuth(() => deleteAnecdote(id))}>
                                 Delete
                             </Button>
-                        </div>
+                        </div>}
                     </DialogContent>
                 </Dialog>
             }
+
+            {AuthModalComponent}
         </div>
     );
 };

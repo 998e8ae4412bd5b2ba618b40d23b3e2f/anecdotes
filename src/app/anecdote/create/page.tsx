@@ -98,6 +98,14 @@ const Page = () => {
     const [categories, setCategories] = React.useState<Category[]>([])
     const [categoryToCreate, setCategoryToCreate] = useState<string>("")
     const [errorMessage, setErrorMessage] = useState<string>('');
+    const [anecdotePublishStatus, setAnecdotePublishStatus] = useState<string>('')
+
+    const [title, setTitle] = useState('');
+    const [editorState, setEditorState] = useState(() =>
+        EditorState.createWithContent(
+            ContentState.createFromText('')
+        )
+    );
 
     const handleSaveContent = (content: string, title: string) => {
         const contentState = convertFromRaw(JSON.parse(content));
@@ -125,9 +133,15 @@ const Page = () => {
     }
     const handleCreateCategory = async (title: string) => {
         try {
-            const {data} = await createCategory(title);
-            if (data.message === "category already exist") {
-                setErrorMessage("Category already exists");
+            const {data, message} = await createCategory(title);
+            if (message === "Category already exists") {
+                setErrorMessage("Категорія із таким іменем уже існує!, bitch");
+                setCategoryToCreate('')
+                return;
+            }
+
+            if (message === "Category title must be 10 characters or less") {
+                setErrorMessage("Максимальна кількість символів рівна 10 або менше");
                 setCategoryToCreate('')
                 return;
             }
@@ -140,7 +154,27 @@ const Page = () => {
             console.log(e)
         }
     }
+    const handlePublishAnecdote = async () => {
+        try {
+            const res = await publishAnecdote({
+                ...anecdoteDraft,
+                categories: anecdoteCategories
+            });
 
+            if (res.ok) {
+                setAnecdotePublishStatus('Щось пішло не так....');
+                return;
+            }
+
+            setTitle('');
+            setEditorState(EditorState.createEmpty());
+            setAnecdoteCategories([]);
+            setAnecdotePublishStatus('Щось пішло добре....');
+        } catch (error) {
+            console.error(error);
+            setAnecdotePublishStatus('Помилка публікації.');
+        }
+    };
     useEffect(() => {
         const fetchAnecdotes = async () => {
             try {
@@ -156,17 +190,11 @@ const Page = () => {
 
 
 
-    const [title, setTitle] = useState('');
-    const [editorState, setEditorState] = useState(() =>
-        EditorState.createWithContent(
-            ContentState.createFromText('')
-        )
-    );
-
-
     return (
-        <div className="flex w-full p-24 gap-8">
-            <div className="flex flex-1 flex-col gap-4">
+        <div className="flex w-full p-24 gap-8 justify-center">
+            <div className="flex flex-1 max-w-[569px] flex-col gap-4">
+                <h1 className="text-[#1e1e1e] text-[28px] font-bold font-['Manrope']">Створення анекдоту</h1>
+
                 <ArticleEditor
                     title={title}
                     setTitle={setTitle}
@@ -174,7 +202,7 @@ const Page = () => {
                     setEditorState={setEditorState}
                     onSave={handleSaveContent}/>
 
-                <div>
+                <div className="flex justify-between">
                     <Popover open={openCategorySelect} onOpenChange={setOpenCategorySelect}>
                         <PopoverTrigger asChild>
                             <Button
@@ -182,15 +210,15 @@ const Page = () => {
                                 role="combobox"
                                 className="w-[200px] justify-between"
                             >
-                                Choose category
+                                Категорії
                                 <ChevronsUpDown className="opacity-50" />
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-[200px] p-0">
                             <Command>
-                                <CommandInput placeholder="Search framework..." />
+                                <CommandInput placeholder="Знайти категорію..." />
                                 <CommandList>
-                                    <CommandEmpty>No categories found.</CommandEmpty>
+                                    <CommandEmpty>Немає категорій...</CommandEmpty>
                                     <CommandGroup>
                                         {categories?.map((category: Category) => (
                                             <CommandItem
@@ -212,13 +240,13 @@ const Page = () => {
 
                     <Dialog open={openCategoryCreate} onOpenChange={setOpenCategoryCreate}>
                         <DialogTrigger asChild>
-                            <Button className="w-fit">Create category</Button>
+                            <Button className="w-fit">Створити власну</Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
-                            <DialogTitle>Create category</DialogTitle>
+                            <DialogTitle>Оберіть назву для категорії</DialogTitle>
                             <div className="text-red-700 text-[0.8rem]">{errorMessage && errorMessage}</div>
                             <Input
-                                placeholder="Category name"
+                                placeholder="Назва тут"
                                 className="font-semibold text-lg"
                                 value={categoryToCreate}
                                 onChange={(e) => setCategoryToCreate(e.target.value)}
@@ -229,7 +257,7 @@ const Page = () => {
                                 onClick={() => handleCreateCategory(categoryToCreate)}
                                 disabled={categoryToCreate === ''}
                             >
-                                Create
+                                Створити
                             </Button>
                         </DialogContent>
                     </Dialog>
@@ -248,8 +276,9 @@ const Page = () => {
                     }
                 </div>
 
-                <Button className="w-fit" onClick={() => publishAnecdote(anecdoteDraft)}
-                        disabled={isReadyToPublish}>Publish</Button>
+                <p>{anecdotePublishStatus !== '' && anecdotePublishStatus}</p>
+                <Button className="w-full" onClick={handlePublishAnecdote}
+                        disabled={isReadyToPublish}>Створити анекдот</Button>
             </div>
         </div>
     );

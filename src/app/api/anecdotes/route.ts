@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from "@/utils/connect";
 import {getAuthSession} from "@/lib/auth";
+import {transformAnecdotesWithStats} from "@/utils/transformAnecdotesWithStats";
 
 
 export const GET = async (req: NextRequest) => {
     try {
         const session = await getAuthSession();
 
-        const POST_PER_PAGE = 100;
+        const POST_PER_PAGE = 12;
         const url = new URL(req.url);
 
         const page = parseInt(url.searchParams.get("page") || "1", 10);
@@ -39,6 +40,7 @@ export const GET = async (req: NextRequest) => {
             };
         }
 
+
         const anecdotes = await prisma.anecdote.findMany({
             where: whereClause,
             take: POST_PER_PAGE,
@@ -51,25 +53,17 @@ export const GET = async (req: NextRequest) => {
             },
         });
 
-        const anecdotesWithCounts = anecdotes.map((anecdote) => {
-            const likeCount = anecdote.likes.filter(like => like.isLiked).length;
-            const dislikeCount = anecdote.likes.filter(like => !like.isLiked).length;
-            const isSavedByUser = anecdote.saved.some(save => save.userId === session?.user.id);
-
-            return {
-                id: anecdote.id,
-                title: anecdote.title,
-                content: anecdote.content,
-                likeCount,
-                dislikeCount,
-                categories: anecdote.categories,
-                isSaved: isSavedByUser,
-                commentsAmount: anecdote.Comment.length
-            };
+        const totalCount = await prisma.anecdote.count({
+            where: whereClause,
         });
 
+        const totalPages = Math.ceil(totalCount / POST_PER_PAGE);
+
+        const anecdotesWithCounts = transformAnecdotesWithStats(anecdotes, session?.user.id || '');
+
         return new NextResponse(JSON.stringify({
-            data: anecdotesWithCounts
+            data: anecdotesWithCounts,
+            totalPages
         }), { status: 200 });
     } catch (e) {
         console.log(e);

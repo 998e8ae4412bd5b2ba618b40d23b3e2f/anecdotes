@@ -1,7 +1,7 @@
 'use client'
-import React, {useState, useCallback, useEffect} from 'react';
+import React, { useCallback, useEffect} from 'react';
 import dynamic from 'next/dynamic';
-import { EditorState, ContentState, RichUtils, convertToRaw } from 'draft-js';
+import { EditorState, RichUtils, convertToRaw } from 'draft-js';
 import "draft-js/dist/Draft.css";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,43 +52,46 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({
 
     return (
         <Card className="w-full max-w-4xl">
-            <CardContent className="p-4 space-y-4">
+            <CardContent className="p-0">
                 <Input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Article Title"
-                    className="font-semibold text-lg"
+                    placeholder="Впишіть заголовок анекдота"
+                    className="font-semibold text-lg mb-5 h-12 rounded-4 p-4 border border-[#4b4b4b] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring"
                     required
                 />
-                <div className="flex gap-2">
+                <div className="flex gap-2 mb-1">
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         size="icon"
+                        className="p-0 w-6"
                         onClick={() => toggleStyle('BOLD')}
                     >
                         <Bold className="h-4 w-4"/>
                     </Button>
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         size="icon"
+                        className="p-0 w-6"
                         onClick={() => toggleStyle('ITALIC')}
                     >
                         <Italic className="h-4 w-4"/>
                     </Button>
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         size="icon"
+                        className="p-0 w-6"
                         onClick={() => toggleStyle('UNDERLINE')}
                     >
                         <Underline className="h-4 w-4"/>
                     </Button>
                 </div>
-                <div className="min-h-[200px] border rounded-md p-3 focus-within:ring-2 focus-within:ring-blue-500">
+                <div className="min-h-[200px] border border-[#4b4b4b]  rounded-md p-3  text-base focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring ">
                     <DraftEditor
                         editorState={editorState}
                         onChange={handleChange}
                         handleKeyCommand={handleKeyCommand}
-                        placeholder="Start writing your article..."
+                        placeholder="Впишіть анекдот"
                     />
                 </div>
             </CardContent>
