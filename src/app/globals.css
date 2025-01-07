@@ -74,6 +74,7 @@
 
 html, body {
   height: 100%;
+  background: rgba(225, 225, 225, 0.04);
 }
 
 body {
@@ -98,4 +99,17 @@ body {
 .scrollbar-hidden {
   -ms-overflow-style: none;  /* For Internet Explorer */
   scrollbar-width: none;  /* For Firefox */
+}
+
+
+
+.loader {
+  width: 40px;
+  aspect-ratio: 1;
+  background: #000;
+  animation: l1 1s infinite;
+}
+@keyframes l1 {
+  0%   {transform: perspective(150px) rotateX(  0deg)}
+  100% {transform: perspective(150px) rotateX(180deg)}
 }

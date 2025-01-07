@@ -45,10 +45,10 @@ const Header =  () => {
                 >Головна</Link>
                 <div
                     onClick={handleRandomAnecdote}
-                    className="flex gap-2 px-[20px] py-2.5 rounded-[10px] bg-random-anecdote-button-gradient"
+                    className="flex gap-2 cursor-pointer px-[20px] py-2.5 rounded-[10px] bg-random-anecdote-button-gradient"
                 >
                     Випадковий анекдоти
-                    <Box/>
+                    <img src="/random-joke-cube.svg" alt=""/>
                 </div>
                 <Link
                     href="/anecdote/create"

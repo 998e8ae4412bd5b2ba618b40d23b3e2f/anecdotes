@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import Image from "next/image";
-import AnecdotesGrid from "@/app/dashboard/(components)/AnecdotesGrid/AnecdotesGrid";
+import AnecdotesGrid from "@/components/AnecdotesGrid";
 import {Settings} from "react-feather";
 
 const getUser = async (id: string) => {
@@ -79,6 +79,7 @@ const Page = () => {
     });
     const [pagesAmount, setPagesAmount] = useState<number>(1);
     const [currentPage, setCurrentPage] = useState<number>(1)
+    const [loading, setLoading] = useState<boolean>(true)
 
     const handleUpdateUser = async () => {
         await updateUser(userEditData.name, userEditData.image)
@@ -93,11 +94,14 @@ const Page = () => {
 
         const fetchAnecdotes = async () => {
             try {
+                setLoading(true)
                 const userAnecdotes = await getAnecdotes(sessionData.user.id, currentPage, []);
                 setAnecdotes(userAnecdotes.data);
                 setPagesAmount(userAnecdotes.totalPages);
             } catch (error) {
                 console.error("Error fetching anecdotes:", error);
+            } finally {
+                setLoading(false)
             }
         };
         const fetchUser = async (id: string) => {
@@ -124,79 +128,83 @@ const Page = () => {
 
     return (
         <div className="flex gap-6">
-            <Card className="min-w-64 p-0">
-                <CardHeader className="p-6">
-                    <div className="">
-                        <Image
-                            className="w-full rounded-lg h-full inline object-cover aspect-square"
-                            src={isValidUrl(userEditData.image || image || ' ')}
-                            alt="kracen"
-                            width={100}
-                            height={100}
-                        />
-                    </div>
-                    {isEdit && <Input
-                        value={userEditData.image}
-                        onChange={(e) => setUserEditData({...userEditData, image: e.target.value})}
-                        placeholder={'url'}
-                        className="font-semibold text-lg"
-                        required
-                    />}
-                    <div>
-                        <span className="text-[#4c4c4c] text-xs font-light font-['Manrope']">Імя:</span>
-                        {!isEdit ? <p className='truncate'>{userEditData.name || name}</p> : <Input
-                            value={userEditData.name}
-                            onChange={(e) => setUserEditData({...userEditData, name: e.target.value})}
-                            placeholder={sessionData?.user.name || ''}
-                            className="font-semibold text-lg"
-                            required
-                        />}
-                    </div>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-3 p-0">
-                    <div className="w-full">
-                        {
-                            !isEdit ?
-                                <Button className="h-12 w-full" onClick={() => setIsEdit(!isEdit)}>
-                                    <Settings/>
-                                    Редагувати Інформацію
-                                </Button>
-                                : <div className="flex gap-4">
-                                    <Button
-                                        className="w-full"
-                                        onClick={handleUpdateUser}
-                                    >
-                                        Save
-                                    </Button>
-                                    <Button
-                                        className="w-full"
-                                        onClick={() => setIsEdit(false)}
-                                    >
-                                        Cancel
-                                    </Button>
-                                </div>
-                        }
-                    </div>
-                    {!isEdit && <Button variant='ghost' className="w-full p-0 text-[#d32e2e] text-xs font-light font-['Manrope']" onClick={() => signOut()}>Вийти з аккаунту</Button>}
-                </CardContent>
-                <CardFooter>
+            {
+                !loading ? <>
+                    <Card className="w-64  p-0">
+                        <CardHeader className="p-6">
+                            <div className="">
+                                <Image
+                                    className="w-full rounded-lg h-full inline object-cover aspect-square"
+                                    src={isValidUrl(userEditData.image || image || ' ')}
+                                    alt="kracen"
+                                    width={100}
+                                    height={100}
+                                />
+                            </div>
+                            {isEdit && <Input
+                                value={userEditData.image}
+                                onChange={(e) => setUserEditData({...userEditData, image: e.target.value})}
+                                placeholder={'url'}
+                                className="font-semibold text-lg"
+                                required
+                            />}
+                            <div>
+                                <span className="text-[#4c4c4c] text-xs font-light font-['Manrope']">Імя:</span>
+                                {!isEdit ? <p className='truncate'>{userEditData.name || name}</p> : <Input
+                                    value={userEditData.name}
+                                    onChange={(e) => setUserEditData({...userEditData, name: e.target.value})}
+                                    placeholder={sessionData?.user.name || ''}
+                                    className="font-semibold text-lg"
+                                    required
+                                />}
+                            </div>
+                        </CardHeader>
+                        <CardContent className="flex flex-col gap-3 p-0">
+                            <div className="w-full">
+                                {
+                                    !isEdit ?
+                                        <Button className="h-12 w-full" onClick={() => setIsEdit(!isEdit)}>
+                                            <Settings/>
+                                            Редагувати Інформацію
+                                        </Button>
 
-                </CardFooter>
-            </Card>
+                                        : <div className="flex gap-4">
+                                            <Button
+                                                className="w-full"
+                                                onClick={handleUpdateUser}
+                                            >
+                                                Save
+                                            </Button>
+                                            <Button
+                                                className="w-full"
+                                                onClick={() => setIsEdit(false)}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </div>
+                                }
+                            </div>
+                            {!isEdit && <Button variant='ghost' className="w-full p-0 text-[#d32e2e] text-xs font-light font-['Manrope']" onClick={() => signOut()}>Вийти з аккаунту</Button>}
+                        </CardContent>
+                        <CardFooter>
 
-            <section className="">
-                <h1 className="text-[#1e1e1e] text-2xl font-extrabold font-['Manrope'] leading-[30px] mb-4 pl-2">Мої
-                    анекдоти</h1>
-                <Suspense fallback={<div>Loading...</div>}>
-                <AnecdotesGrid
-                    currentPage={currentPage}
-                    pagesAmount={pagesAmount}
-                    setCurrentPage={setCurrentPage}
-                    anecdotes={anecdotes}
-                    setAnecdotes={setAnecdotes}
-                />
-                </Suspense>
-            </section>
+                        </CardFooter>
+                    </Card>
+                    <section className="pb-12">
+                        <h1 className="text-[#1e1e1e] text-2xl font-extrabold font-['Manrope'] leading-[30px] mb-4 pl-2">Мої
+                            анекдоти</h1>
+                        <Suspense fallback={<div>Loading...</div>}>
+                            <AnecdotesGrid
+                                currentPage={currentPage}
+                                pagesAmount={pagesAmount}
+                                setCurrentPage={setCurrentPage}
+                                anecdotes={anecdotes}
+                                setAnecdotes={setAnecdotes}
+                            />
+                        </Suspense>
+                    </section>
+                </> : <div className="loader absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+            }
         </div>
     );
 };

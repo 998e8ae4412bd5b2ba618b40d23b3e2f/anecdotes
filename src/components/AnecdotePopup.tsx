@@ -73,6 +73,7 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
     };
 
     const handlePostComment = async () => {
+        if (commentContent === '') return
         const response = await postComment(commentContent, anecdoteId);
         const comment = response.data;
 
@@ -124,7 +125,7 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
         <section className="flex justify-between gap-24 h-full w-full fixed top-0 left-0 bg-[rgba(30,30,30,0.83)] px-12 z-10">
             <Add />
 
-            <div className="flex flex-col w-full max-w-[600px] py-40 overflow-y-auto scrollbar-hidden">
+            {anecdote ? <div className="flex flex-col w-full max-w-[600px] py-40 overflow-y-auto scrollbar-hidden">
                 <div className="relative mb-6">
                     <div className="bg-white p-6">
                         <div onClick={closePopup}
@@ -213,7 +214,7 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                             ))}
                     </div>
                 </div>
-            </div>
+            </div> : <div className="loader absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"/>}
 
             <Add/>
         </section>

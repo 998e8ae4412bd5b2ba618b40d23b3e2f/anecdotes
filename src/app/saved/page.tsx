@@ -1,6 +1,6 @@
 'use client'
 import React, {Suspense, useEffect, useState} from 'react';
-import AnecdotesGrid from "@/app/dashboard/(components)/AnecdotesGrid/AnecdotesGrid";
+import AnecdotesGrid from "@/components/AnecdotesGrid";
 
 const getAnecdotes = async (page: number, categories: string[]) => {
     try {

@@ -1,7 +1,7 @@
 'use client';
 
 import React, {Suspense, useEffect, useState} from 'react';
-import AnecdotesGrid from "@/app/dashboard/(components)/AnecdotesGrid/AnecdotesGrid";
+import AnecdotesGrid from "@/components/AnecdotesGrid";
 import { Button } from "@/components/ui/button";
 
 const getData = async () => {
@@ -46,26 +46,37 @@ const Page = () => {
     const [pagesAmount, setPagesAmount] = useState<number>(0);
     const [currentPage, setCurrentPage] = useState<number>(1)
     const categoriesColors = ['#beaefb', '#fccdf1', '#f6c4cf'];
+    const [loading, setLoading] = useState({
+        categories: true,
+        anecdotes: true
+    });
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoading(prev => ({ ...prev, categories: true}));
                 const data = await getData();
                 setCategories(data);
             } catch (error) {
                 console.error("Error fetching categories:", error);
+            } finally {
+                setLoading(prev => ({ ...prev, categories: false}));
             }
         };
         fetchData();
     }, []);
+
     useEffect(() => {
         const fetchAnecdotes = async () => {
             try {
+                setLoading(prev => ({ ...prev, anecdotes: true }));
                 const userAnecdotes = await getAnecdotes(currentPage, selectedCategories);
                 setAnecdotes(userAnecdotes.data);
                 setPagesAmount(userAnecdotes.totalPages);
             } catch (error) {
                 console.error("Error fetching anecdotes:", error);
+            } finally {
+                setLoading(prev => ({ ...prev, anecdotes: false }));
             }
         };
         fetchAnecdotes();
@@ -107,7 +118,7 @@ const Page = () => {
                             Топ категорії
                         </span>
 
-                    <ul className="flex flex-col gap-1.5">
+                    {(!loading.anecdotes && !loading.categories) && <ul className="flex flex-col gap-1.5">
                         {
                             categories.slice(0, 3).map((item: Category, i: number) => {
                                 const categoryColor = selectedCategories.includes(item.title) ? 'black' : categoriesColors[i];
@@ -124,13 +135,12 @@ const Page = () => {
                                 );
                             })
                         }
-
-                    </ul>
+                    </ul>}
                 </div>
 
                 <ul className="flex flex-wrap gap-x-5 gap-y-2.5 mb-2.5">
                     {
-                        categories.slice(4, 50).map((item: Category) => {
+                        (!loading.anecdotes && !loading.categories) ? categories.slice(4, 50).map((item: Category) => {
                             return (
                                 <li
                                     className={`rounded-[12px] px-2 text-blackPrimary text-sm font-normal font-['Manrope'] leading-[30px] cursor-pointer   ${selectedCategories.includes(item.title) ? 'bg-black text-white' : ''}`}
@@ -140,7 +150,7 @@ const Page = () => {
                                     {item.title}
                                 </li>
                             );
-                        })
+                        }) : <div className="loader"></div>
                     }
                 </ul>
 
@@ -154,8 +164,8 @@ const Page = () => {
                 {/*</Button>*/}
             </div>
 
-            <section className="pb-16">
-                <Suspense fallback={<div>Loading...</div>}>
+            <section className="relative w-full pb-16">
+                {(!loading.anecdotes && !loading.categories) ? <Suspense fallback={<div>Loading...</div>}>
                     <AnecdotesGrid
                         currentPage={currentPage}
                         pagesAmount={pagesAmount}
@@ -163,7 +173,7 @@ const Page = () => {
                         anecdotes={anecdotes}
                         setAnecdotes={setAnecdotes}
                     />
-                </Suspense>
+                </Suspense> : <div className="loader absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>}
             </section>
         </div>
     );

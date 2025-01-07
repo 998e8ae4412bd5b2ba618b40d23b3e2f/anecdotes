@@ -64,7 +64,7 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
     const [cornerColor] = useState(cornerColors[Math.floor(Math.random() * cornerColors.length)]);
 
     return (
-        <div className="group relative">
+        <div className="group relative h-fit">
             <Card
                 className="relative w-64 h-fit cursor-pointer shadow-[0px_7px_19.600000381469727px_-13px_rgba(0,0,0,0.25)]"
                 onClick={openPopup}>
