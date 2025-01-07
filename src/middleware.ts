@@ -5,7 +5,7 @@ export async function middleware(request: NextRequest) {
     const protectedRoutes = ['/anecdote/create', '/profile'];
 
     if (protectedRoutes.some((route) => request.nextUrl.pathname.startsWith(route))) {
-        const token = request.cookies.get('next-auth.session-token')?.value;
+        const token = request.cookies.get('__Secure-next-auth.session-token')?.value || request.cookies.get('next-auth.session-token')?.value;
 
         if (!token) {
             const loginUrl = new URL('/auth/login', request.url);
@@ -17,5 +17,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/anecdote/create/:path*', '/profile/:path*']
+    matcher: ['/anecdote/create/:path*', '/profile/:path*'],
 };

@@ -72,7 +72,7 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
                     <CardTitle
                         className="text-blackPrimary break-words text-base font-bold font-['Manrope']">{title}</CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-8">
+                <CardContent className="flex flex-col gap-8 py-0">
                     <div
                         className="text-[#4b4b4b] text-sm break-words font-normal font-['Manrope'] leading-tight"
                         dangerouslySetInnerHTML={{__html: content}}

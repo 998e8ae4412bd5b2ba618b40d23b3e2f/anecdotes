@@ -8,6 +8,7 @@ import {Input} from "@/components/ui/input";
 import Image from "next/image";
 import AnecdotesGrid from "@/components/AnecdotesGrid";
 import {Settings} from "react-feather";
+import Loader from "@/components/Loaders/Loader";
 
 const getUser = async (id: string) => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/user?userId=${id}`);
@@ -203,7 +204,7 @@ const Page = () => {
                             />
                         </Suspense>
                     </section>
-                </> : <div className="loader absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                </> : <Loader className="loader absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></Loader>
             }
         </div>
     );

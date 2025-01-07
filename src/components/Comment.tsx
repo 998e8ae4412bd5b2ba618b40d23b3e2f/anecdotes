@@ -50,7 +50,7 @@ const Comment: React.FC<CommentProps> = ({ user, content, date }) => {
             </div>
             <div>
                 <div
-                    className="text-base font-normal mb-14"
+                    className="text-base font-normal "
                     dangerouslySetInnerHTML={{ __html: content }}
                 />
             </div>

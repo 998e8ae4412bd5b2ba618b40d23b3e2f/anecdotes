@@ -92,7 +92,6 @@ body {
 
 
 
-/* Hide the scrollbar but keep scrolling */
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
 }
@@ -102,14 +101,199 @@ body {
 }
 
 
+/* PACMAN LOADER */
 
-.loader {
-  width: 40px;
-  aspect-ratio: 1;
-  background: #000;
-  animation: l1 1s infinite;
+.loader{position:absolute;top:50%;left:50%;height:60px;width:160px;margin:0;-webkit-transform:translate(-50%,-50%);transform:translate(-50%,-50%)}
+.circles{position:absolute;left:-5px;top:0;height:60px;width:180px}
+.circles span{position:absolute;top:25px;height:12px;width:12px;border-radius:12px;background-color: #ff99c8
 }
-@keyframes l1 {
-  0%   {transform: perspective(150px) rotateX(  0deg)}
-  100% {transform: perspective(150px) rotateX(180deg)}
+.circles span.one{right:80px}
+.circles span.two{right:40px}
+.circles span.three{right:0px}
+.circles{-webkit-animation:animcircles 0.5s infinite linear;animation:animcircles 0.5s infinite linear}
+@-webkit-keyframes animcircles{0%{-webkit-transform:translate(0px,0px);transform:translate(0px,0px)}100%{-webkit-transform:translate(-40px,0px);transform:translate(-40px,0px)}}
+@keyframes animcircles{0%{-webkit-transform:translate(0px,0px);transform:translate(0px,0px)}100%{-webkit-transform:translate(-40px,0px);transform:translate(-40px,0px)}}
+.pacman{position:absolute;left:0;top:0;height:60px;width:60px}
+.pacman .eye{position:absolute;top:10px;left:25px;height:7px;width:7px;border-radius:7px;background-color: #ffffff
+}
+.pacman span{position:absolute;top:0;left:0;height:60px;width:60px}
+.pacman span::before{content:"";position:absolute;left:0;height:30px;width:60px;background-color: #1e1e1e
+}
+.pacman .top::before{top:0;border-radius:60px 60px 0px 0px}
+.pacman .bottom::before{bottom:0;border-radius:0px 0px 60px 60px}
+.pacman .left::before{bottom:0;height:60px;width:30px;border-radius:60px 0px 0px 60px}
+.pacman .top{-webkit-animation:animtop 0.5s infinite;animation:animtop 0.5s infinite}
+@-webkit-keyframes animtop{0%,100%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}50%{-webkit-transform:rotate(-45deg);transform:rotate(-45deg)}}
+@keyframes animtop{0%,100%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}50%{-webkit-transform:rotate(-45deg);transform:rotate(-45deg)}}
+.pacman .bottom{-webkit-animation:animbottom 0.5s infinite;animation:animbottom 0.5s infinite}
+@-webkit-keyframes animbottom{0%,100%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}50%{-webkit-transform:rotate(45deg);transform:rotate(45deg)}}
+@keyframes animbottom{0%,100%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}50%{-webkit-transform:rotate(45deg);transform:rotate(45deg)}}
+
+
+/* DICE */
+
+
+
+
+
+
+.dice-section {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  height: 100%;
+  width: 100%;
+  z-index: -1;
+  background: linear-gradient(235deg, rgba(246, 196, 207, 0.20) -3.13%, rgba(246, 196, 207, 0.20) 94.3%), linear-gradient(115deg, rgba(250, 200, 180, 0.40) -4%, rgba(255, 153, 200, 0.40) 50.48%, rgba(190, 174, 251, 0.40) 111.46%);
+}
+
+.dice-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 270px;
+  height: 270px;
+  border-radius: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, .1);
+  background: white;
+  padding-top: 20px;
+}
+
+.dice {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  transform-style: preserve-3d;
+  transition: 1s ease;
+}
+
+@keyframes rolling {
+  50% {
+    transform: rotateX(455deg) rotateY(455deg);
+  }
+}
+
+.face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  border: 5px solid #f6f3f0;
+  transform-style: preserve-3d;
+  /*background: linear-gradient(*/
+  /*        145deg, #dddbd8, #fff*/
+  /*);*/
+}
+
+.face::before {
+  position: absolute;
+  content: '';
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  background: #f6f3f0;
+  transform: translateZ(-1px);
+}
+
+.face::after {
+  position: absolute;
+  content: '';
+  top: 50%;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #131210;
+}
+
+.front {
+  transform: translateZ(50px);
+}
+
+.back {
+  transform: rotateX(180deg) translateZ(50px);
+}
+
+.top {
+  transform: rotateX(90deg) translateZ(50px);
+}
+
+.bottom {
+  transform: rotateX(-90deg) translateZ(50px);
+}
+
+.right {
+  transform: rotateY(90deg) translateZ(50px);
+}
+
+.left {
+  transform: rotateY(-90deg) translateZ(50px);
+}
+
+.front::after {
+  width: 30px;
+  height: 30px;
+  background: #000000;
+  margin: -15px 0 0 -15px;
+}
+
+.back::after {
+  margin: -35px 0 0 -30px;
+  box-shadow: 40px 0,
+  0 25px,
+  40px 25px,
+  0 50px,
+  40px 50px;
+}
+
+.top::after {
+  margin: -30px 0 0 -30px;
+  box-shadow: 40px 40px;
+}
+
+.bottom::after {
+  margin: -36px 0 0 -36px;
+  box-shadow: 26px 26px,
+  52px 52px,
+  52px 0,
+  0 52px;
+}
+
+.right::after {
+  margin: -30px 0 0 -30px;
+  box-shadow: 40px 0,
+  0 40px,
+  40px 40px;
+}
+
+.left::after {
+  margin: -35px 0 0 -35px;
+  box-shadow: 25px 25px,
+  50px 50px;
+}
+
+/*
+    Roll Button styles
+*/
+
+.roll {
+  cursor: pointer;
+  color: #b33951;
+  margin-top: 60px;
+  padding: 6px 12px;
+  border-radius: 3px;
+  font: 700 16px 'Montserrat';
+  border: 2px solid #b33951;
+  transition: .4s;
+}
+
+.roll:hover {
+  color: #fff;
+  background: #b33951;
 }

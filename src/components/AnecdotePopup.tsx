@@ -4,6 +4,8 @@ import {Bookmark, HelpCircle, Send, ThumbsUp, X} from 'react-feather';
 import {Input} from "@/components/ui/input";
 import Comment from "@/components/Comment"
 import {usePathname} from "next/navigation";
+import Loader from "@/components/Loaders/Loader";
+import Dice from "@/components/Loaders/Dice";
 
 const fetchAnecdote = async (id: string): Promise<Anecdote> => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes/${id}`);
@@ -44,6 +46,7 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
     const pathname = usePathname();
     const cornerColors: string[] = ['#CFFCC0', '#BEAEFB', '#FF99C8']
     const [cornerColor] = useState(cornerColors[Math.floor(Math.random() * cornerColors.length)]);
+    const [show, setShow] = useState<boolean>(false)
 
     const handleLike = async (isLiked: boolean) => {
         try {
@@ -121,11 +124,17 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
         }
     }, [anecdoteId]);
 
+    useEffect(() => {
+        setTimeout(() => {
+            setShow(true)
+        }, 2000)
+    }, []);
+
     return (
         <section className="flex justify-between gap-24 h-full w-full fixed top-0 left-0 bg-[rgba(30,30,30,0.83)] px-12 z-10">
             <Add />
 
-            {anecdote ? <div className="flex flex-col w-full max-w-[600px] py-40 overflow-y-auto scrollbar-hidden">
+            {anecdote && show ? <div className="flex flex-col w-full max-w-[600px] py-40 overflow-y-auto scrollbar-hidden">
                 <div className="relative mb-6">
                     <div className="bg-white p-6">
                         <div onClick={closePopup}
@@ -185,16 +194,20 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                     })
                 }
 
-                <div className="px-6 pt-6 bg-white rounded-[20px] rounded-tr-[20px]">
-                    <div className="flex justify-between mb-5">
-                        <h4>Коментарі ({anecdote?.comments.length})</h4>
+                <div className="px-6 py-6 bg-white rounded-[20px] rounded-tr-[20px]">
+                    <div className="flex justify-between mb-5 text-[#1e1e1e] text-base font-bold font-['Manrope'] leading-[30px]">
+                        <h4>
+                            {
+                                anecdote?.comments.length === 0 ? 'Напишіть перший коментар!' : `Коментарі (${anecdote?.comments.length})`
+                            }
+                        </h4>
 
-                        <div className="flex gap-2 items-center">
+                        <div className="flex gap-2 items-center text-[#616161] text-xs font-medium font-['Manrope'] leading-tight">
                             Правила чату
                             <HelpCircle className="w-4 h-4"/>
                         </div>
                     </div>
-                    <div className="flex items-center gap-6 mb-3.5">
+                    <div className="flex items-center gap-6">
                         <Input
                             className="h-[50px]"
                             placeholder="Напишіть коментар коментар"
@@ -206,7 +219,7 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                             <Send/>
                         </div>
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-16 mt-3.5">
                         {anecdote &&
                             anecdote.comments.map((comment: Comment) => (
                                 <Comment key={comment.id} user={comment.user} content={comment.content}
@@ -214,7 +227,7 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                             ))}
                     </div>
                 </div>
-            </div> : <div className="loader absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"/>}
+            </div> : <Dice/>}
 
             <Add/>
         </section>
