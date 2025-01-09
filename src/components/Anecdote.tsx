@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import {Bookmark, MessageSquare, ThumbsDown, ThumbsUp, Trash2} from "react-feather";
+import {Bookmark, MessageSquare, MoreVertical, ThumbsDown, ThumbsUp, Trash2} from "react-feather";
 import {usePathname} from "next/navigation";
 import {useRequireAuth} from "@/hooks/useRequireAuth";
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 
 const ActionButton = ({ onClick, className, variant, children }: {
     onClick?: (e: React.MouseEvent) => void,
@@ -64,13 +65,27 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
     const [cornerColor] = useState(cornerColors[Math.floor(Math.random() * cornerColors.length)]);
 
     return (
-        <div className="group relative h-fit">
+        <div className="group relative h-fit w-full lg:w-fit">
             <Card
-                className="relative w-64 h-fit cursor-pointer shadow-[0px_7px_19.600000381469727px_-13px_rgba(0,0,0,0.25)]"
+                className="relative w-full lg:w-64 h-fit cursor-pointer shadow-[0px_7px_19.600000381469727px_-13px_rgba(0,0,0,0.25)]"
                 onClick={openPopup}>
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle
-                        className="text-blackPrimary break-words text-base font-bold font-['Manrope']">{title}</CardTitle>
+                        className="text-blackPrimary w-fit break-words text-base font-bold font-['Manrope']">{title}</CardTitle>
+
+                    <div className="block w-fit lg:hidden" onClick={(e) => e.stopPropagation()}>
+                        <Popover>
+                            <PopoverTrigger>
+                                    <MoreVertical/>
+                            </PopoverTrigger>
+                            <PopoverContent className="absolute p-3 -top-10 right-4 w-fit">
+                                <div className="flex gap-1 items-center" onClick={() => requireAuth(saveAnecdote)}>
+                                    <Bookmark fill={isSaved ? 'white' : 'black'} stroke={isSaved ? 'black' : 'white'}/>
+                                    Save
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-8 py-0">
                     <div
@@ -110,7 +125,7 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
                     {/*</ul>*/}
 
                     <ActionButton
-                        className="absolute bg-black hover:bg-initial rounded-[10px] border-none h-11 w-11 items-center justify-center -top-5 -right-5 p-0 opacity-0 group-hover:opacity-100 transition-all"
+                        className="hidden md:block absolute bg-black hover:bg-initial rounded-[10px] border-none h-11 w-11 items-center justify-center -top-5 -right-5 p-0 opacity-0 group-hover:opacity-100 transition-all"
                         variant="outline"
                         onClick={() => requireAuth(saveAnecdote)}
                     >
@@ -120,9 +135,13 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
 
                 <div style={{borderRightColor: cornerColor}}
                      className="w-0 h-0 border-t-[1rem] border-r-[1rem] border-t-transparent -rotate-90"></div>
-
-
             </Card>
+
+
+
+
+
+
             {
                 pathname === '/profile' && <Dialog>
                     <DialogTrigger asChild>

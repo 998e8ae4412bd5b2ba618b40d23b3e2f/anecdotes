@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Loader = ({ className }: { className: string }) => {
+const Loader = ({ className }: { className?: string }) => {
     return (
         <div className={`loader ${className}`}>
             <div className="circles">

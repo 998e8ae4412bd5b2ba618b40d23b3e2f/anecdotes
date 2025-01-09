@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {Bookmark, HelpCircle, Send, ThumbsUp, X} from 'react-feather';
 import {Input} from "@/components/ui/input";
 import Comment from "@/components/Comment"
-import {usePathname} from "next/navigation";
+import {usePathname, useSearchParams} from "next/navigation";
 import Loader from "@/components/Loaders/Loader";
 import Dice from "@/components/Loaders/Dice";
 
@@ -47,6 +47,8 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
     const cornerColors: string[] = ['#CFFCC0', '#BEAEFB', '#FF99C8']
     const [cornerColor] = useState(cornerColors[Math.floor(Math.random() * cornerColors.length)]);
     const [show, setShow] = useState<boolean>(false)
+    const urlParams = new URLSearchParams(window.location.search);
+    const isRandom = urlParams.get('isRandom');
 
     const handleLike = async (isLiked: boolean) => {
         try {
@@ -120,7 +122,8 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
 
         getAnecdote();
         if (pathname === '/dashboard') {
-            window.history.replaceState({}, '', `${process.env.NEXT_PUBLIC_URL}/dashboard/?id=${anecdoteId}`);
+            const isReadyUrl = isRandom ? "&isRandom=true" : "";
+            window.history.replaceState({}, '', `${process.env.NEXT_PUBLIC_URL}/dashboard/?id=${anecdoteId}${isReadyUrl}`);
         }
     }, [anecdoteId]);
 
@@ -131,12 +134,11 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
     }, []);
 
     return (
-        <section className="flex justify-between gap-24 h-full w-full fixed top-0 left-0 bg-[rgba(30,30,30,0.83)] px-12 z-10">
-            <Add />
-
-            {anecdote && show ? <div className="flex flex-col w-full max-w-[600px] py-40 overflow-y-auto scrollbar-hidden">
+        <section className="flex justify-between gap-24 h-full w-full fixed top-0 left-0 bg-[rgba(30,30,30,0.83)] px-4 md:px-12 z-10">
+            <div className="hidden ms:block"/>
+            {anecdote && show ? <div className="flex flex-col w-full max-w-[600px] pt-20 pb-10 md:py-40 overflow-y-auto scrollbar-hidden">
                 <div className="relative mb-6">
-                    <div className="bg-white p-6">
+                    <div className="bg-white px-6 pt-6 pb-2">
                         <div onClick={closePopup}
                              className="absolute p-2.5 bg-white rounded-[10px] top-[-60px] left-[0px] cursor-pointer">
                             <X/>
@@ -207,9 +209,9 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                             <HelpCircle className="w-4 h-4"/>
                         </div>
                     </div>
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2 md:gap-6">
                         <Input
-                            className="h-[50px]"
+                            className="h-[50px] rounded-2.5 border-[#4b4b4b] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring"
                             placeholder="Напишіть коментар коментар"
                             value={commentContent}
                             onChange={(e) => setCommentContent(e.target.value)}
@@ -219,7 +221,7 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                             <Send/>
                         </div>
                     </div>
-                    <div className="flex flex-col gap-16 mt-3.5">
+                    <div className="flex flex-col gap-6 md:gap-16 mt-6 md:mt-3.5">
                         {anecdote &&
                             anecdote.comments.map((comment: Comment) => (
                                 <Comment key={comment.id} user={comment.user} content={comment.content}
@@ -227,9 +229,8 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                             ))}
                     </div>
                 </div>
-            </div> : <Dice/>}
-
-            <Add/>
+            </div> : isRandom ? <Dice/> : <Loader/>}
+            <div className="hidden ms:block"/>
         </section>
     );
 };

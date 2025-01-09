@@ -29,9 +29,9 @@ const formatDate = (dateString: string): string => {
         return `Yesterday at ${formatTime(date)}`;
     }
 
-    // For other dates, use a long date format
+    // For other dates, use a short month format
     return date.toLocaleDateString('en-US', {
-        month: 'long',
+        month: 'short',
         day: 'numeric',
         year: 'numeric',
         hour: 'numeric',
@@ -39,18 +39,20 @@ const formatDate = (dateString: string): string => {
         hour12: false,
     });
 };
+
+
 const Comment: React.FC<CommentProps> = ({ user, content, date }) => {
     const formattedDate = formatDate(date);
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 border-[#E8E8E8] border-1 border-b pb-4">
             <div className="flex justify-between items-center text-[#4b4b4b] text-sm font-medium">
-                <div>#{user}</div>
-                <div>{formattedDate}</div>
+                <div className="text-[#4b4b4b] text-sm font-medium font-['Manrope'] leading-tight">#{user}</div>
+                <div className="text-[#8e8e8e] text-xs font-medium font-['Manrope'] leading-tight">{formattedDate}</div>
             </div>
             <div>
                 <div
-                    className="text-base font-normal "
+                    className="text-black text-sm font-normal font-['Manrope'] leading-tight"
                     dangerouslySetInnerHTML={{ __html: content }}
                 />
             </div>

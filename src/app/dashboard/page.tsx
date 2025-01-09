@@ -17,6 +17,7 @@ const getData = async () => {
     const { data } = await res.json();
     return data;
 };
+
 const getAnecdotes = async (page: number, categories: string[]) => {
     const categoryParams = categories.length > 0 ? `&categories=${categories.join(',')}` : '';
     try {
@@ -95,12 +96,12 @@ const Page = () => {
     };
 
     return (
-        <div className="flex mx-auto gap-5 mt-11">
+        <div className="flex flex-col sm:flex-row mx-auto gap-5 md:gap-5 md:mt-11">
             {
                 (!loading.anecdotes && !loading.anecdotes) ?
                 <>
-                    <div className="w-full max-w-64">
-                        <div className="flex flex-col gap-6 mb-3.5">
+                    <div className="w-full sm:max-w-64 mb-4 md:mb-0">
+                        <div className="flex flex-col gap-2 md:gap-6 mb-2">
                         <span
                             className="text-blackPrimary text-2xl font-extrabold font-['Manrope'] leading-[30px]"
                         >
@@ -116,11 +117,11 @@ const Page = () => {
                         </div>
 
                         <div className="mb-2.5">
-                        <span
-                            className="text-blackPrimary text-xs font-semibold font-['Manrope'] leading-[15px]"
-                        >
-                            Топ категорії
-                        </span>
+                            <span
+                                className="text-blackPrimary text-xs font-semibold font-['Manrope'] leading-[15px] mb-1.5 block"
+                            >
+                                Топ категорії
+                            </span>
 
                             {(!loading.anecdotes && !loading.categories) && <ul className="flex flex-col gap-1.5">
                                 {

@@ -92,6 +92,7 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
         }
     }, [searchParams]);
 
+
     return (
         <section className="flex">
             {openAnecdotePopup &&
@@ -102,8 +103,8 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
                     closePopup={handleClosePopup}
                     saveAnecdote={handelSave}
                 />}
-            <div className="flex flex-col justify-center items-center gap-8">
-                <div className="grid grid-cols-3 grid-rows-4 w-fit gap-8 min-h-[1000px]">
+            <div className="flex flex-col justify-start items-start gap-8 w-full lg:w-fit ">
+                <div className="grid  sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 w-full md:w-fit gap-8 min-h-[1000px]">
                     {anecdotes?.map((anecdote: AnecdoteBase) => (
                         <Anecdote
                             anecdote={{
@@ -121,24 +122,8 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
                 <div className="flex w-full justify-center">
                     {pagesAmount > 1 && <Pagination>
                         <PaginationContent>
-                            {currentPage > 1 && (
-                                <PaginationItem onClick={() => setCurrentPage(currentPage - 1)}>
-                                    <PaginationLink href="#">{'<'}</PaginationLink>
-                                </PaginationItem>
-                            )}
-
-                            {currentPage > 2 && (
-                                <>
-                                    <PaginationItem onClick={() => setCurrentPage(1)}>
-                                        <PaginationLink href="#" isActive={currentPage === 1}>1</PaginationLink>
-                                    </PaginationItem>
-                                    {currentPage > 3 && <span>...</span>}
-                                </>
-                            )}
-
                             {Array.from({ length: 3 }, (_, index) => {
-                                const page = Math.max(2, currentPage - 1) + index;
-                                if (page >= pagesAmount) return null; // Avoid rendering out-of-bounds pages
+                                const page = index + 1;
                                 return (
                                     <PaginationItem
                                         key={page}
@@ -149,20 +134,6 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
                                     </PaginationItem>
                                 );
                             })}
-
-                            {currentPage < pagesAmount - 2 && <span>...</span>}
-                            {currentPage < pagesAmount && (
-                                <PaginationItem onClick={() => setCurrentPage(pagesAmount)}>
-                                    <PaginationLink href="#" isActive={currentPage === pagesAmount}>{pagesAmount}</PaginationLink>
-                                </PaginationItem>
-                            )}
-
-                            {currentPage < pagesAmount && (
-                                <PaginationItem onClick={() => setCurrentPage(currentPage + 1)}>
-                                    <PaginationLink href="#">{'>'}</PaginationLink>
-                                </PaginationItem>
-                            )}
-
                         </PaginationContent>
                     </Pagination>}
                 </div>

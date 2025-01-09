@@ -3,16 +3,46 @@ import {prisma} from "@/utils/connect";
 import {getAuthSession} from "@/lib/auth";
 import {transformAnecdotesWithStats} from "@/utils/transformAnecdotesWithStats";
 
-export const GET = async() => {
+export const GET = async(req: NextRequest) => {
     try {
         const session = await getAuthSession();
+        const url = new URL(req.url);
+        const categories = url.searchParams.get("categories")?.split(',') || [];
 
         if (!session) {
             return new NextResponse(JSON.stringify({message: "Unauthorized"}), {status: 401});
         }
 
-        const savedAnecdotes  = await prisma.saved.findMany({
-            where: {userId: session.user.id},
+        // Build the where clause for the Saved model
+        const whereClause: {
+            userId: string;
+            anecdote: {
+                categories?: {
+                    some: {
+                        title: {
+                            in: string[];
+                        };
+                    };
+                };
+            };
+        } = {
+            userId: session.user.id,
+            anecdote: {}
+        }
+
+        if (categories.length > 0) {
+            whereClause.anecdote.categories = {
+                some: {
+                    title: {
+                        in: categories
+                    }
+                }
+            };
+        }
+
+        // Fetch saved anecdotes for the user
+        const savedAnecdotes = await prisma.saved.findMany({
+            where: whereClause,
             include: {
                 anecdote: {
                     include: {
@@ -25,16 +55,18 @@ export const GET = async() => {
             }
         });
 
-        const anecdotes= savedAnecdotes.map(item => item.anecdote);
+        const anecdotes = savedAnecdotes.map(item => item.anecdote);
 
+        // Optionally transform anecdotes with stats
         const anecdotesWithCounts = transformAnecdotesWithStats(anecdotes, session.user.id);
 
         return new NextResponse(JSON.stringify({data: anecdotesWithCounts}), { status: 200 });
-    } catch(e) {
-        console.log(e)
-        return new NextResponse(JSON.stringify({message: 'smth went wrong'}), {status: 500})
+    } catch (e) {
+        console.log(e);
+        return new NextResponse(JSON.stringify({message: 'Something went wrong'}), {status: 500});
     }
-}
+};
+
 
 export const POST = async (req: NextRequest) => {
     try {
