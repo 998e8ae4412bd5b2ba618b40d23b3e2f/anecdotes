@@ -34,7 +34,7 @@ const Header =  () => {
             return;
         }
 
-    }, [status, sessionData?.user.id]);
+    }, [sessionStatus, sessionData?.user.id]);
 
     const handleRandomAnecdote = async () => {
         try {

@@ -136,7 +136,7 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
     console.log(anecdote)
 
     return (
-        <section className="flex justify-center gap-24 h-full w-full fixed top-0 left-0 bg-[rgba(30,30,30,0.83)] px-4 md:px-12 z-10">
+        <section className="flex justify-center gap-24 h-full w-full fixed top-0 left-0 bg-[rgba(30,30,30,0.83)] px-4 md:px-12 z-30">
             {/*<div className="block ms:hidden"/>*/}
             {anecdote && show ? <div className="flex flex-col w-full max-w-[600px] pt-20 pb-10 md:py-40 overflow-y-auto scrollbar-hidden">
                 <div className="relative mb-6">
