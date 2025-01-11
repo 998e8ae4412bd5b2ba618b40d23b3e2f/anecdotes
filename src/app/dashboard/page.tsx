@@ -131,7 +131,7 @@ const Page = () => {
                                         return (
                                             <li
                                                 style={{backgroundColor: categoryColor}}
-                                                className={`rounded-md px-6 py-1 text-blackPrimary text-sm font-normal font-['Manrope'] leading-[30px] cursor-pointer ${selectedCategories.includes(item.title) ? 'text-white' : ''}`}
+                                                className={`rounded-md px-6 py-1 text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-[30px] cursor-pointer ${selectedCategories.includes(item.title) ? 'text-white' : ''}`}
                                                 key={item.id}
                                                 onClick={() => handleCategorySelect(item.title)}
                                             >

@@ -81,7 +81,7 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
                             <PopoverContent className="absolute p-3 -top-10 right-4 w-fit">
                                 <div className="flex gap-1 items-center" onClick={() => requireAuth(saveAnecdote)}>
                                     <Bookmark fill={isSaved ? 'white' : 'black'} stroke={isSaved ? 'black' : 'white'}/>
-                                    Save
+                                    <span className="text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-tight">Зберегти</span>
                                 </div>
                             </PopoverContent>
                         </Popover>
@@ -125,7 +125,7 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
                     {/*</ul>*/}
 
                     <ActionButton
-                        className="hidden md:block absolute bg-black hover:bg-initial rounded-[10px] border-none h-11 w-11 items-center justify-center -top-5 -right-5 p-0 opacity-0 group-hover:opacity-100 transition-all"
+                        className="hidden md:flex absolute bg-black hover:bg-initial rounded-[10px] border-none h-11 w-11 items-center justify-center -top-5 -right-5 p-0 opacity-0 group-hover:opacity-100 transition-all"
                         variant="outline"
                         onClick={() => requireAuth(saveAnecdote)}
                     >
@@ -134,7 +134,7 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
                 </CardContent>
 
                 <div style={{borderRightColor: cornerColor}}
-                     className="w-0 h-0 border-t-[1rem] border-r-[1rem] border-t-transparent -rotate-90"></div>
+                     className="w-0 h-0 border-t-[1rem] border-r-[1rem] border-t-transparent -rotate-90"/>
             </Card>
 
 

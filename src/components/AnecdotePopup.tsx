@@ -121,7 +121,7 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
         };
 
         getAnecdote();
-        if (pathname === '/dashboard') {
+        if (pathname === '/()') {
             const isReadyUrl = isRandom ? "&isRandom=true" : "";
             window.history.replaceState({}, '', `${process.env.NEXT_PUBLIC_URL}/dashboard/?id=${anecdoteId}${isReadyUrl}`);
         }
@@ -133,9 +133,11 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
         }, 2000)
     }, []);
 
+    console.log(anecdote)
+
     return (
-        <section className="flex justify-between gap-24 h-full w-full fixed top-0 left-0 bg-[rgba(30,30,30,0.83)] px-4 md:px-12 z-10">
-            <div className="hidden ms:block"/>
+        <section className="flex justify-center gap-24 h-full w-full fixed top-0 left-0 bg-[rgba(30,30,30,0.83)] px-4 md:px-12 z-10">
+            {/*<div className="block ms:hidden"/>*/}
             {anecdote && show ? <div className="flex flex-col w-full max-w-[600px] pt-20 pb-10 md:py-40 overflow-y-auto scrollbar-hidden">
                 <div className="relative mb-6">
                     <div className="bg-white px-6 pt-6 pb-2">
@@ -161,18 +163,31 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                             <div className="text-base font-normal mb-14"
                                  dangerouslySetInnerHTML={{__html: anecdote?.content || ''}}/>
 
-                            <div className="flex gap-4 items-center justify-end">
-                                <div
-                                    onClick={() => handleLike(true)}
-                                    className="flex gap-2 items-center text-[12px] cursor-pointer">
-                                    <ThumbsUp className="w-5 h-5"/>
-                                    {likeCount}
+                            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                                <div className="flex w-full md:w-fit items-center flex-wrap gap-2">
+                                    {
+                                        anecdote.categories.map(category => (
+                                            <div
+                                                className="text-[#191919] text-base font-medium font-['Manrope'] leading-[21px]"
+                                                key={category.title}>
+                                                #{category.title}
+                                            </div>
+                                        ))
+                                    }
                                 </div>
-                                <div
-                                    onClick={() => handleLike(false)}
-                                    className="flex gap-2 items-center text-[12px] cursor-pointer">
-                                    <ThumbsUp className="w-5 h-5 rotate-180"/>
-                                    {dislikeCount}
+                                <div className="flex w-full md:w-fit gap-4 items-center justify-end">
+                                    <div
+                                        onClick={() => handleLike(true)}
+                                        className="flex gap-2 items-center text-[12px] cursor-pointer">
+                                        <ThumbsUp className="w-5 h-5"/>
+                                        {likeCount}
+                                    </div>
+                                    <div
+                                        onClick={() => handleLike(false)}
+                                        className="flex gap-2 items-center text-[12px] cursor-pointer">
+                                        <ThumbsUp className="w-5 h-5 rotate-180"/>
+                                        {dislikeCount}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -188,16 +203,8 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
 
                 </div>
 
-                {
-                    anecdote?.categories.map((cat) => {
-                        return (
-                            <div key={cat.id}>{cat.title}</div>
-                        )
-                    })
-                }
-
-                <div className="px-6 py-6 bg-white rounded-[20px] rounded-tr-[20px]">
-                    <div className="flex justify-between mb-5 text-[#1e1e1e] text-base font-bold font-['Manrope'] leading-[30px]">
+                <div className=" px-6 py-6 bg-white rounded-[20px] rounded-tr-[20px]">
+                    <div className="flex flex-wrap gap-2 justify-between mb-5 text-[#1e1e1e] text-base font-bold font-['Manrope'] leading-[30px]">
                         <h4>
                             {
                                 anecdote?.comments.length === 0 ? 'Напишіть перший коментар!' : `Коментарі (${anecdote?.comments.length})`
@@ -221,7 +228,9 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                             <Send/>
                         </div>
                     </div>
-                    <div className="flex flex-col gap-6 md:gap-16 mt-6 md:mt-3.5">
+
+
+                    <div className="flex flex-col gap-6 md:gap-10 mt-6 md:mt-3.5">
                         {anecdote &&
                             anecdote.comments.map((comment: Comment) => (
                                 <Comment key={comment.id} user={comment.user} content={comment.content}
@@ -230,7 +239,7 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                     </div>
                 </div>
             </div> : isRandom ? <Dice/> : <Loader/>}
-            <div className="hidden ms:block"/>
+            {/*<div className="block ms:hidden"/>*/}
         </section>
     );
 };

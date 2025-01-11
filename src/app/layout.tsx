@@ -22,8 +22,8 @@ export default function RootLayout({
         lang="en">
     <body className="">
         <NextAuthProvider>
+            <Header/>
             <div className="max-w-[1440px] mx-auto px-4 sm:px-12 min-h-full">
-                <Header/>
                 <main className="h-min-full">
                     {children}
                 </main>

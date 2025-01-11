@@ -63,6 +63,15 @@ export default {
 		boxShadow: {
 			cardShadow: '0px_7px_19.600000381469727px_-13px_rgba(0,0,0,0.25)',
 		},
+		keyframes: {
+			slideDown: {
+				'0%': { transform: 'translateY(-100%)', opacity: '0' },
+				'100%': { transform: 'translateY(0)', opacity: '1' },
+			},
+		},
+		animation: {
+			slideDown: 'slideDown 0.5s ease-out',
+		},
   	}
   },
   plugins: [require("tailwindcss-animate")],
