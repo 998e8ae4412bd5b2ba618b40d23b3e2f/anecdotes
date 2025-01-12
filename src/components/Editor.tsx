@@ -57,7 +57,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Впишіть заголовок анекдота"
-                    className="font-semibold text-lg mb-5 h-12 rounded-4 p-4 border border-[#4b4b4b] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring"
+                    className="placeholder-amber-500 text-[#616161] text-base font-normal font-['Manrope'] leading-[30px] mb-5 h-12 rounded-4 p-4 border border-[#4b4b4b] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring"
                     required
                 />
                 <div className="flex gap-2 mb-1">
@@ -86,7 +86,7 @@ const ArticleEditor: React.FC<ArticleEditorProps> = ({
                         <Underline className="h-4 w-4"/>
                     </Button>
                 </div>
-                <div className="min-h-[200px] border border-[#4b4b4b]  rounded-md p-3  text-base focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring ">
+                <div className="min-h-[200px] border border-[#4b4b4b] text-[#616161] text-base font-normal font-['Manrope'] leading-[30px] rounded-md p-3  focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring ">
                     <DraftEditor
                         editorState={editorState}
                         onChange={handleChange}

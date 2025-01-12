@@ -64,14 +64,19 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
     const { requireAuth, AuthModalComponent } = useRequireAuth();
     const [cornerColor] = useState(cornerColors[Math.floor(Math.random() * cornerColors.length)]);
 
+
+    const truncatedContent = content.length > 300 ? content.slice(0, 300) + '...' : content;
+
     return (
-        <div className="group relative h-fit w-full lg:w-fit">
+        <div className="group relative h-full w-full lg:w-fit">
             <Card
-                className="relative w-full lg:w-64 h-fit cursor-pointer shadow-[0px_7px_19.600000381469727px_-13px_rgba(0,0,0,0.25)]"
+                className="flex flex-col justify-between rounded-[15px] relative w-full lg:w-64 lg:h-64 cursor-pointer hover:shadow-[0px_7px_23.700000762939453px_-15px_rgba(0,0,0,0.25)] shadow-[0px_7px_7.599999904632568px_-13px_rgba(0,0,0,0.10)] transition"
                 onClick={openPopup}>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle
-                        className="text-blackPrimary w-fit break-words text-base font-bold font-['Manrope']">{title}</CardTitle>
+                        className="text-blackPrimary w-fit break-words text-base font-bold font-['Manrope']">
+                        {title}
+                    </CardTitle>
 
                     <div className="block w-fit lg:hidden" onClick={(e) => e.stopPropagation()}>
                         <Popover>
@@ -79,50 +84,66 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
                                     <MoreVertical/>
                             </PopoverTrigger>
                             <PopoverContent className="absolute p-3 -top-10 right-4 w-fit">
-                                <div className="flex gap-1 items-center" onClick={() => requireAuth(saveAnecdote)}>
+                                <div className="flex gap-1 items-center justify-start pb-2" onClick={() => requireAuth(saveAnecdote)}>
                                     <Bookmark fill={isSaved ? 'white' : 'black'} stroke={isSaved ? 'black' : 'white'}/>
                                     <span className="text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-tight">Зберегти</span>
                                 </div>
+                                {pathname === '/profile' && <Dialog>
+                                    <DialogTrigger asChild>
+                                        <ActionButton
+                                            className="text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-tight flex items-center p-0 justify-start w-full pl-1 gap-2.5"
+                                            variant="ghost"
+                                        >
+                                            <Trash2 stroke='red' />
+                                            Видалити
+                                        </ActionButton>
+                                    </DialogTrigger>
+
+                                    <DialogContent className="sm:max-w-[425px]">
+                                        <DialogHeader>
+                                            <DialogTitle>Ви точно хочете удалити анекдот?</DialogTitle>
+                                        </DialogHeader>
+                                        {deleteAnecdote && <div>
+                                            <Button onClick={() => requireAuth(() => deleteAnecdote(id))}>
+                                                Видалити
+                                            </Button>
+                                        </div>}
+                                    </DialogContent>
+                                </Dialog>}
+
                             </PopoverContent>
                         </Popover>
                     </div>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-8 py-0">
-                    <div
-                        className="text-[#4b4b4b] text-sm break-words font-normal font-['Manrope'] leading-tight"
-                        dangerouslySetInnerHTML={{__html: content}}
-                    />
+                <CardContent className="flex flex-col gap-8 py-0 h-full">
+                    <div className="flex flex-col justify-between h-full">
+                        <div
+                            className="text-[#4b4b4b] text-sm break-words font-normal font-['Manrope'] leading-tight"
+                            dangerouslySetInnerHTML={{__html: truncatedContent}}
+                        />
 
-                    <div className="flex items-center justify-end gap-2.5">
-                        <ActionButton
-                            onClick={() => requireAuth(() => handleLike(true))}
-                            variant="ghost"
-                            className="flex h-fit p-0 gap-2 items-center"
-                        >
-                            <ThumbsUp stroke="black" fill="white"/> {likeCount}
-                        </ActionButton>
-                        <ActionButton
-                            onClick={() => requireAuth(() => handleLike(false))}
-                            variant="ghost"
-                            className="flex h-fit p-0 gap-2 items-center"
-                        >
-                            <ThumbsDown/> {dislikeCount}
-                        </ActionButton>
-                        <div className="flex h-fit gap-2 pl-1 items-center">
-                            <MessageSquare className="w-4 h-5"/>
-                            {anecdote.commentsAmount}
+                        <div className="flex items-center justify-end gap-2.5">
+                            <ActionButton
+                                onClick={() => requireAuth(() => handleLike(true))}
+                                variant="ghost"
+                                className="flex h-fit p-0 gap-2 items-center"
+                            >
+                                <ThumbsUp stroke="black" fill="white"/> {likeCount}
+                            </ActionButton>
+                            <ActionButton
+                                onClick={() => requireAuth(() => handleLike(false))}
+                                variant="ghost"
+                                className="flex h-fit p-0 gap-2 items-center"
+                            >
+                                <ThumbsDown/> {dislikeCount}
+                            </ActionButton>
+                            <div className="flex h-fit gap-2 pl-1 items-center">
+                                <MessageSquare className="w-4 h-5"/>
+                                {anecdote.commentsAmount}
+                            </div>
                         </div>
                     </div>
 
-                    {/*<ul className="flex gap-2">*/}
-                    {/*    {categories?.map((category: Category) => (*/}
-                    {/*        <li key={category.id}>*/}
-                    {/*            <Button variant="outline">*/}
-                    {/*                {category.title}*/}
-                    {/*            </Button>*/}
-                    {/*        </li>*/}
-                    {/*    ))}*/}
-                    {/*</ul>*/}
 
                     <ActionButton
                         className="hidden md:flex absolute bg-black hover:bg-initial rounded-[10px] border-none h-11 w-11 items-center justify-center -top-5 -right-5 p-0 opacity-0 group-hover:opacity-100 transition-all"
@@ -132,14 +153,9 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
                         <Bookmark fill={isSaved ? 'white' : 'black'} stroke="white"/>
                     </ActionButton>
                 </CardContent>
-
                 <div style={{borderRightColor: cornerColor}}
                      className="w-0 h-0 border-t-[1rem] border-r-[1rem] border-t-transparent -rotate-90"/>
             </Card>
-
-
-
-
 
 
             {
@@ -149,7 +165,7 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
                             className="absolute bg-[#FFC7C7] hover:bg-initial rounded-2.5 border-none h-11 w-11 items-center justify-center -bottom-5 -left-5 p-0 opacity-0 group-hover:opacity-100 transition-all delay-100"
                             variant="outline"
                         >
-                            <Trash2 stroke='red' />
+                            <Trash2 stroke='red'/>
                         </ActionButton>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">

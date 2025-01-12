@@ -6,6 +6,7 @@ import Comment from "@/components/Comment"
 import {usePathname, useSearchParams} from "next/navigation";
 import Loader from "@/components/Loaders/Loader";
 import Dice from "@/components/Loaders/Dice";
+import {Skeleton} from "@/components/ui/skeleton";
 
 const fetchAnecdote = async (id: string): Promise<Anecdote> => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes/${id}`);
@@ -133,12 +134,11 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
         }, 2000)
     }, []);
 
-    console.log(anecdote)
-
     return (
         <section className="flex justify-center gap-24 h-full w-full fixed top-0 left-0 bg-[rgba(30,30,30,0.83)] px-4 md:px-12 z-30">
             {/*<div className="block ms:hidden"/>*/}
-            {anecdote && show ? <div className="flex flex-col w-full max-w-[600px] pt-20 pb-10 md:py-40 overflow-y-auto scrollbar-hidden">
+            {anecdote && show ? <div
+                className="flex flex-col w-full max-w-[600px] pt-20 pb-10 md:py-40 overflow-y-auto scrollbar-hidden">
                 <div className="relative mb-6">
                     <div className="bg-white px-6 pt-6 pb-2">
                         <div onClick={closePopup}
@@ -204,14 +204,16 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                 </div>
 
                 <div className=" px-6 py-6 bg-white rounded-[20px] rounded-tr-[20px]">
-                    <div className="flex flex-wrap gap-2 justify-between mb-5 text-[#1e1e1e] text-base font-bold font-['Manrope'] leading-[30px]">
+                    <div
+                        className="flex flex-wrap gap-2 justify-between mb-5 text-[#1e1e1e] text-base font-bold font-['Manrope'] leading-[30px]">
                         <h4>
                             {
                                 anecdote?.comments.length === 0 ? 'Напишіть перший коментар!' : `Коментарі (${anecdote?.comments.length})`
                             }
                         </h4>
 
-                        <div className="flex gap-2 items-center text-[#616161] text-xs font-medium font-['Manrope'] leading-tight">
+                        <div
+                            className="flex gap-2 items-center text-[#616161] text-xs font-medium font-['Manrope'] leading-tight">
                             Правила чату
                             <HelpCircle className="w-4 h-4"/>
                         </div>
@@ -238,7 +240,7 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                             ))}
                     </div>
                 </div>
-            </div> : isRandom ? <Dice/> : <Loader/>}
+            </div> : isRandom ? <Dice/> : null}
             {/*<div className="block ms:hidden"/>*/}
         </section>
     );

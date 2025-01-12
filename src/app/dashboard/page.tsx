@@ -1,9 +1,11 @@
 'use client';
 
 import React, {Suspense, useEffect, useState} from 'react';
-import AnecdotesGrid from "@/components/AnecdotesGrid";
+import AnecdotesGrid from "@/components/AnecdoteGrid/AnecdotesGrid";
 import { Button } from "@/components/ui/button";
 import Loader from "@/components/Loaders/Loader";
+import {Skeleton} from "@/components/ui/skeleton";
+import AnecdoteGridLayout from "@/components/AnecdoteGrid/AnecdoteGridLayout";
 
 const getData = async () => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/categories`, {
@@ -52,6 +54,7 @@ const Page = () => {
         categories: true,
         anecdotes: true
     });
+    const widthClasses = ['w-24', 'w-18', 'w-32', 'w-28', 'w-20', 'w-16', 'w-24', 'w-18', 'w-32', 'w-28', 'w-20', 'w-16'];
 
     useEffect(() => {
         const fetchData = async () => {
@@ -97,91 +100,104 @@ const Page = () => {
 
     return (
         <div className="flex flex-col sm:flex-row mx-auto gap-5 md:gap-5 md:mt-11">
-            {
-                (!loading.anecdotes && !loading.anecdotes) ?
-                <>
-                    <div className="w-full sm:max-w-64 mb-4 md:mb-0">
-                        <div className="flex flex-col gap-2 md:gap-6 mb-2">
+            <div className="w-full sm:max-w-64 mb-4 md:mb-0">
+                <div className="flex flex-col gap-2 md:gap-6 mb-2">
                         <span
                             className="text-blackPrimary text-2xl font-extrabold font-['Manrope'] leading-[30px]"
                         >
-                            Категорії
+                            Головна
                         </span>
 
-                            <Button
-                                onClick={() => setSelectedCategories([])}
-                                className="h-[50px] px-5 py-2.5 bg-blackPrimary text-white rounded-[10px] justify-center items-center gap-2.5 inline-flex"
-                            >
-                                Всі категорії
-                            </Button>
-                        </div>
+                    <Button
+                        onClick={() => setSelectedCategories([])}
+                        className="h-[50px] px-5 py-2.5 bg-blackPrimary text-white rounded-[10px] justify-center items-center gap-2.5 inline-flex"
+                    >
+                        Всі категорії
+                    </Button>
+                </div>
 
-                        <div className="mb-2.5">
+                <div className="mb-2.5">
                             <span
                                 className="text-blackPrimary text-xs font-semibold font-['Manrope'] leading-[15px] mb-1.5 block"
                             >
                                 Топ категорії
                             </span>
 
-                            {(!loading.anecdotes && !loading.categories) && <ul className="flex flex-col gap-1.5">
-                                {
-                                    categories.slice(0, 3).map((item: Category, i: number) => {
-                                        const categoryColor = selectedCategories.includes(item.title) ? 'black' : categoriesColors[i];
+                    <ul className="flex flex-col gap-1.5">
+                        {
+                            loading.categories ?
+                                Array.from({ length: 3 }, (_, i: number) => {
+                                return (
+                                    <Skeleton
+                                        key={i}
+                                        className={`rounded-md px-6 py-1 w-full h-8`}
+                                    />
+                                );
+                            })
+                            :
+                            categories.slice(0, 3).map((item: Category, i: number) => {
+                                const categoryColor = selectedCategories.includes(item.title) ? 'black' : categoriesColors[i];
 
-                                        return (
-                                            <li
-                                                style={{backgroundColor: categoryColor}}
-                                                className={`rounded-md px-6 py-1 text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-[30px] cursor-pointer ${selectedCategories.includes(item.title) ? 'text-white' : ''}`}
-                                                key={item.id}
-                                                onClick={() => handleCategorySelect(item.title)}
-                                            >
-                                                {item.title}
-                                            </li>
-                                        );
-                                    })
-                                }
-                            </ul>}
-                        </div>
+                                return (
+                                    <li
+                                        style={{backgroundColor: categoryColor}}
+                                        className={`rounded-md px-6 py-1 text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-[30px] cursor-pointer ${selectedCategories.includes(item.title) ? 'text-white' : ''}`}
+                                        key={item.id}
+                                        onClick={() => handleCategorySelect(item.title)}
+                                    >
+                                        {item.title}
+                                    </li>
+                                );
+                            })
+                        }
+                    </ul>
+                </div>
 
-                        <ul className="flex flex-wrap gap-x-5 gap-y-2.5 mb-2.5">
-                            {
-                                categories.slice(4, 50).map((item: Category) => {
-                                    return (
-                                        <li
-                                            className={`rounded-[12px] px-2 text-blackPrimary text-sm font-normal font-['Manrope'] leading-[30px] cursor-pointer   ${selectedCategories.includes(item.title) ? 'bg-black text-white' : ''}`}
-                                            key={item.id}
-                                            onClick={() => handleCategorySelect(item.title)}
-                                        >
-                                            {item.title}
-                                        </li>
-                                    );
-                                })
-                            }
-                        </ul>
+                <ul className="flex flex-wrap gap-x-5 gap-y-2.5 mb-2.5">
+                    {
+                        loading.categories ?
+                            Array.from({ length: 12 }, (_, i: number) => {
+                                return (
+                                    <Skeleton
+                                        key={i}
+                                        className={`rounded-md ${widthClasses[i]} px-6 py-1 h-6`}
+                                    />
+                                );
+                            })
+                            :
+                        categories.slice(4, 50).map((item: Category) => {
+                            return (
+                                <li
+                                    className={`rounded-[12px] px-2 text-blackPrimary text-sm font-normal font-['Manrope'] leading-[30px] cursor-pointer   ${selectedCategories.includes(item.title) ? 'bg-black text-white' : ''}`}
+                                    key={item.id}
+                                    onClick={() => handleCategorySelect(item.title)}
+                                >
+                                    {item.title}
+                                </li>
+                            );
+                        })
+                    }
+                </ul>
 
-                        {/*<Button*/}
-                        {/*    variant='ghost'*/}
-                        {/*    className="p-0 gap-3 text-blackPrimary text-sm font-medium font-['Manrope'] leading-[30px]"*/}
-                        {/*>*/}
-                        {/*    Більше категорій*/}
+                {/*<Button*/}
+                {/*    variant='ghost'*/}
+                {/*    className="p-0 gap-3 text-blackPrimary text-sm font-medium font-['Manrope'] leading-[30px]"*/}
+                {/*>*/}
+                {/*    Більше категорій*/}
 
-                        {/*    <ChevronDown />*/}
-                        {/*</Button>*/}
-                    </div>
+                {/*    <ChevronDown />*/}
+                {/*</Button>*/}
+            </div>
 
-                    <section className="relative w-full pb-16">
-                        {<Suspense fallback={<div>Loading...</div>}>
-                            <AnecdotesGrid
-                                currentPage={currentPage}
-                                pagesAmount={pagesAmount}
-                                setCurrentPage={setCurrentPage}
-                                anecdotes={anecdotes}
-                                setAnecdotes={setAnecdotes}
-                            />
-                        </Suspense>}
-                    </section>
-                </> : <Loader className=""/>
-            }
+            <section className="relative w-full pb-16">
+                <AnecdoteGridLayout
+                    currentPage={currentPage}
+                    pagesAmount={pagesAmount}
+                    setCurrentPage={setCurrentPage}
+                    anecdotes={anecdotes}
+                    setAnecdotes={setAnecdotes}
+                />
+            </section>
         </div>
     );
 };

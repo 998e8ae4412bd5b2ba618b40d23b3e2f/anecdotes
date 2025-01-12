@@ -1,9 +1,9 @@
 'use client'
 import React, {useEffect, useState} from 'react';
 import Link from "next/link";
-import {Bookmark, Box, Menu} from "react-feather";
+import {Bookmark, Box, Menu, X} from "react-feather";
 import {useSession} from "next-auth/react";
-import {useRouter} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import {Skeleton} from "@/components/ui/skeleton";
 
 
@@ -26,6 +26,7 @@ const LoginOrRegForm = () => {
 const Header =  () => {
     const { status: sessionStatus, data: sessionData } = useSession();
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         if (status === "loading") return;
@@ -35,6 +36,11 @@ const Header =  () => {
         }
 
     }, [sessionStatus, sessionData?.user.id]);
+
+    useEffect(() => {
+        setIsMenuOpen(false)
+        document.body.style.overflow = '';
+    }, [pathname]);
 
     const handleRandomAnecdote = async () => {
         try {
@@ -66,11 +72,7 @@ const Header =  () => {
 
 
     return (
-        <header className={`
-        relative px-4 sm:px-12 w-full flex items-center justify-between py-8
-        
-      
-        `}>
+        <header className={`relative px-4 pr-8 sm:px-12 w-full flex items-center justify-between py-7 max-w-[1440px] mx-auto`}>
             <Link
                 href='/dashboard'
                 className="text-blackPrimary text-2xl font-bold font-['e-Ukraine'] leading-[30px] z-20">
@@ -78,18 +80,17 @@ const Header =  () => {
             </Link>
 
 
-            <nav
-                className="hidden md:flex items-center gap-8 xl:gap-12 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ">
+            <nav className="hidden md:flex items-center gap-8 xl:gap-12 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ">
                 <Link
                     href="/dashboard"
                     className="text-blackPrimary text-base font-medium font-['Manrope'] leading-[30px]"
                 >Головна</Link>
                 <div
                     onClick={handleRandomAnecdote}
-                    className="flex xl:gap-2 cursor-pointer px-3 xl:px-5 py-2.5 rounded-[10px] bg-random-anecdote-button-gradient"
+                    className="flex xl:gap-2 cursor-pointer px-3 xl:px-5 py-2.5 rounded-[10px] bg-random-anecdote-button-gradient-anim animate-gradientAnimation bg-[length:300%_300%]"
                 >
                     <span
-                        className="text-[#1e1e1e] text-base font-medium font-['Manrope'] leading-[30px] hidden xl:block">Випадковий анекдоти</span>
+                        className="text-[#1e1e1e] text-base font-medium font-['Manrope'] leading-[30px] hidden xl:block">Випадковий анекдот</span>
                     <img src="/random-joke-cube.svg" alt=""/>
                 </div>
                 <Link
@@ -100,7 +101,7 @@ const Header =  () => {
 
             <div className="hidden md:flex gap-5">
                 {
-                    sessionData && <Link
+                    sessionStatus === 'loading' ? null : sessionData && <Link
                         href="/saved"
                         className="flex items-center gap-2">
                         Збережені
@@ -108,38 +109,29 @@ const Header =  () => {
                     </Link>}
 
                 {
-                    sessionData ? <Link
+                    sessionStatus === 'loading' ? null : sessionData && <Link
                         href='/profile'
                         className="w-[50px] h-[50px]  justify-start items-center gap-2.5 inline-flex">
                         <img src={sessionData.user.image || ''}
                              className="w-full h-full rounded-[90px] object-cover" alt=""/>
-                    </Link> : <div className="flex items-center gap-4">
-                        <Link
-                            href={'/auth/login'}>
-                            Вхід
-                        </Link>
-                        <Link
-                            className="px-5 py-2.5 bg-blackPrimary flex text-white rounded-[10px] justify-center items-center gap-2.5"
-                            href={'/auth/login'}>
-                            Реєстрація
-                        </Link>
-                    </div>
-                }
+                    </Link>}
+
+                {sessionStatus === 'loading' ? null : !sessionData && <div className="flex items-center gap-4"><LoginOrRegForm/></div>}
             </div>
 
 
             <div className="block md:hidden z-10">
-                <div className="flex items-center gap-8 ">
+                    <div className="flex items-center gap-6 ">
                     <div
                         onClick={handleRandomAnecdote}
                         className="flex xl:gap-2 cursor-pointer px-3 xl:px-5 z-10 py-2.5 rounded-[10px] bg-random-anecdote-button-gradient"
                     >
                         <span
-                            className="text-[#1e1e1e] text-base font-medium font-['Manrope'] z-10 leading-[30px] hidden xl:block">Випадковий анекдоти</span>
+                            className="text-[#1e1e1e] text-base font-medium font-['Manrope'] z-10 leading-[30px] hidden xl:block">Випадковий анекдот</span>
                         <img src="/random-joke-cube.svg" alt=""/>
                     </div>
 
-                    <Menu size={22} className="z-10" onClick={toggleMenu}/>
+                    {isMenuOpen ? <X size={30} className="z-10" onClick={toggleMenu}/> : <Menu size={30} className="z-10" onClick={toggleMenu}/> }
                 </div>
 
                 {isMenuOpen && <div
@@ -147,7 +139,7 @@ const Header =  () => {
                 />}
 
                 {isMenuOpen && <div
-                    className="absolute pt-20 top-0 p-4 left-0 bg-white w-full rounded-bl-[1.5rem] rounded-br-[1.5rem] animate-slideDown">
+                    className="absolute pt-14 top-0 p-6 pb-4 left-0 bg-white w-full rounded-bl-[1.5rem] rounded-br-[1.5rem] animate-slideDown">
                     <nav className="pt-16 flex flex-col gap-5">
                         <Link
                             href="/"
@@ -157,11 +149,11 @@ const Header =  () => {
                         <Link
                             href="/anecdote/create"
                         >
-                            Свторити анекдот
+                            Додати анекдот
                         </Link>
                     </nav>
 
-                    <div className="pb-5 flex justify-between pt-10 ">
+                    <div className="pb-1 flex justify-between pt-8">
                         {sessionStatus === 'loading' ? null : !sessionData && <LoginOrRegForm/>}
 
                         {sessionStatus === 'loading' ? null : sessionData && <div className="flex gap-4 items-center">
@@ -171,23 +163,24 @@ const Header =  () => {
 
                                 {
                                     sessionData?.user.image ? <img src={sessionData?.user.image || ''}
-                                                                   className="h-12 w-12 rounded-[90px] object-cover"
+                                                                   className="h-12 w-12 rounded-[8px] object-cover"
                                                                    alt=""/> :
-                                        <Skeleton className="h-12 w-12 rounded-full"/>
+                                        <Skeleton className="h-12 w-12 rounded-[8px]"/>
                                 }
 
-                                <span className="text-[#343434] text-base font-medium font-['Manrope'] leading-[30px]">
-                                    профіль
+                                <span className="text-[#343434] text-base font-medium font-['Manrope'] leading-[30px] whitespace-nowrap">
+                                    Мій профіль
                                 </span>
 
                             </Link>
                         </div>}
 
-                        <Link
+                        {sessionStatus === 'loading' ? null : sessionData &&  <Link
                             href="/saved"
-                            className="text-[#343434] text-base font-medium font-['Manrope'] leading-[30px] flex items-center gap-2">
+                            className="text-[#343434] text-base font-medium font-['Manrope'] leading-[30px] flex items-center gap-2 pr-2">
                             Збережені
-                        </Link>
+                            <Bookmark fill='black'/>
+                        </Link>}
                     </div>
                 </div>}
             </div>

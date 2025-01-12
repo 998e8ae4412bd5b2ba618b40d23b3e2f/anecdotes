@@ -59,17 +59,30 @@ export default {
   		},
 		backgroundImage: {
 			'random-anecdote-button-gradient': 'linear-gradient(133deg, rgba(195, 253, 254, 0.00) 1.65%, rgba(207, 252, 192, 0.00) 120.13%), linear-gradient(91deg, #F6C4CF -5.81%, #BEAEFB 54%, #FF99C8 104.99%)',
+			'random-anecdote-button-gradient-anim': 'linear-gradient(301deg,rgba(195, 253, 254, 0.00) 1.65%, rgba(207, 252, 192, 0.00) 120.13%), linear-gradient(91deg, #F6C4CF -5.81%, #BEAEFB 54%, #FF99C8 104.99%)',
 		},
 		boxShadow: {
 			cardShadow: '0px_7px_19.600000381469727px_-13px_rgba(0,0,0,0.25)',
 		},
 		keyframes: {
+			gradientAnimation: {
+				'0%': {
+					backgroundPosition: '0% 50%'
+				},
+				'50%': {
+					backgroundPosition: '100% 50%'
+				},
+				'100%': {
+					backgroundPosition: '0% 50%'
+				},
+			},
 			slideDown: {
 				'0%': { transform: 'translateY(-100%)', opacity: '0' },
 				'100%': { transform: 'translateY(0)', opacity: '1' },
 			},
 		},
 		animation: {
+			gradientAnimation: 'gradientAnimation 5s ease infinite',
 			slideDown: 'slideDown 0.5s ease-out',
 		},
   	}

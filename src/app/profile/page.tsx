@@ -6,8 +6,10 @@ import { useRouter } from 'next/navigation';
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import Image from "next/image";
-import AnecdotesGrid from "@/components/AnecdotesGrid";
 import {Settings} from "react-feather";
+import EmptyMessage from "@/components/EmptyMessage";
+import AnecdoteGridLayout from "@/components/AnecdoteGrid/AnecdoteGridLayout";
+import {Skeleton} from "@/components/ui/skeleton";
 import Loader from "@/components/Loaders/Loader";
 
 const getUser = async (id: string) => {
@@ -128,83 +130,99 @@ const Page = () => {
     };
 
     return (
-        <div className="flex gap-6">
-            {
-                !loading ? <>
-                    <Card className="w-64  p-0">
-                        <CardHeader className="p-6">
-                            <div className="">
-                                <Image
-                                    className="w-full rounded-lg h-full inline object-cover aspect-square"
-                                    src={isValidUrl(userEditData.image || image || ' ')}
-                                    alt="kracen"
-                                    width={100}
-                                    height={100}
-                                />
-                            </div>
-                            {isEdit && <Input
-                                value={userEditData.image}
-                                onChange={(e) => setUserEditData({...userEditData, image: e.target.value})}
-                                placeholder={'url'}
-                                className="font-semibold text-lg"
+        <div className="flex gap-6 flex-col sm:flex-row">
+            <Card className=" sm:w-64 p-0">
+                <CardHeader className="flex gap-5 flex-row sm:flex-col p-0 sm:p-6 pb-6 sm:pb-0">
+                    <div className="w-[90px] h-[90px] sm:w-[203px] sm:h-[203px]">
+                        {
+                            image === undefined ? <Skeleton
+                                className="w-full h-[203px] rounded-lg"
+                            /> :  <Image
+                                className="w-full rounded-lg h-full inline object-cover aspect-square"
+                                src={isValidUrl(userEditData.image || image || ' ')}
+                                alt="kracen"
+                                width={100}
+                                height={100}
+                            />
+                        }
+                    </div>
+                    <div className={`flex flex-col ${isEdit ? 'justify-between' : 'justify-end'} `}>
+                        {isEdit && <Input
+                            value={userEditData.image}
+                            onChange={(e) => setUserEditData({...userEditData, image: e.target.value})}
+                            placeholder={'url'}
+                            className="text-[#4c4c4c] text-xs font-light font-['Manrope']"
+                            required
+                        />}
+                        <div className="flex flex-col justify-end justify-self-end mt-0 sm:mt-2">
+                            <span className="text-[#4c4c4c] text-xs font-light font-['Manrope']">{!isEdit && 'Імя:'}</span>
+                            {!isEdit ? <p className='truncate'>{userEditData.name || name}</p> : <Input
+                                value={userEditData.name}
+                                onChange={(e) => setUserEditData({...userEditData, name: e.target.value})}
+                                placeholder={sessionData?.user.name || ''}
+                                className="text-[#4c4c4c] text-xs font-light font-['Manrope']"
                                 required
                             />}
-                            <div>
-                                <span className="text-[#4c4c4c] text-xs font-light font-['Manrope']">Імя:</span>
-                                {!isEdit ? <p className='truncate'>{userEditData.name || name}</p> : <Input
-                                    value={userEditData.name}
-                                    onChange={(e) => setUserEditData({...userEditData, name: e.target.value})}
-                                    placeholder={sessionData?.user.name || ''}
-                                    className="font-semibold text-lg"
-                                    required
-                                />}
-                            </div>
-                        </CardHeader>
-                        <CardContent className="flex flex-col gap-3 p-0">
-                            <div className="w-full">
-                                {
-                                    !isEdit ?
-                                        <Button className="h-12 w-full" onClick={() => setIsEdit(!isEdit)}>
-                                            <Settings/>
-                                            Редагувати Інформацію
-                                        </Button>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-3 p-0 pt-3">
+                    <div className="w-full">
+                        {
+                            !isEdit ?
+                                <Button className="h-12 w-full" onClick={() => setIsEdit(!isEdit)}>
+                                    <Settings/>
+                                    Редагувати Інформацію
+                                </Button>
 
-                                        : <div className="flex gap-4">
-                                            <Button
-                                                className="w-full"
-                                                onClick={handleUpdateUser}
-                                            >
-                                                Save
-                                            </Button>
-                                            <Button
-                                                className="w-full"
-                                                onClick={() => setIsEdit(false)}
-                                            >
-                                                Cancel
-                                            </Button>
-                                        </div>
-                                }
-                            </div>
-                            {!isEdit && <Button variant='ghost' className="w-full p-0 text-[#d32e2e] text-xs font-light font-['Manrope']" onClick={() => signOut()}>Вийти з аккаунту</Button>}
-                        </CardContent>
-                        <CardFooter>
+                                : <div className="flex gap-4">
+                                    <Button
+                                        className="w-full"
+                                        variant='link'
+                                        onClick={handleUpdateUser}
+                                    >
+                                        Скасувати
+                                    </Button>
+                                    <Button
+                                        className="w-full"
+                                        onClick={() => setIsEdit(false)}
+                                    >
+                                        Зберегти
+                                    </Button>
+                                </div>
+                        }
+                    </div>
+                    {!isEdit && <Button variant='ghost' className="w-full p-0 text-[#d32e2e] text-xs font-light font-['Manrope']" onClick={() => signOut()}>Вийти з аккаунту</Button>}
+                </CardContent>
+            </Card>
 
-                        </CardFooter>
-                    </Card>
-                    <section className="pb-12">
-                        <h1 className="text-[#1e1e1e] text-2xl font-extrabold font-['Manrope'] leading-[30px] mb-4 pl-2">Мої
-                            анекдоти</h1>
-                        <Suspense fallback={<div>Loading...</div>}>
-                            <AnecdotesGrid
-                                currentPage={currentPage}
-                                pagesAmount={pagesAmount}
-                                setCurrentPage={setCurrentPage}
-                                anecdotes={anecdotes}
-                                setAnecdotes={setAnecdotes}
-                            />
-                        </Suspense>
-                    </section>
-                </> : <Loader className="loader absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></Loader>
+
+            {anecdotes.length !== 0 && <section className="pb-12">
+                <h1 className="text-[#1e1e1e] text-2xl font-extrabold font-['Manrope'] leading-[30px] mb-4 pl-2">
+                    Мої анекдоти</h1>
+
+                <AnecdoteGridLayout
+                    currentPage={currentPage}
+                    pagesAmount={pagesAmount}
+                    setCurrentPage={setCurrentPage}
+                    anecdotes={anecdotes}
+                    setAnecdotes={setAnecdotes}
+                />
+            </section>}
+
+            {
+                (anecdotes.length === 0) && <div className="py-16 ms:py-0 flex items-center justify-center w-full">
+                    <Loader/>
+                </div>
+            }
+
+            {
+                (anecdotes.length === 0 && !loading) && <div className="py-16 ms:py-0 flex items-center justify-center w-full">
+                    <EmptyMessage
+                        title='Тут пустельніше, ніж у моїй кишені після зарплати.'
+                        content='Врятуйте цю сторінку від гумористичної пустки!'
+                    />
+                </div>
             }
         </div>
     );

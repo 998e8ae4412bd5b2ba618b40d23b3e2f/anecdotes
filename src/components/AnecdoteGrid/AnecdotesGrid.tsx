@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import Anecdote from "@/components/Anecdote";
+import Anecdote from "@/components/Anecdote/Anecdote";
 import AnecdotePopup from "@/components/AnecdotePopup";
 import {usePathname, useSearchParams} from "next/navigation";
 
@@ -10,6 +10,7 @@ import {
     PaginationItem,
     PaginationLink,
 } from "@/components/ui/pagination"
+import AnecdoteSkeleton from "@/components/Anecdote/AnecdoteSkeleton";
 
 const saveAnecdote = async (id: string) => {
     return await fetch(`${process.env.NEXT_PUBLIC_URL}/api/saved`, {
@@ -92,7 +93,6 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
         }
     }, [searchParams]);
 
-
     return (
         <section className="flex">
             {openAnecdotePopup &&
@@ -103,41 +103,68 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
                     closePopup={handleClosePopup}
                     saveAnecdote={handelSave}
                 />}
-            <div className="flex flex-col justify-start items-start gap-8 w-full lg:w-fit ">
+            {<div className="flex flex-col justify-start items-start gap-8 w-full lg:w-fit ">
                 <div className="grid  sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 w-full md:w-fit gap-8 min-h-[1000px]">
-                    {anecdotes?.map((anecdote: AnecdoteBase) => (
-                        <Anecdote
-                            anecdote={{
-                                ...anecdote,
-                            }}
-                            saveAnecdote={() => handelSave(anecdote.id)}
-                            openPopup={() => handleOpenPopup(anecdote.id)}
-                            deleteAnecdote={() => handleDeleteAnecdote(anecdote.id)}
-                            key={anecdote.id}
-                        />
-                    ))}
+                    {
+                        anecdotes.length === 0 ?
+                            Array.from({ length: 12 }, (_, i: number) => (
+                                <AnecdoteSkeleton key={i}/>
+                            ))
+                        :
+                        anecdotes.map((anecdote: AnecdoteBase) => (
+                            <Anecdote
+                                anecdote={{
+                                    ...anecdote,
+                                }}
+                                saveAnecdote={() => handelSave(anecdote.id)}
+                                openPopup={() => handleOpenPopup(anecdote.id)}
+                                deleteAnecdote={() => handleDeleteAnecdote(anecdote.id)}
+                                key={anecdote.id}
+                            />
+                        ))
+                    }
                 </div>
 
 
                 <div className="flex w-full justify-center">
                     {pagesAmount > 1 && <Pagination>
                         <PaginationContent>
+                            {currentPage > 1 && (
+                                <PaginationItem onClick={() => setCurrentPage(1)}>
+                                    <PaginationLink href="#">1</PaginationLink>
+                                </PaginationItem>
+                            )}
+
+                            {currentPage > 3 && <span>...</span>}
+
                             {Array.from({ length: 3 }, (_, index) => {
-                                const page = index + 1;
-                                return (
-                                    <PaginationItem
-                                        key={page}
-                                        onClick={() => setCurrentPage(page)}
-                                        className={page === currentPage ? 'active' : ''}
-                                    >
-                                        <PaginationLink href="#" isActive={currentPage === page}>{page}</PaginationLink>
-                                    </PaginationItem>
-                                );
+                                const page = currentPage - 1 + index; // Current, previous, and next pages
+                                if (page > 1 && page < pagesAmount) {
+                                    return (
+                                        <PaginationItem
+                                            key={page}
+                                            onClick={() => setCurrentPage(page)}
+                                            className={page === currentPage ? 'active' : ''}
+                                        >
+                                            <PaginationLink href="#" isActive={currentPage === page}>{page}</PaginationLink>
+                                        </PaginationItem>
+                                    );
+                                }
+                                return null;
                             })}
+
+                            {currentPage < pagesAmount - 2 && <span>...</span>}
+
+                            {currentPage < pagesAmount && (
+                                <PaginationItem onClick={() => setCurrentPage(pagesAmount)}>
+                                    <PaginationLink href="#">{pagesAmount}</PaginationLink>
+                                </PaginationItem>
+                            )}
                         </PaginationContent>
                     </Pagination>}
                 </div>
-            </div>
+            </div>}
+
         </section>
     );
 };

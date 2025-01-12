@@ -1,20 +1,23 @@
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {Dialog, DialogContent, DialogTitle} from "@/components/ui/dialog";
+import AlertMessage from "@/components/AlertMessage";
 
 interface AuthModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-    return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent>
-                <DialogTitle>You must be logged in</DialogTitle>
-                <p>Please log in to continue.</p>
-                <button onClick={() => window.location.href = '/auth/signin'} className="btn-primary">
-                    Log In
-                </button>
-            </DialogContent>
-        </Dialog>
-    );
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose,  }) => {
+    return (<Dialog
+        open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="p-0 bg-transparent border-none">
+            <DialogTitle className="hidden"/>
+            <AlertMessage
+                title='Ви не можете цього зробит :('
+                content='тому що, ви не увійшли, або зовсім не зареєстровані'
+                buttons={
+                [
+                    {name: 'увійти', url: '/auth/login'}
+                ]} />
+        </DialogContent>
+    </Dialog>);
 };

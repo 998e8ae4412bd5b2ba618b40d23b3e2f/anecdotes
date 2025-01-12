@@ -9,6 +9,10 @@ import {ChevronsUpDown} from "lucide-react";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 import {Dialog, DialogContent, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
 import {Input} from "@/components/ui/input";
+import {HelpCircle, X} from "react-feather";
+import Link from "next/link";
+import {toast} from "sonner";
+import {NextResponse} from "next/server";
 
 interface AnecdoteCreateData {
     title: string
@@ -49,29 +53,35 @@ const getCategories = async () => {
 }
 
 const publishAnecdote = async (anecdote: AnecdoteCreateData) => {
-    const {title, content, categories } = anecdote;
+    const { title, content, categories } = anecdote;
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes`, {
-        cache: 'no-cache',
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            title: title,
-            content: content,
-            categories: {
-                connect: categories.map((category: Category) => ({ id: category.id }))
-            }
-        })
-    })
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes`, {
+            cache: 'no-cache',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                title,
+                content,
+                categories: {
+                    connect: categories.map((category: Category) => ({ id: category.id }))
+                }
+            })
+        });
 
-    if(!res.ok) {
-        throw new Error("Failed");
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.message || 'Failed to publish anecdote', { cause: res.status });
+        }
+
+        return await res.json();
+    } catch (error) {
+        throw error;
     }
+};
 
-    return await res.json();
-}
 
 const Page = () => {
     const draftData = {
@@ -98,7 +108,6 @@ const Page = () => {
     const [categories, setCategories] = React.useState<Category[]>([])
     const [categoryToCreate, setCategoryToCreate] = useState<string>("")
     const [errorMessage, setErrorMessage] = useState<string>('');
-    const [anecdotePublishStatus, setAnecdotePublishStatus] = useState<string>('')
 
     const [title, setTitle] = useState('');
     const [editorState, setEditorState] = useState(() =>
@@ -156,25 +165,34 @@ const Page = () => {
     }
     const handlePublishAnecdote = async () => {
         try {
-            const res = await publishAnecdote({
+            await publishAnecdote({
                 ...anecdoteDraft,
-                categories: anecdoteCategories
+                categories: anecdoteCategories,
             });
-
-            if (res.ok) {
-                setAnecdotePublishStatus('Щось пішло не так....');
-                return;
-            }
 
             setTitle('');
             setEditorState(EditorState.createEmpty());
             setAnecdoteCategories([]);
-            setAnecdotePublishStatus('Щось пішло добре....');
-        } catch (error) {
-            console.error(error);
-            setAnecdotePublishStatus('Помилка публікації.');
+
+            toast("Анекдот був успішно створений", {
+                description: "Ваші дані було передано у СБУ та ТЦК 😆",
+                action: {
+                    label: "Передати",
+                    onClick: () => console.log("Undo"),
+                },
+            });
+        } catch (error: any) {
+            toast("Анекдот не створено", {
+                description: "Зате дані було передано у СБУ та ТЦК 😆",
+                action: {
+                    label: "Повторити",
+                    onClick: () => handlePublishAnecdote(),
+                },
+            });
         }
     };
+
+
     useEffect(() => {
         const fetchAnecdotes = async () => {
             try {
@@ -191,9 +209,15 @@ const Page = () => {
 
 
     return (
-        <div className="flex w-full p-24 gap-8 justify-center">
+        <div className="flex w-full pt-24 ms:p-24 gap-8 justify-center">
             <div className="flex flex-1 max-w-[569px] flex-col gap-4">
-                <h1 className="text-[#1e1e1e] text-[28px] font-bold font-['Manrope']">Створення анекдоту</h1>
+                <div>
+                    <h1 className="text-[#1e1e1e] text-[28px] font-bold font-['Manrope']">Створення анекдоту</h1>
+                    <Link href='/rules' className="flex gap-1 pt-1 ms:pt-3">
+                        <p className="text-[#616161] text-xs font-medium font-['Manrope'] leading-tight">правила анекдтоів</p>
+                        <HelpCircle size={15}/>
+                    </Link>
+                </div>
 
                 <ArticleEditor
                     title={title}
@@ -202,19 +226,18 @@ const Page = () => {
                     setEditorState={setEditorState}
                     onSave={handleSaveContent}/>
 
-                <div className="flex justify-between">
+                <div className="flex justify-between flex-wrap gap-5">
                     <Popover open={openCategorySelect} onOpenChange={setOpenCategorySelect}>
                         <PopoverTrigger asChild>
                             <Button
-                                variant="outline"
                                 role="combobox"
-                                className="w-[200px] justify-between"
+                                className="w-full sm:w-[200px] h-[50px] justify-between"
                             >
-                                Категорії
+                                Додати категорію
                                 <ChevronsUpDown className="opacity-50" />
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[200px] p-0">
+                        <PopoverContent className="w-full sm:w-[200px] p-0">
                             <Command>
                                 <CommandInput placeholder="Знайти категорію..." />
                                 <CommandList>
@@ -240,45 +263,67 @@ const Page = () => {
 
                     <Dialog open={openCategoryCreate} onOpenChange={setOpenCategoryCreate}>
                         <DialogTrigger asChild>
-                            <Button className="w-fit">Створити власну</Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                            <DialogTitle>Оберіть назву для категорії</DialogTitle>
-                            <div className="text-red-700 text-[0.8rem]">{errorMessage && errorMessage}</div>
-                            <Input
-                                placeholder="Назва тут"
-                                className="font-semibold text-lg"
-                                value={categoryToCreate}
-                                onChange={(e) => setCategoryToCreate(e.target.value)}
-                                required
-                            />
-
                             <Button
-                                onClick={() => handleCreateCategory(categoryToCreate)}
-                                disabled={categoryToCreate === ''}
+                                className="flex w-full items-center justify-center h-[50px] sm:w-fit bg-random-anecdote-button-gradient text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-[30px]"
+                                variant="ghost"
                             >
-                                Створити
+                                Створити власну категорію
+                                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16"
+                                     fill="none">
+                                    <path
+                                        d="M14.5 9.33333V12.6667C14.5 13.0203 14.3595 13.3594 14.1095 13.6095C13.8594 13.8595 13.5203 14 13.1667 14H3.83333C3.47971 14 3.14057 13.8595 2.89052 13.6095C2.64048 13.3594 2.5 13.0203 2.5 12.6667V3.33333C2.5 2.97971 2.64048 2.64057 2.89052 2.39052C3.14057 2.14048 3.47971 2 3.83333 2H7.16667V3.33333H3.83333V12.6667H13.1667V9.33333H14.5Z"
+                                        fill="black"/>
+                                    <path
+                                        d="M14.5002 4.66667H11.8335V2H10.5002V4.66667H7.8335V6H10.5002V8.66667H11.8335V6H14.5002V4.66667Z"
+                                        fill="black"/>
+                                </svg>
                             </Button>
+                        </DialogTrigger>
+                        <DialogContent className="bg-transparent w-full p-4 border-none">
+                            <div className="ms:max-w-[425px] w-full flex flex-col gap-5 bg-white p-5 rounded-[20px]">
+                                <DialogTitle>Оберіть назву для категорії</DialogTitle>
+                                <div className="text-red-700 text-[0.8rem]">{errorMessage && errorMessage}</div>
+                                <Input
+                                    placeholder="Назва тут"
+                                    className="border border-[#1e1e1e] text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-[30px] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring"
+                                    value={categoryToCreate}
+                                    onChange={(e) => setCategoryToCreate(e.target.value)}
+                                    required
+                                />
+
+                                <Button
+                                    onClick={() => handleCreateCategory(categoryToCreate)}
+                                    disabled={categoryToCreate === ''}
+                                >
+                                    Створити
+                                </Button>
+                            </div>
                         </DialogContent>
                     </Dialog>
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-4">
                     {
                         anecdoteCategories.map(category => (
                             <Button
                                 onClick={() => handleCategory(category)}
                                 variant="outline"
+                                className="border border-[#1e1e1e]"
                                 key={category.id}>
                                 {category.title}
+                                <X/>
                             </Button>
                         ))
                     }
                 </div>
 
-                <p>{anecdotePublishStatus !== '' && anecdotePublishStatus}</p>
-                <Button className="w-full" onClick={handlePublishAnecdote}
-                        disabled={isReadyToPublish}>Створити анекдот</Button>
+                <Button
+                    className="w-full h-[50px]"
+                    onClick={handlePublishAnecdote}
+                    disabled={isReadyToPublish}
+                >
+                    Створити анекдот
+                </Button>
             </div>
         </div>
     );

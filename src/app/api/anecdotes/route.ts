@@ -78,14 +78,21 @@ export const POST = async (req: NextRequest) => {
         const session = await getAuthSession();
 
         if (!session) {
-            return new NextResponse(JSON.stringify({message: "Unauthorized"}), {status: 401});
+            // return new NextResponse(JSON.stringify({message: "Unauthorized"}), {status: 401});
         }
 
         const { title, content, categories} = await req.json()
 
+        if (title === '' || content === '' || content == '<p><br></p>' || categories.length === 0) {
+            return new NextResponse(JSON.stringify({message: "Bad request"}), {status: 500});
+        }
+
+        console.log(categories)
+
         const anecdoteCreate = await prisma.anecdote.create({
             data: {
-                userId: session.user.id,
+                // userId: session.user.id,
+                userId: 'cm5fcdt400000w474yzlw7m25',
                 title,
                 content,
                 categories
