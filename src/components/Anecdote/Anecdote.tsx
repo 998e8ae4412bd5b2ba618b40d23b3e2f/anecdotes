@@ -68,7 +68,7 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
     const truncatedContent = content.length > 300 ? content.slice(0, 300) + '...' : content;
 
     return (
-        <div className="group relative h-full w-full lg:w-fit">
+        <div className="group relative h-fit w-full lg:w-fit">
             <Card
                 className="flex flex-col justify-between rounded-[15px] relative w-full lg:w-64 lg:h-64 cursor-pointer hover:shadow-[0px_7px_23.700000762939453px_-15px_rgba(0,0,0,0.25)] shadow-[0px_7px_7.599999904632568px_-13px_rgba(0,0,0,0.10)] transition"
                 onClick={openPopup}>
@@ -84,14 +84,14 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
                                     <MoreVertical/>
                             </PopoverTrigger>
                             <PopoverContent className="absolute p-3 -top-10 right-4 w-fit">
-                                <div className="flex gap-1 items-center justify-start pb-2" onClick={() => requireAuth(saveAnecdote)}>
+                                <div className="flex gap-1 items-center justify-start" onClick={() => requireAuth(saveAnecdote)}>
                                     <Bookmark fill={isSaved ? 'white' : 'black'} stroke={isSaved ? 'black' : 'white'}/>
                                     <span className="text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-tight">Зберегти</span>
                                 </div>
                                 {pathname === '/profile' && <Dialog>
                                     <DialogTrigger asChild>
                                         <ActionButton
-                                            className="text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-tight flex items-center p-0 justify-start w-full pl-1 gap-2.5"
+                                            className="text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-tight flex items-center p-0 justify-start w-full pl-1  pt-2 gap-2.5"
                                             variant="ghost"
                                         >
                                             <Trash2 stroke='red' />

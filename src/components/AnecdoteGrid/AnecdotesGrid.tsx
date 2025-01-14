@@ -104,7 +104,7 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
                     saveAnecdote={handelSave}
                 />}
             {<div className="flex flex-col justify-start items-start gap-8 w-full lg:w-fit ">
-                <div className="grid  sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 w-full md:w-fit gap-8 min-h-[1000px]">
+                <div className="grid  ms:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 grid-rows-4 w-full ms:w-fit gap-8 min-h-[1000px]">
                     {
                         anecdotes.length === 0 ?
                             Array.from({ length: 12 }, (_, i: number) => (
@@ -127,41 +127,66 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
 
 
                 <div className="flex w-full justify-center">
-                    {pagesAmount > 1 && <Pagination>
-                        <PaginationContent>
-                            {currentPage > 1 && (
-                                <PaginationItem onClick={() => setCurrentPage(1)}>
-                                    <PaginationLink href="#">1</PaginationLink>
-                                </PaginationItem>
-                            )}
+                    {pagesAmount > 1 && (
+                        <Pagination>
+                            <PaginationContent>
+                                {(() => {
+                                    const getPaginationRange = () => {
+                                        const totalNumbers = 5;
+                                        const siblingCount = 1;
 
-                            {currentPage > 3 && <span>...</span>}
+                                        if (pagesAmount <= totalNumbers) {
+                                            return [...Array(pagesAmount).keys()].map((page) => page + 1);
+                                        }
 
-                            {Array.from({ length: 3 }, (_, index) => {
-                                const page = currentPage - 1 + index; // Current, previous, and next pages
-                                if (page > 1 && page < pagesAmount) {
-                                    return (
+                                        const leftSibling = Math.max(currentPage - siblingCount, 1);
+                                        const rightSibling = Math.min(currentPage + siblingCount, pagesAmount);
+
+                                        const showLeftEllipsis = leftSibling > 2;
+                                        const showRightEllipsis = rightSibling < pagesAmount - 1;
+
+                                        const paginationRange = [];
+
+                                        if (showLeftEllipsis) {
+                                            paginationRange.push(1, '...');
+                                        } else {
+                                            for (let i = 1; i < leftSibling; i++) {
+                                                paginationRange.push(i);
+                                            }
+                                        }
+
+                                        for (let i = leftSibling; i <= rightSibling; i++) {
+                                            paginationRange.push(i);
+                                        }
+
+                                        if (showRightEllipsis) {
+                                            paginationRange.push('...', pagesAmount);
+                                        } else {
+                                            for (let i = rightSibling + 1; i <= pagesAmount; i++) {
+                                                paginationRange.push(i);
+                                            }
+                                        }
+
+                                        return paginationRange;
+                                    };
+
+                                    return getPaginationRange().map((page, index) => (
                                         <PaginationItem
-                                            key={page}
-                                            onClick={() => setCurrentPage(page)}
-                                            className={page === currentPage ? 'active' : ''}
+                                            key={index}
+                                            onClick={() => typeof page === 'number' && setCurrentPage(page)}
+                                            className={typeof page === 'number' && page === currentPage ? 'active' : ''}
                                         >
-                                            <PaginationLink href="#" isActive={currentPage === page}>{page}</PaginationLink>
+                                            {typeof page === 'number' ? (
+                                                <PaginationLink href="#" isActive={currentPage === page}>{page}</PaginationLink>
+                                            ) : (
+                                                <span className="ellipsis">{page}</span>
+                                            )}
                                         </PaginationItem>
-                                    );
-                                }
-                                return null;
-                            })}
-
-                            {currentPage < pagesAmount - 2 && <span>...</span>}
-
-                            {currentPage < pagesAmount && (
-                                <PaginationItem onClick={() => setCurrentPage(pagesAmount)}>
-                                    <PaginationLink href="#">{pagesAmount}</PaginationLink>
-                                </PaginationItem>
-                            )}
-                        </PaginationContent>
-                    </Pagination>}
+                                    ));
+                                })()}
+                            </PaginationContent>
+                        </Pagination>
+                    )}
                 </div>
             </div>}
 

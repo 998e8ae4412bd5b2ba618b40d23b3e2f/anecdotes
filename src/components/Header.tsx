@@ -5,6 +5,7 @@ import {Bookmark, Box, Menu, X} from "react-feather";
 import {useSession} from "next-auth/react";
 import {usePathname, useRouter} from "next/navigation";
 import {Skeleton} from "@/components/ui/skeleton";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 
 
 const LoginOrRegForm = () => {
@@ -96,7 +97,9 @@ const Header =  () => {
                 <Link
                     href="/anecdote/create"
                     className="text-blackPrimary text-base font-medium font-['Manrope'] leading-[30px]"
-                >Додати анекдот</Link>
+                >
+                    Додати анекдот
+                </Link>
             </nav>
 
             <div className="hidden md:flex gap-5">
@@ -109,12 +112,14 @@ const Header =  () => {
                     </Link>}
 
                 {
-                    sessionStatus === 'loading' ? null : sessionData && <Link
-                        href='/profile'
-                        className="w-[50px] h-[50px]  justify-start items-center gap-2.5 inline-flex">
-                        <img src={sessionData.user.image || ''}
-                             className="w-full h-full rounded-[90px] object-cover" alt=""/>
-                    </Link>}
+                    sessionStatus === 'loading' ? null : sessionData && <Link href='/profile'><Avatar>
+                        <AvatarImage
+                            className="w-[50px] h-[50px]  justify-start items-center gap-2.5 inline-flex"
+                            src={sessionData.user.image || ''} alt="@shadcn" />
+                        <AvatarFallback>
+                            {sessionData.user.name && sessionData.user.name.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                    </Avatar></Link>}
 
                 {sessionStatus === 'loading' ? null : !sessionData && <div className="flex items-center gap-4"><LoginOrRegForm/></div>}
             </div>

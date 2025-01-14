@@ -131,12 +131,12 @@ const Page = () => {
 
     return (
         <div className="flex gap-6 flex-col sm:flex-row">
-            <Card className=" sm:w-64 p-0">
+            <Card className=" sm:w-64 p-0 bg-transparent">
                 <CardHeader className="flex gap-5 flex-row sm:flex-col p-0 sm:p-6 pb-6 sm:pb-0">
                     <div className="w-[90px] h-[90px] sm:w-[203px] sm:h-[203px]">
                         {
                             image === undefined ? <Skeleton
-                                className="w-full h-[203px] rounded-lg"
+                                className="w-[90px] h-[90px] sm:w-full sm:h-[203px] rounded-lg"
                             /> :  <Image
                                 className="w-full rounded-lg h-full inline object-cover aspect-square"
                                 src={isValidUrl(userEditData.image || image || ' ')}
@@ -197,7 +197,7 @@ const Page = () => {
             </Card>
 
 
-            {anecdotes.length !== 0 && <section className="pb-12">
+            <section className="pb-12">
                 <h1 className="text-[#1e1e1e] text-2xl font-extrabold font-['Manrope'] leading-[30px] mb-4 pl-2">
                     Мої анекдоти</h1>
 
@@ -208,13 +208,7 @@ const Page = () => {
                     anecdotes={anecdotes}
                     setAnecdotes={setAnecdotes}
                 />
-            </section>}
-
-            {
-                (anecdotes.length === 0) && <div className="py-16 ms:py-0 flex items-center justify-center w-full">
-                    <Loader/>
-                </div>
-            }
+            </section>
 
             {
                 (anecdotes.length === 0 && !loading) && <div className="py-16 ms:py-0 flex items-center justify-center w-full">

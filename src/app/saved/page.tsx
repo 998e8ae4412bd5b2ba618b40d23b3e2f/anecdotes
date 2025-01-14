@@ -2,6 +2,7 @@
 import React, {Suspense, useEffect, useState} from 'react';
 import AnecdotesGrid from "@/components/AnecdoteGrid/AnecdotesGrid";
 import {Button} from "@/components/ui/button";
+import AnecdoteGridLayout from "@/components/AnecdoteGrid/AnecdoteGridLayout";
 
 const getCategories = async () => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/categories`, {
@@ -93,8 +94,8 @@ const Page = () => {
 
 
     return (
-        <section className="flex justify-start pt-24 gap-12">
-            <div className="w-full max-w-64">
+        <section className="flex flex-col sm:flex-row justify-start pt-24 gap-12">
+            <div className="w-full max-w-full sm:max-w-64">
                 <div className="flex flex-col gap-6 mb-3.5">
                     <span
                         className="text-blackPrimary text-2xl font-extrabold font-['Manrope'] leading-[30px]"
@@ -137,16 +138,13 @@ const Page = () => {
             </div>
 
             {
-                <Suspense fallback={<div>Loading...</div>}>
-                    <AnecdotesGrid
-                        currentPage={1}
-                        pagesAmount={1}
-                        setCurrentPage={() => {
-                        }}
-                        anecdotes={anecdotes}
-                        setAnecdotes={setAnecdotes}
-                    />
-                </Suspense>
+                <AnecdoteGridLayout
+                    currentPage={1}
+                    pagesAmount={1}
+                    setCurrentPage={() => {}}
+                    anecdotes={anecdotes}
+                    setAnecdotes={setAnecdotes}
+                />
             }
 
         </section>

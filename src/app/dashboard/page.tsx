@@ -1,11 +1,11 @@
 'use client';
 
-import React, {Suspense, useEffect, useState} from 'react';
-import AnecdotesGrid from "@/components/AnecdoteGrid/AnecdotesGrid";
+import React, {useEffect, useState} from 'react';
 import { Button } from "@/components/ui/button";
-import Loader from "@/components/Loaders/Loader";
 import {Skeleton} from "@/components/ui/skeleton";
 import AnecdoteGridLayout from "@/components/AnecdoteGrid/AnecdoteGridLayout";
+import EmptyMessage from "@/components/EmptyMessage";
+import {usePathname, useRouter} from "next/navigation";
 
 const getData = async () => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/categories`, {
@@ -55,6 +55,8 @@ const Page = () => {
         anecdotes: true
     });
     const widthClasses = ['w-24', 'w-18', 'w-32', 'w-28', 'w-20', 'w-16', 'w-24', 'w-18', 'w-32', 'w-28', 'w-20', 'w-16'];
+    const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -88,15 +90,23 @@ const Page = () => {
     }, [selectedCategories, currentPage]);
 
     const handleCategorySelect = (category: string) => {
-        setSelectedCategories(prev => {
-            setCurrentPage(1)
-            if (prev.includes(category)) {
-                return prev.filter(c => c !== category);
-            } else {
-                return [...prev, category];
-            }
+        setSelectedCategories((prev) => {
+            return prev.includes(category)
+                ? prev.filter((c) => c !== category)
+                : [...prev, category];
         });
     };
+    useEffect(() => {
+        const searchParams = new URLSearchParams();
+        if (selectedCategories.length > 0) {
+            searchParams.set("categories", selectedCategories.join(","));
+        } else {
+            searchParams.delete("categories"); // Видаляємо параметр, якщо категорій немає
+        }
+        searchParams.set("page", "1");
+
+        router.push(`${pathname}?${searchParams.toString()}`);
+    }, [selectedCategories, pathname, router]);
 
     return (
         <div className="flex flex-col sm:flex-row mx-auto gap-5 md:gap-5 md:mt-11">
@@ -189,14 +199,23 @@ const Page = () => {
                 {/*</Button>*/}
             </div>
 
-            <section className="relative w-full pb-16">
-                <AnecdoteGridLayout
-                    currentPage={currentPage}
-                    pagesAmount={pagesAmount}
-                    setCurrentPage={setCurrentPage}
-                    anecdotes={anecdotes}
-                    setAnecdotes={setAnecdotes}
-                />
+            <section className={`relative w-full pb-16 flex ${anecdotes.length === 0 && !loading.anecdotes && `justify-center items-center`}`}>
+                {anecdotes.length !== 0 &&
+                    <AnecdoteGridLayout
+                        currentPage={currentPage}
+                        pagesAmount={pagesAmount}
+                        setCurrentPage={setCurrentPage}
+                        anecdotes={anecdotes}
+                        setAnecdotes={setAnecdotes}
+                    />
+                }
+
+                {anecdotes.length === 0 && !loading.anecdotes &&
+                    <EmptyMessage
+                        title='На жаль жодного анекдоту не було знайдено!'
+                        content='I am the man who sold the world'
+                    />
+                }
             </section>
         </div>
     );

@@ -3,10 +3,9 @@ import React, {useEffect, useState} from 'react';
 import {Bookmark, HelpCircle, Send, ThumbsUp, X} from 'react-feather';
 import {Input} from "@/components/ui/input";
 import Comment from "@/components/Comment"
-import {usePathname, useSearchParams} from "next/navigation";
-import Loader from "@/components/Loaders/Loader";
+import {usePathname} from "next/navigation";
 import Dice from "@/components/Loaders/Dice";
-import {Skeleton} from "@/components/ui/skeleton";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 
 const fetchAnecdote = async (id: string): Promise<Anecdote> => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes/${id}`);
@@ -134,6 +133,8 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
         }, 2000)
     }, []);
 
+    console.log(anecdote)
+
     return (
         <section className="flex justify-center gap-24 h-full w-full fixed top-0 left-0 bg-[rgba(30,30,30,0.83)] px-4 md:px-12 z-30">
             {/*<div className="block ms:hidden"/>*/}
@@ -147,8 +148,14 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                         </div>
                         <div className="flex items-center justify-between border-b-[1px] pb-4">
                             <div className="flex items-center gap-2">
-                                <img className="w-[30px] h-[30px] rounded-md object-cover" src={anecdote?.user.image}
-                                     alt=""/>
+                                <Avatar>
+                                    <AvatarImage
+                                        className="w-[30px] h-[30px] rounded-md object-cover"
+                                        src={anecdote?.user.image} alt="@shadcn" />
+                                    <AvatarFallback>
+                                        {anecdote?.user.name.slice(0, 2).toUpperCase()}
+                                    </AvatarFallback>
+                                </Avatar>
                                 <span>{anecdote?.user.name}</span>
                             </div>
 
