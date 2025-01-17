@@ -7,14 +7,14 @@ import {signIn} from "next-auth/react";
 const Login = () => {
     return (
         <div className="">
-            <Card className="absolute px-4 top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] w-full max-w-[500px]">
+            <Card className="bg-transparent absolute px-4 top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] w-full max-w-[456px]">
                 <CardHeader className="p-0">
                     <h1 className="text-[#1e1e1e] text-[28px] font-bold font-['Manrope'] leading-[30px] pb-2.5">Ласкаво просимо</h1>
                     <p className="text-[#343434] text-sm font-medium font-['Manrope'] leading-tight">Виберіть зручний спосіб реєстрації та почніть користуватись усіма перевагами вже зараз.</p>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-2.5 w-full pt-12 px-0">
                     <Button
-                        className="h-16 p-0 rounded-xl border border-[#d2d5da] text-black text-lg font-normal font-['Manrope'] leading-7"
+                        className="h-14 p-0 rounded-xl border border-[#d2d5da] text-black text-sm font-normal font-['Manrope'] leading-7"
                         variant='link'
                         onClick={() => signIn("google")}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none">
@@ -33,22 +33,22 @@ const Login = () => {
                         </svg>
                         Увійдіть за допомогою Google
                     </Button>
-                    <span className="text-center text-[#4b4b4b] text-sm font-medium font-['Manrope'] leading-tight">Або</span>
-                    <Button
-                        className="h-16 p-0 rounded-xl border border-[#d2d5da] text-black text-lg font-normal font-['Manrope'] leading-7"
-                        variant='link'
-                        onClick={() => signIn("github")}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
-                            <path fillRule="evenodd" clipRule="evenodd"
-                                  d="M11 0.5C5.20156 0.5 0.5 5.31875 0.5 11.2672C0.5 16.025 3.50937 20.0562 7.68125 21.4813C8.20625 21.5797 8.39844 21.2469 8.39844 20.9609C8.39844 20.7031 8.38906 20.0281 8.38437 19.1281C5.46406 19.7797 4.84531 17.6844 4.84531 17.6844C4.36719 16.4422 3.67813 16.1094 3.67813 16.1094C2.72656 15.4391 3.74844 15.4531 3.74844 15.4531C4.80313 15.5281 5.35625 16.5641 5.35625 16.5641C6.29375 18.2094 7.8125 17.7359 8.4125 17.4594C8.50625 16.7656 8.77812 16.2875 9.07812 16.0203C6.74844 15.7484 4.29688 14.825 4.29688 10.7C4.29688 9.52344 4.70469 8.5625 5.375 7.8125C5.26719 7.54063 4.90625 6.44375 5.47812 4.9625C5.47812 4.9625 6.35938 4.67188 8.36563 6.06406C9.20469 5.825 10.1 5.70781 10.9953 5.70312C11.8859 5.70781 12.7859 5.825 13.625 6.06406C15.6313 4.67188 16.5078 4.9625 16.5078 4.9625C17.0797 6.44375 16.7188 7.54063 16.6109 7.8125C17.2812 8.56719 17.6891 9.52813 17.6891 10.7C17.6891 14.8344 15.2328 15.7437 12.8937 16.0109C13.2687 16.3438 13.6063 17 13.6063 18.0031C13.6063 19.4422 13.5922 20.6047 13.5922 20.9562C13.5922 21.2422 13.7797 21.5797 14.3141 21.4719C18.4953 20.0516 21.5 16.0203 21.5 11.2672C21.5 5.31875 16.7984 0.5 11 0.5Z"
-                                  fill="black"/>
-                        </svg>
-                        Увійдіть за допомогою GitHub
-                    </Button>
+                    {/*<span className="text-center text-[#4b4b4b] text-sm font-medium font-['Manrope'] leading-tight">Або</span>*/}
+                    {/*<Button*/}
+                    {/*    className="h-14 p-0 rounded-xl border border-[#d2d5da] text-black text-sm font-normal font-['Manrope'] leading-7"*/}
+                    {/*    variant='link'*/}
+                    {/*    onClick={() => signIn("github")}>*/}
+                    {/*    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">*/}
+                    {/*        <path fillRule="evenodd" clipRule="evenodd"*/}
+                    {/*              d="M11 0.5C5.20156 0.5 0.5 5.31875 0.5 11.2672C0.5 16.025 3.50937 20.0562 7.68125 21.4813C8.20625 21.5797 8.39844 21.2469 8.39844 20.9609C8.39844 20.7031 8.38906 20.0281 8.38437 19.1281C5.46406 19.7797 4.84531 17.6844 4.84531 17.6844C4.36719 16.4422 3.67813 16.1094 3.67813 16.1094C2.72656 15.4391 3.74844 15.4531 3.74844 15.4531C4.80313 15.5281 5.35625 16.5641 5.35625 16.5641C6.29375 18.2094 7.8125 17.7359 8.4125 17.4594C8.50625 16.7656 8.77812 16.2875 9.07812 16.0203C6.74844 15.7484 4.29688 14.825 4.29688 10.7C4.29688 9.52344 4.70469 8.5625 5.375 7.8125C5.26719 7.54063 4.90625 6.44375 5.47812 4.9625C5.47812 4.9625 6.35938 4.67188 8.36563 6.06406C9.20469 5.825 10.1 5.70781 10.9953 5.70312C11.8859 5.70781 12.7859 5.825 13.625 6.06406C15.6313 4.67188 16.5078 4.9625 16.5078 4.9625C17.0797 6.44375 16.7188 7.54063 16.6109 7.8125C17.2812 8.56719 17.6891 9.52813 17.6891 10.7C17.6891 14.8344 15.2328 15.7437 12.8937 16.0109C13.2687 16.3438 13.6063 17 13.6063 18.0031C13.6063 19.4422 13.5922 20.6047 13.5922 20.9562C13.5922 21.2422 13.7797 21.5797 14.3141 21.4719C18.4953 20.0516 21.5 16.0203 21.5 11.2672C21.5 5.31875 16.7984 0.5 11 0.5Z"*/}
+                    {/*              fill="black"/>*/}
+                    {/*    </svg>*/}
+                    {/*    Увійдіть за допомогою GitHub*/}
+                    {/*</Button>*/}
                 </CardContent>
                 <CardFooter className="p-0">
-                    <p className="text-[#616161] text-xs font-normal font-['Manrope'] leading-[20px]">Ми
-                        використовуємо лише ваші основні дані для створення облікового запису.<br/>Жодних складних
+                    <p className="text-[#616161] text-xs font-normal font-['Manrope'] leading-[20px]">
+                        Ми використовуємо лише ваші основні дані для створення облікового запису.<br/>Жодних складних
                         паролів або зайвих форм — швидко та безпечно.
                     </p>
                 </CardFooter>

@@ -9,9 +9,9 @@ interface IEmptyMessage {
 const EmptyMessage = ({title, content}: IEmptyMessage) => {
     return (
         <div
-            className="rounded-[20px] flex-col justify-center items-center gap-[50px] max-w-[470px] w-full"
+            className="rounded-[20px]  flex-col justify-center shadow-none items-center gap-[50px] max-w-[470px] w-full"
         >
-            <div className="bg-white rounded-[20px] shadow-[0px_2px_20px_-5px_rgba(0,0,0,0.08)]">
+            <div className="bg-white p-8 rounded-[20px]">
                 <p className="text-center text-[#1e1e1e] text-2xl font-extrabold font-['Manrope'] leading-[30px] pb-2.5">{title}</p>
                 <p className="text-center text-[#4b4b4b] text-sm font-normal font-['Manrope'] leading-tight">{content}</p>
 

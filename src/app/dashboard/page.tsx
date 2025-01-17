@@ -1,24 +1,12 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
-import { Button } from "@/components/ui/button";
-import {Skeleton} from "@/components/ui/skeleton";
+import React, {Suspense, useEffect, useState} from 'react';
 import AnecdoteGridLayout from "@/components/AnecdoteGrid/AnecdoteGridLayout";
 import EmptyMessage from "@/components/EmptyMessage";
-import {usePathname, useRouter} from "next/navigation";
+import Filter from "@/components/Filter/Filter";
+import { useSearchParams} from "next/navigation";
 
-const getData = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/categories`, {
-        cache: 'no-cache',
-    });
 
-    if (!res.ok) {
-        throw new Error("Failed to fetch categories");
-    }
-
-    const { data } = await res.json();
-    return data;
-};
 
 const getAnecdotes = async (page: number, categories: string[]) => {
     const categoryParams = categories.length > 0 ? `&categories=${categories.join(',')}` : '';
@@ -43,35 +31,24 @@ const getAnecdotes = async (page: number, categories: string[]) => {
     }
 }
 
-const Page = () => {
-    const [categories, setCategories] = useState([]);
+
+const PageContent = () => {
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [anecdotes, setAnecdotes] = useState<AnecdoteBase[]>([]);
     const [pagesAmount, setPagesAmount] = useState<number>(0);
     const [currentPage, setCurrentPage] = useState<number>(1)
-    const categoriesColors = ['#beaefb', '#fccdf1', '#f6c4cf'];
     const [loading, setLoading] = useState({
         categories: true,
         anecdotes: true
     });
-    const widthClasses = ['w-24', 'w-18', 'w-32', 'w-28', 'w-20', 'w-16', 'w-24', 'w-18', 'w-32', 'w-28', 'w-20', 'w-16'];
-    const router = useRouter();
-    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(prev => ({ ...prev, categories: true}));
-                const data = await getData();
-                setCategories(data);
-            } catch (error) {
-                console.error("Error fetching categories:", error);
-            } finally {
-                setLoading(prev => ({ ...prev, categories: false}));
-            }
-        };
-        fetchData();
-    }, []);
+        const categories = searchParams.get("categories")
+        if (categories === null) return setSelectedCategories([]);
+        setSelectedCategories(categories?.split(','))
+    }, [searchParams]);
+
 
     useEffect(() => {
         const fetchAnecdotes = async () => {
@@ -81,7 +58,6 @@ const Page = () => {
                 setAnecdotes(userAnecdotes.data);
                 setPagesAmount(userAnecdotes.totalPages);
             } catch (error) {
-                console.error("Error fetching anecdotes:", error);
             } finally {
                 setLoading(prev => ({ ...prev, anecdotes: false }));
             }
@@ -89,119 +65,16 @@ const Page = () => {
         fetchAnecdotes();
     }, [selectedCategories, currentPage]);
 
-    const handleCategorySelect = (category: string) => {
-        setSelectedCategories((prev) => {
-            return prev.includes(category)
-                ? prev.filter((c) => c !== category)
-                : [...prev, category];
-        });
-    };
-    useEffect(() => {
-        const searchParams = new URLSearchParams();
-        if (selectedCategories.length > 0) {
-            searchParams.set("categories", selectedCategories.join(","));
-        } else {
-            searchParams.delete("categories"); // Видаляємо параметр, якщо категорій немає
-        }
-        searchParams.set("page", "1");
-
-        router.push(`${pathname}?${searchParams.toString()}`);
-    }, [selectedCategories, pathname, router]);
-
     return (
         <div className="flex flex-col sm:flex-row mx-auto gap-5 md:gap-5 md:mt-11">
-            <div className="w-full sm:max-w-64 mb-4 md:mb-0">
-                <div className="flex flex-col gap-2 md:gap-6 mb-2">
-                        <span
-                            className="text-blackPrimary text-2xl font-extrabold font-['Manrope'] leading-[30px]"
-                        >
-                            Головна
-                        </span>
-
-                    <Button
-                        onClick={() => setSelectedCategories([])}
-                        className="h-[50px] px-5 py-2.5 bg-blackPrimary text-white rounded-[10px] justify-center items-center gap-2.5 inline-flex"
-                    >
-                        Всі категорії
-                    </Button>
-                </div>
-
-                <div className="mb-2.5">
-                            <span
-                                className="text-blackPrimary text-xs font-semibold font-['Manrope'] leading-[15px] mb-1.5 block"
-                            >
-                                Топ категорії
-                            </span>
-
-                    <ul className="flex flex-col gap-1.5">
-                        {
-                            loading.categories ?
-                                Array.from({ length: 3 }, (_, i: number) => {
-                                return (
-                                    <Skeleton
-                                        key={i}
-                                        className={`rounded-md px-6 py-1 w-full h-8`}
-                                    />
-                                );
-                            })
-                            :
-                            categories.slice(0, 3).map((item: Category, i: number) => {
-                                const categoryColor = selectedCategories.includes(item.title) ? 'black' : categoriesColors[i];
-
-                                return (
-                                    <li
-                                        style={{backgroundColor: categoryColor}}
-                                        className={`rounded-md px-6 py-1 text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-[30px] cursor-pointer ${selectedCategories.includes(item.title) ? 'text-white' : ''}`}
-                                        key={item.id}
-                                        onClick={() => handleCategorySelect(item.title)}
-                                    >
-                                        {item.title}
-                                    </li>
-                                );
-                            })
-                        }
-                    </ul>
-                </div>
-
-                <ul className="flex flex-wrap gap-x-5 gap-y-2.5 mb-2.5">
-                    {
-                        loading.categories ?
-                            Array.from({ length: 12 }, (_, i: number) => {
-                                return (
-                                    <Skeleton
-                                        key={i}
-                                        className={`rounded-md ${widthClasses[i]} px-6 py-1 h-6`}
-                                    />
-                                );
-                            })
-                            :
-                        categories.slice(4, 50).map((item: Category) => {
-                            return (
-                                <li
-                                    className={`rounded-[12px] px-2 text-blackPrimary text-sm font-normal font-['Manrope'] leading-[30px] cursor-pointer   ${selectedCategories.includes(item.title) ? 'bg-black text-white' : ''}`}
-                                    key={item.id}
-                                    onClick={() => handleCategorySelect(item.title)}
-                                >
-                                    {item.title}
-                                </li>
-                            );
-                        })
-                    }
-                </ul>
-
-                {/*<Button*/}
-                {/*    variant='ghost'*/}
-                {/*    className="p-0 gap-3 text-blackPrimary text-sm font-medium font-['Manrope'] leading-[30px]"*/}
-                {/*>*/}
-                {/*    Більше категорій*/}
-
-                {/*    <ChevronDown />*/}
-                {/*</Button>*/}
-            </div>
+            <Filter/>
 
             <section className={`relative w-full pb-16 flex ${anecdotes.length === 0 && !loading.anecdotes && `justify-center items-center`}`}>
-                {anecdotes.length !== 0 &&
-                    <AnecdoteGridLayout
+                {anecdotes.length === 0 && !loading.anecdotes ?
+                    <EmptyMessage
+                        title='На жаль жодного анекдоту не було знайдено!'
+                        content='I am the man who sold the world'
+                    /> : <AnecdoteGridLayout
                         currentPage={currentPage}
                         pagesAmount={pagesAmount}
                         setCurrentPage={setCurrentPage}
@@ -209,15 +82,18 @@ const Page = () => {
                         setAnecdotes={setAnecdotes}
                     />
                 }
-
-                {anecdotes.length === 0 && !loading.anecdotes &&
-                    <EmptyMessage
-                        title='На жаль жодного анекдоту не було знайдено!'
-                        content='I am the man who sold the world'
-                    />
-                }
             </section>
         </div>
+    );
+}
+
+
+
+const Page = () => {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <PageContent />
+        </Suspense>
     );
 };
 

@@ -6,6 +6,7 @@ import Comment from "@/components/Comment"
 import {usePathname} from "next/navigation";
 import Dice from "@/components/Loaders/Dice";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import {Loader2} from "lucide-react";
 
 const fetchAnecdote = async (id: string): Promise<Anecdote> => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes/${id}`);
@@ -133,11 +134,8 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
         }, 2000)
     }, []);
 
-    console.log(anecdote)
-
     return (
         <section className="flex justify-center gap-24 h-full w-full fixed top-0 left-0 bg-[rgba(30,30,30,0.83)] px-4 md:px-12 z-30">
-            {/*<div className="block ms:hidden"/>*/}
             {anecdote && show ? <div
                 className="flex flex-col w-full max-w-[600px] pt-20 pb-10 md:py-40 overflow-y-auto scrollbar-hidden">
                 <div className="relative mb-6">
@@ -158,18 +156,14 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                                 </Avatar>
                                 <span>{anecdote?.user.name}</span>
                             </div>
-
                             <div onClick={handleSaveAnecdote}>
                                 <Bookmark fill={anecdote?.isSaved ? 'black' : 'white'}/>
                             </div>
                         </div>
-
                         <div className="pt-4">
                             <h2 className="text-2xl  font-bold mb-5  leading-none">{anecdote?.title}</h2>
-
                             <div className="text-base font-normal mb-14"
                                  dangerouslySetInnerHTML={{__html: anecdote?.content || ''}}/>
-
                             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                                 <div className="flex w-full md:w-fit items-center flex-wrap gap-2">
                                     {
@@ -199,17 +193,13 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                             </div>
                         </div>
                     </div>
-
                     <div className="flex">
                         <div style={{borderRightColor: cornerColor}}
                              className="w-0 h-0 border-t-[1rem] border-r-[1rem] border-t-transparent -rotate-90"/>
                         <div className="w-full bg-white h-4">
-
                         </div>
                     </div>
-
                 </div>
-
                 <div className=" px-6 py-6 bg-white rounded-[20px] rounded-tr-[20px]">
                     <div
                         className="flex flex-wrap gap-2 justify-between mb-5 text-[#1e1e1e] text-base font-bold font-['Manrope'] leading-[30px]">
@@ -218,7 +208,6 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                                 anecdote?.comments.length === 0 ? 'Напишіть перший коментар!' : `Коментарі (${anecdote?.comments.length})`
                             }
                         </h4>
-
                         <div
                             className="flex gap-2 items-center text-[#616161] text-xs font-medium font-['Manrope'] leading-tight">
                             Правила чату
@@ -232,13 +221,10 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                             value={commentContent}
                             onChange={(e) => setCommentContent(e.target.value)}
                         />
-
                         <div onClick={handlePostComment} className="rotate-45 pr-4 cursor-pointer">
                             <Send/>
                         </div>
                     </div>
-
-
                     <div className="flex flex-col gap-6 md:gap-10 mt-6 md:mt-3.5">
                         {anecdote &&
                             anecdote.comments.map((comment: Comment) => (
@@ -247,8 +233,13 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                             ))}
                     </div>
                 </div>
-            </div> : isRandom ? <Dice/> : null}
-            {/*<div className="block ms:hidden"/>*/}
+                </div>
+                : isRandom ? <Dice/> : <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <Loader2
+                        className="animate-spin"
+                        size={22}
+                    />
+                </div>}
         </section>
     );
 };

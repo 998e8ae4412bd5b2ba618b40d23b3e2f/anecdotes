@@ -94,7 +94,7 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
     }, [searchParams]);
 
     return (
-        <section className="flex">
+        <section className="flex w-full">
             {openAnecdotePopup &&
                 <AnecdotePopup
                     anecdoteId={popupAnecdote}
@@ -104,7 +104,7 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
                     saveAnecdote={handelSave}
                 />}
             {<div className="flex flex-col justify-start items-start gap-8 w-full lg:w-fit ">
-                <div className="grid  ms:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 grid-rows-4 w-full ms:w-fit gap-8 min-h-[1000px]">
+                <div className="grid ms:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 ms:grid-rows-4 w-full ms:w-fit gap-8 min-h-[1000px]">
                     {
                         anecdotes.length === 0 ?
                             Array.from({ length: 12 }, (_, i: number) => (

@@ -122,7 +122,7 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
                             dangerouslySetInnerHTML={{__html: truncatedContent}}
                         />
 
-                        <div className="flex items-center justify-end gap-2.5">
+                        <div className="flex items-center justify-end gap-2.5 pt-4 ms:pt-0">
                             <ActionButton
                                 onClick={() => requireAuth(() => handleLike(true))}
                                 variant="ghost"

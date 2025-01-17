@@ -78,7 +78,7 @@ export const POST = async (req: NextRequest) => {
         const session = await getAuthSession();
 
         if (!session) {
-            // return new NextResponse(JSON.stringify({message: "Unauthorized"}), {status: 401});
+            return new NextResponse(JSON.stringify({message: "Unauthorized"}), {status: 401});
         }
 
         const { title, content, categories} = await req.json()
@@ -87,12 +87,9 @@ export const POST = async (req: NextRequest) => {
             return new NextResponse(JSON.stringify({message: "Bad request"}), {status: 500});
         }
 
-        console.log(categories)
-
         const anecdoteCreate = await prisma.anecdote.create({
             data: {
-                // userId: session.user.id,
-                userId: 'cm5fcdt400000w474yzlw7m25',
+                userId: session.user.id,
                 title,
                 content,
                 categories
