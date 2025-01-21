@@ -13,6 +13,8 @@ export const GET = async(req: NextRequest) => {
             return new NextResponse(JSON.stringify({message: "Unauthorized"}), {status: 401});
         }
 
+        // console.log(session)
+
         // Build the where clause for the Saved model
         const whereClause: {
             userId: string;

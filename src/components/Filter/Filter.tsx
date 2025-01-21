@@ -69,7 +69,7 @@ const Filter = () => {
 
 
     return (
-        <div className="w-full sm:max-w-64 mb-4 md:mb-0">
+        <div className="w-full sm:max-w-[250px] mb-4 md:mb-0">
             <div className="flex flex-col gap-2 md:gap-6 mb-2">
                     <span
                         className="text-blackPrimary text-2xl font-extrabold font-['Manrope'] leading-[30px]"
@@ -126,7 +126,7 @@ const Filter = () => {
                                 return (
                                     <li
                                         style={{backgroundColor: categoryColor}}
-                                        className={`rounded-md px-6 py-1 text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-[30px] cursor-pointer ${selectedCategories.includes(item.title) ? 'text-white' : ''}`}
+                                        className={`rounded-md pl-3 sm:px-6 py-1 text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-[30px] cursor-pointer ${selectedCategories.includes(item.title) ? 'text-white' : ''}`}
                                         key={item.id}
                                         onClick={() => handleCategorySelect(item.title)}
                                     >
@@ -169,7 +169,7 @@ const Filter = () => {
                 className="p-0 gap-3 text-blackPrimary text-sm font-medium font-['Manrope'] leading-[30px]"
                 onClick={() => setShowMoreCategories(true)}
             >
-                {showMoreCategories ? 'Усі категорії' : 'Більше категорій'}
+                {!showMoreCategories && 'Більше категорій'}
 
                 {!showMoreCategories && <ChevronDown/>}
             </Button>

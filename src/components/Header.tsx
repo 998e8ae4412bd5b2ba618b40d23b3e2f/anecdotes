@@ -112,10 +112,10 @@ const Header =  () => {
                     </Link>}
 
                 {
-                    sessionStatus === 'loading' ? null : sessionData && <Link href='/profile'><Avatar>
+                    sessionStatus === 'loading' ? null : sessionData && sessionData.user.image && <Link href='/profile'><Avatar>
                         <AvatarImage
                             className="w-[50px] h-[50px]  justify-start items-center gap-2.5 inline-flex"
-                            src={sessionData.user.image || ''} alt="@shadcn" />
+                            src={sessionData.user.image} alt="@shadcn" />
                         <AvatarFallback>
                             {sessionData.user.name && sessionData.user.name.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
@@ -129,11 +129,11 @@ const Header =  () => {
                     <div className="flex items-center gap-6 ">
                     <div
                         onClick={handleRandomAnecdote}
-                        className="flex xl:gap-2 cursor-pointer px-3 xl:px-5 z-10 py-2.5 rounded-[10px] bg-random-anecdote-button-gradient"
+                        className="flex xl:gap-2 w-11 h-11 cursor-pointer px-3 xl:px-5 z-10 py-2.5 rounded-[10px] bg-random-anecdote-button-gradient"
                     >
                         <span
                             className="text-[#1e1e1e] text-base font-medium font-['Manrope'] z-10 leading-[30px] hidden xl:block">Випадковий анекдот</span>
-                        <img src="/random-joke-cube.svg" alt=""/>
+                        <img src="/random-joke-cube.svg" alt="" className="scale-125"/>
                     </div>
 
                     {isMenuOpen ? <X size={30} className="z-10" onClick={toggleMenu}/> : <Menu size={30} className="z-10" onClick={toggleMenu}/> }

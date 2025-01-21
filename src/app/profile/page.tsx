@@ -130,9 +130,9 @@ const Page = () => {
     };
 
     return (
-        <div className="flex gap-6 flex-col sm:flex-row">
+        <div className="flex gap-6 flex-col sm:flex-row md:mt-11">
             <Card className=" sm:w-64 p-0 bg-transparent">
-                <CardHeader className="flex gap-5 flex-row sm:flex-col p-0 sm:p-6 pb-6 sm:pb-0">
+                <CardHeader className="flex gap-5 flex-row sm:flex-col p-0 sm:p-6 pb-3 sm:pb-6 sm:pb-0">
                     <div className="w-[90px] h-[90px] sm:w-[203px] sm:h-[203px]">
                         {
                             image === undefined ? <Skeleton
@@ -146,7 +146,7 @@ const Page = () => {
                             />
                         }
                     </div>
-                    <div className={`flex flex-col ${isEdit ? 'justify-between' : 'justify-end'} `}>
+                    <div className={`flex flex-col ${isEdit ? 'justify-between' : ''} `}>
                         {isEdit && <Input
                             value={userEditData.image}
                             onChange={(e) => setUserEditData({...userEditData, image: e.target.value})}
@@ -155,7 +155,7 @@ const Page = () => {
                             required
                         />}
                         <div className="flex flex-col justify-end justify-self-end mt-0 sm:mt-2">
-                            <span className="text-[#4c4c4c] text-xs font-light font-['Manrope']">{!isEdit && 'Імя:'}</span>
+                            <span className="text-[#4c4c4c] text-xs font-light font-['Manrope']">{!isEdit && 'Псевдо:'}</span>
                             {!isEdit ? <p className='truncate'>{userEditData.name || name}</p> : <Input
                                 value={userEditData.name}
                                 onChange={(e) => setUserEditData({...userEditData, name: e.target.value})}
@@ -166,7 +166,7 @@ const Page = () => {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex flex-col gap-3 p-0 pt-3">
+                <CardContent className="flex flex-col gap-3 p-0 sm:pt-3">
                     <div className="w-full">
                         {
                             !isEdit ?
@@ -197,27 +197,25 @@ const Page = () => {
             </Card>
 
 
-            <section className="pb-12">
-                <h1 className="text-[#1e1e1e] text-2xl font-extrabold font-['Manrope'] leading-[30px] mb-4 pl-2">
-                    Мої анекдоти</h1>
+            <section className="pb-12 h-full">
+                <h1 className="text-[#1e1e1e] text-2xl font-extrabold font-['Manrope'] leading-[30px] mb-4 pl-2">Мої анекдоти</h1>
 
-                <AnecdoteGridLayout
-                    currentPage={currentPage}
-                    pagesAmount={pagesAmount}
-                    setCurrentPage={setCurrentPage}
-                    anecdotes={anecdotes}
-                    setAnecdotes={setAnecdotes}
-                />
-            </section>
-
-            {
-                (anecdotes.length === 0 && !loading) && <div className="py-16 ms:py-0 flex items-center justify-center w-full">
+                {anecdotes.length === 0 && !loading ?
                     <EmptyMessage
-                        title='Тут пустельніше, ніж у моїй кишені після зарплати.'
-                        content='Врятуйте цю сторінку від гумористичної пустки!'
+                        classname="xl:mt-20 xl:ml-20"
+                        title='На жаль, ви не створили жодного анекдоту :('
+                        content='I am the man who sold the world'
+                        linkUrl='/'
+                        linkTitle='створити анекдот'
+                    /> : <AnecdoteGridLayout
+                        currentPage={currentPage}
+                        pagesAmount={pagesAmount}
+                        setCurrentPage={setCurrentPage}
+                        anecdotes={anecdotes}
+                        setAnecdotes={setAnecdotes}
                     />
-                </div>
-            }
+                }
+            </section>
         </div>
     );
 };

@@ -65,12 +65,12 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
     const [cornerColor] = useState(cornerColors[Math.floor(Math.random() * cornerColors.length)]);
 
 
-    const truncatedContent = content.length > 300 ? content.slice(0, 300) + '...' : content;
+    const truncatedContent = content.length > 200 ? content.slice(0, 200) + '...' : content;
 
     return (
         <div className="group relative h-fit w-full lg:w-fit">
             <Card
-                className="flex flex-col justify-between rounded-[15px] relative w-full lg:w-64 lg:h-64 cursor-pointer hover:shadow-[0px_7px_23.700000762939453px_-15px_rgba(0,0,0,0.25)] shadow-[0px_7px_7.599999904632568px_-13px_rgba(0,0,0,0.10)] transition"
+                className="flex flex-col justify-between rounded-[15px] relative w-full lg:w-[250px] lg:h-[250px] cursor-pointer hover:shadow-[0px_7px_23.700000762939453px_-15px_rgba(0,0,0,0.25)] shadow-[0px_7px_7.599999904632568px_-13px_rgba(0,0,0,0.10)] transition"
                 onClick={openPopup}>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle
@@ -85,7 +85,7 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
                             </PopoverTrigger>
                             <PopoverContent className="absolute p-3 -top-10 right-4 w-fit">
                                 <div className="flex gap-1 items-center justify-start" onClick={() => requireAuth(saveAnecdote)}>
-                                    <Bookmark fill={isSaved ? 'white' : 'black'} stroke={isSaved ? 'black' : 'white'}/>
+                                    <Bookmark fill={isSaved ? 'black' : 'white'} stroke={isSaved ? 'black' : 'black'}/>
                                     <span className="text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-tight">Зберегти</span>
                                 </div>
                                 {pathname === '/profile' && <Dialog>

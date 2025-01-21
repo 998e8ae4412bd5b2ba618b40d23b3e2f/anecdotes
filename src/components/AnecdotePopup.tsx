@@ -135,8 +135,11 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
     }, []);
 
     return (
-        <section className="flex justify-center gap-24 h-full w-full fixed top-0 left-0 bg-[rgba(30,30,30,0.83)] px-4 md:px-12 z-30">
+        <section
+            onClick={closePopup}
+            className="flex justify-center gap-24 h-full w-full fixed top-0 left-0 bg-[rgba(30,30,30,0.83)] px-4 md:px-12 z-30">
             {anecdote && show ? <div
+                onClick={e => e.stopPropagation()}
                 className="flex flex-col w-full max-w-[600px] pt-20 pb-10 md:py-40 overflow-y-auto scrollbar-hidden">
                 <div className="relative mb-6">
                     <div className="bg-white px-6 pt-6 pb-2">
@@ -147,9 +150,10 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                         <div className="flex items-center justify-between border-b-[1px] pb-4">
                             <div className="flex items-center gap-2">
                                 <Avatar>
-                                    <AvatarImage
+                                    {anecdote.user.image !== undefined && <AvatarImage
                                         className="w-[30px] h-[30px] rounded-md object-cover"
-                                        src={anecdote?.user.image} alt="@shadcn" />
+                                        src={anecdote.user.image} alt="@shadcn" />}
+
                                     <AvatarFallback>
                                         {anecdote?.user.name.slice(0, 2).toUpperCase()}
                                     </AvatarFallback>

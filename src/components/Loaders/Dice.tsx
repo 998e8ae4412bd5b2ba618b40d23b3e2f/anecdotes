@@ -10,7 +10,7 @@ const Dice = () => {
             diceRef.current.style.animation = 'rolling 4s';
 
             setTimeout(() => {
-                if (diceRef.current) { // Add null check here
+                if (diceRef.current) { // GoogleAd null check here
                     switch (value) {
                         case 1:
                             diceRef.current.style.transform = 'rotateX(0deg) rotateY(0deg)';

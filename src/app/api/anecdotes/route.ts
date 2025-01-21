@@ -7,7 +7,6 @@ import {transformAnecdotesWithStats} from "@/utils/transformAnecdotesWithStats";
 export const GET = async (req: NextRequest) => {
     try {
         const session = await getAuthSession();
-
         const POST_PER_PAGE = 12;
         const url = new URL(req.url);
 

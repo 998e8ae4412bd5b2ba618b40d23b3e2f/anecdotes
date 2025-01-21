@@ -3,6 +3,8 @@ import React, {Suspense, useEffect, useState} from 'react';
 import AnecdotesGrid from "@/components/AnecdoteGrid/AnecdotesGrid";
 import {Button} from "@/components/ui/button";
 import AnecdoteGridLayout from "@/components/AnecdoteGrid/AnecdoteGridLayout";
+import EmptyMessage from "@/components/EmptyMessage";
+import Filter from "@/components/Filter/Filter";
 
 const getCategories = async () => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/categories`, {
@@ -94,54 +96,17 @@ const Page = () => {
 
 
     return (
-        <section className="flex flex-col sm:flex-row justify-start pt-24 gap-12">
-            <div className="w-full max-w-full sm:max-w-64">
-                <div className="flex flex-col gap-6 mb-3.5">
-                    <span
-                        className="text-blackPrimary text-2xl font-extrabold font-['Manrope'] leading-[30px]"
-                    >
-                            Збережені анекдоти
-                        </span>
+        <section className="flex flex-col sm:flex-row justify-start pt-6 sm:pt-24 gap-12">
+            {/*<Filter></Filter>*/}
 
-                    <Button
-                        onClick={() => setSelectedCategories([])}
-                        className="h-[50px] px-5 py-2.5 bg-blackPrimary text-white rounded-[10px] justify-center items-center gap-2.5 inline-flex"
-                    >
-                        Всі категорії
-                    </Button>
-                </div>
-
-                <ul className="flex flex-wrap gap-x-5 gap-y-2.5 mb-2.5">
-                    {
-                        categories.slice(0, 50).map((item: Category) => {
-                            return (
-                                <li
-                                    className={`rounded-[12px] px-2 text-blackPrimary text-sm font-normal font-['Manrope'] leading-[30px] cursor-pointer   ${selectedCategories.includes(item.title) ? 'bg-black text-white' : ''}`}
-                                    key={item.id}
-                                    onClick={() => handleCategorySelect(item.title)}
-                                >
-                                    {item.title}
-                                </li>
-                            );
-                        })
-                    }
-                </ul>
-
-                {/*<Button*/}
-                {/*    variant='ghost'*/}
-                {/*    className="p-0 gap-3 text-blackPrimary text-sm font-medium font-['Manrope'] leading-[30px]"*/}
-                {/*>*/}
-                {/*    Більше категорій*/}
-
-                {/*    <ChevronDown />*/}
-                {/*</Button>*/}
-            </div>
-
-            {
-                <AnecdoteGridLayout
-                    currentPage={1}
+            {anecdotes.length === 0 && !loading.anecdotes ?
+                <EmptyMessage
+                    title='На жаль жодного анекдоту не було знайдено!'
+                    content='I am the man who sold the world'
+                /> : <AnecdoteGridLayout
+                    currentPage={currentPage}
                     pagesAmount={1}
-                    setCurrentPage={() => {}}
+                    setCurrentPage={setCurrentPage}
                     anecdotes={anecdotes}
                     setAnecdotes={setAnecdotes}
                 />
