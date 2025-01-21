@@ -20,7 +20,10 @@ export default function RootLayout({
 }) {
     return (
         <html className={manrope.variable} lang="en">
-        <head />
+        <head>
+            <AdSense pId="ca-pub-9231756668209801" />
+            <meta name="google-adsense-account" content="ca-pub-9231756668209801">
+        </head>
         <body>
         <NextAuthProvider>
             <Header />
@@ -29,7 +32,7 @@ export default function RootLayout({
             </div>
             <Toaster />
             <Footer />
-            <AdSense pId="ca-pub-9231756668209801" />
+    
         </NextAuthProvider>
         </body>
         </html>
