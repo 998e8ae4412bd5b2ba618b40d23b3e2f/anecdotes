@@ -44,6 +44,11 @@ export const GET = async (req: NextRequest) => {
             where: whereClause,
             take: POST_PER_PAGE,
             skip: POST_PER_PAGE * (page - 1),
+            orderBy: {
+                likes: {
+                    _count: "desc",
+                },
+            },
             include: {
                 likes: true,
                 categories: true,
@@ -78,6 +83,22 @@ export const POST = async (req: NextRequest) => {
 
         if (!session) {
             return new NextResponse(JSON.stringify({message: "Unauthorized"}), {status: 401});
+        }
+
+        const oneDayAgo = new Date();
+        oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+        const anecdoteCount = await prisma.anecdote.count({
+            where: {
+                userId: session.user.id,
+                createdAt: {
+                    gte: oneDayAgo,
+                },
+            },
+        });
+
+        if (anecdoteCount >= 5) {
+            return new NextResponse(JSON.stringify({ message: "You can only create up to 5 anecdotes in a 24-hour period" }), { status: 429 });
         }
 
         const { title, content, categories} = await req.json()

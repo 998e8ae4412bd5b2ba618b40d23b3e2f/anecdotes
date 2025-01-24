@@ -11,7 +11,6 @@ import {
     PaginationLink,
 } from "@/components/ui/pagination"
 import AnecdoteSkeleton from "@/components/Anecdote/AnecdoteSkeleton";
-import AdBanner from "@/components/GoogleAd/AdBanner";
 
 const saveAnecdote = async (id: string) => {
     return await fetch(`${process.env.NEXT_PUBLIC_URL}/api/saved`, {
@@ -43,9 +42,18 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
                                setCurrentPage: (currentPage: number) => void,
                                anecdotes: AnecdoteBase[],
                                setAnecdotes: (anecdotes: AnecdoteBase[]) => void }) => {
+
     const [openAnecdotePopup, setOpenAnecdotePopup] = useState<boolean>(false);
     const [popupAnecdote, setPopupAnecdote] = useState<string>('');
 
+
+    const handleLike = (anecdoteId: string, likeInfo: {likeCount: number, dislikeCount: number, likeStatus: 'liked' | 'dislike' | 'none';}) => {
+        const updatedAnecdotes: AnecdoteBase[] = anecdotes.map((a) =>
+            a.id === anecdoteId ? { ...a, likeCount: likeInfo.likeCount, dislikeCount: likeInfo.dislikeCount, userLike: likeInfo.likeStatus } : a
+        );
+
+        setAnecdotes(updatedAnecdotes)
+    }
 
     const handelSave = (anecdoteId?: string) => {
         const id = anecdoteId || popupAnecdote;
@@ -60,6 +68,8 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
             setAnecdotes(updatedAnecdotes);
         }
     };
+
+
     const handleDeleteAnecdote = (id: string) => {
         deleteAnecdote(id)
         const anecdotesCopy = anecdotes.filter(anecdote => {
@@ -77,7 +87,7 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
         document.documentElement.style.overflow = 'auto';
         setOpenAnecdotePopup(false)
         setPopupAnecdote('')
-        pathname !== '/profile' && window.history.replaceState({}, '', `${process.env.NEXT_PUBLIC_URL}/dashboard`);
+        pathname !== '/profile' && window.history.replaceState({}, '', `/dashboard`);
     }
 
     const updateAnecdotes = (newAnecdotes: AnecdoteBase[]) => {
@@ -85,7 +95,6 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
     }
     const searchParams = useSearchParams();
     const pathname = usePathname();
-
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
@@ -106,7 +115,7 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
                 />}
             {<div className="flex justify-between w-full">
                 <div className="flex flex-col justify-start items-start gap-8 w-full lg:w-fit">
-                    <div className="grid grid-cols-1  [@media(min-width:1140px)]:grid-cols-2 [@media(min-width:1425px)]:grid-cols-3 w-full sm:w-fit gap-8 mb-8 min-h-[1000px]">
+                    <div className="grid grid-cols-1 [@media(min-width:1140px)]:grid-cols-2 [@media(min-width:1425px)]:grid-cols-3 grid-rows-4 w-full sm:w-fit gap-8 mb-8 min-h-[1000px]">
                         {
                             anecdotes.length === 0 ?
                                 Array.from({length: 12}, (_, i: number) => (
@@ -118,9 +127,10 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
                                         anecdote={{
                                             ...anecdote,
                                         }}
-                                        saveAnecdote={() => handelSave(anecdote.id)}
-                                        openPopup={() => handleOpenPopup(anecdote.id)}
-                                        deleteAnecdote={() => handleDeleteAnecdote(anecdote.id)}
+                                        likeAnecdote={handleLike}
+                                        saveAnecdote={handelSave}
+                                        openPopup={handleOpenPopup}
+                                        deleteAnecdote={handleDeleteAnecdote}
                                         key={anecdote.id}
                                     />
                                 ))
@@ -194,13 +204,8 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
                 </div>
 
                 <div className="hidden lg:flex flex-col gap-4 pl-8">
-
-                    <div style={{width: '100%', minHeight: '250px'}}>
-                        <AdBanner dataAdSlot="9962716587" dataAdFormat="auto" dataFullWidthResponsive={true}/>
-                    </div>
-
-                    {/*<div className="w-[240px] h-[400px] bg-red-800"/>*/}
-                    {/*<div className="w-[240px] h-[400px] bg-red-800"/>*/}
+                    <div className="w-[240px] h-[400px] bg-red-800"/>
+                    <div className="w-[240px] h-[400px] bg-red-800"/>
                 </div>
             </div>}
         </section>

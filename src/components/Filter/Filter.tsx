@@ -78,7 +78,7 @@ const Filter = () => {
                 <SearchCategories onCategorySelect={(cat) => handleCategorySelect(cat)}/>
             </div>
 
-            <div className="flex flex-wrap gap-y-2 gap-x-4 pb-4">
+            {selectedCategories.length !== 0 && <div className="flex flex-wrap gap-y-2 gap-x-4 pb-4">
                 {
                     selectedCategories.map((cat) => (
                         <Button
@@ -103,7 +103,7 @@ const Filter = () => {
                         </Button>
                     ))
                 }
-            </div>
+            </div>}
 
             <div className="mb-2.5">
                 <span className="text-blackPrimary text-xs font-semibold font-['Manrope'] leading-[15px] mb-1.5 block">Топ категорії</span>

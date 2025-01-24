@@ -21,6 +21,8 @@ interface TransformedAnecdote {
 
 export function transformAnecdotesWithStats(anecdotes: Anecdote[], userId: string): TransformedAnecdote[] {
     return anecdotes.map((anecdote) => {
+        const userLike = anecdote.likes.find((like: any) => like.userId === userId);
+
         const likeCount = anecdote.likes.filter(like => like.isLiked).length;
         const dislikeCount = anecdote.likes.filter(like => !like.isLiked).length;
         const isSavedByUser = anecdote.saved.some((save: {userId: string}) => save.userId === userId);
@@ -30,6 +32,7 @@ export function transformAnecdotesWithStats(anecdotes: Anecdote[], userId: strin
                 title: cat.title,
             };
         });
+        const isLikedByUser = userLike ? (userLike.isLiked? 'liked' : 'dislike') : 'none';
 
         return {
             id: anecdote.id,
@@ -38,6 +41,7 @@ export function transformAnecdotesWithStats(anecdotes: Anecdote[], userId: strin
             likeCount,
             dislikeCount,
             categories,
+            userLike: isLikedByUser,
             isSaved: isSavedByUser,
             commentsAmount: anecdote.Comment.length
         };

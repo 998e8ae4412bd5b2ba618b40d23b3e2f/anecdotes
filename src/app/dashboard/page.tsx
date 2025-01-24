@@ -7,7 +7,6 @@ import Filter from "@/components/Filter/Filter";
 import { useSearchParams} from "next/navigation";
 
 
-
 const getAnecdotes = async (page: number, categories: string[]) => {
     const categoryParams = categories.length > 0 ? `&categories=${categories.join(',')}` : '';
     try {
@@ -31,7 +30,6 @@ const getAnecdotes = async (page: number, categories: string[]) => {
     }
 }
 
-
 const PageContent = () => {
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [anecdotes, setAnecdotes] = useState<AnecdoteBase[]>([]);
@@ -48,7 +46,6 @@ const PageContent = () => {
         if (categories === null) return setSelectedCategories([]);
         setSelectedCategories(categories?.split(','))
     }, [searchParams]);
-
 
     useEffect(() => {
         const fetchAnecdotes = async () => {

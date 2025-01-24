@@ -209,7 +209,7 @@ const Page = () => {
 
 
     return (
-        <div className="flex w-full pt-6 ms:p-24 gap-8 justify-center">
+        <div className="flex-1 flex w-full pt-6 ms:p-24 gap-8 justify-center">
             <div className="flex flex-1 max-w-[569px] flex-col gap-4">
                 <div>
                     <h1 className="text-[#1e1e1e] text-[28px] font-bold font-['Manrope']">Створення анекдоту</h1>

@@ -71,38 +71,47 @@ const Header =  () => {
         });
     };
 
-
     return (
         <header className={`relative px-4 pr-8 sm:px-12 w-full flex items-center justify-between py-7 max-w-[1440px] mx-auto`}>
             <Link
-                href='/dashboard'
+                href='/'
                 className="text-blackPrimary text-2xl font-bold font-['e-Ukraine'] leading-[30px] z-20">
                 єАнекдоти
             </Link>
 
 
-            <nav className="hidden md:flex items-center gap-8 xl:gap-12 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ">
+            <nav className="hidden lg:flex items-center gap-8 xl:gap-12 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ">
                 <Link
                     href="/dashboard"
                     className="text-blackPrimary text-base font-medium font-['Manrope'] leading-[30px]"
                 >Головна</Link>
+                <Link
+                    href="/dashboard"
+                    className="text-blackPrimary text-base font-medium font-['Manrope'] leading-[30px]"
+                >Анекдоти</Link>
                 <div
                     onClick={handleRandomAnecdote}
                     className="flex xl:gap-2 cursor-pointer px-3 xl:px-5 py-2.5 rounded-[10px] bg-random-anecdote-button-gradient-anim animate-gradientAnimation bg-[length:300%_300%]"
                 >
                     <span
-                        className="text-[#1e1e1e] text-base font-medium font-['Manrope'] leading-[30px] hidden xl:block">Випадковий анекдот</span>
-                    <img src="/random-joke-cube.svg" alt=""/>
+                        className="text-[#1e1e1e] text-base font-medium font-['Manrope'] leading-[30px] hidden xl:block whitespace-nowrap">Випадковий анекдот</span>
+                    <img src="/random-joke-cube.svg" className="min-w-6 min-h-6" alt=""/>
                 </div>
                 <Link
-                    href="/anecdote/create"
+                    href="/tender"
                     className="text-blackPrimary text-base font-medium font-['Manrope'] leading-[30px]"
+                >
+                    Конкурси
+                </Link>
+                <Link
+                    href="/anecdote/create"
+                    className="text-blackPrimary whitespace-nowrap text-base font-medium font-['Manrope'] leading-[30px]"
                 >
                     Додати анекдот
                 </Link>
             </nav>
 
-            <div className="hidden md:flex gap-5">
+            <div className="hidden lg:flex gap-5">
                 {
                     sessionStatus === 'loading' ? null : sessionData && <Link
                         href="/saved"
@@ -119,13 +128,15 @@ const Header =  () => {
                         <AvatarFallback>
                             {sessionData.user.name && sessionData.user.name.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
-                    </Avatar></Link>}
+                    </Avatar>
+                    </Link>
+                }
 
                 {sessionStatus === 'loading' ? null : !sessionData && <div className="flex items-center gap-4"><LoginOrRegForm/></div>}
             </div>
 
 
-            <div className="block md:hidden z-10">
+            <div className="block lg:hidden z-10">
                     <div className="flex items-center gap-6 ">
                     <div
                         onClick={handleRandomAnecdote}
@@ -147,9 +158,14 @@ const Header =  () => {
                     className="absolute pt-14 top-0 p-6 pb-4 left-0 bg-white w-full rounded-bl-[1.5rem] rounded-br-[1.5rem] animate-slideDown">
                     <nav className="pt-16 flex flex-col gap-5">
                         <Link
-                            href="/"
+                            href="/dashboard"
                         >
-                            Головна
+                            Анекдоти
+                        </Link>
+                        <Link
+                            href="/tender"
+                        >
+                            Конкурс
                         </Link>
                         <Link
                             href="/anecdote/create"

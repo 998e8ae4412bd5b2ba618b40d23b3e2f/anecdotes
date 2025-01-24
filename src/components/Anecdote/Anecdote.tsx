@@ -28,17 +28,18 @@ const ActionButton = ({ onClick, className, variant, children }: {
 
 };
 
-const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecdote: AnecdoteBase, saveAnecdote: () => void, openPopup: () => void, deleteAnecdote?: (id: string) => void }) => {
+interface AnecdoteProps {
+    anecdote: AnecdoteBase;
+    saveAnecdote: (anecdoteId: string) => void;
+    openPopup: (anecdoteId: string) => void;
+    deleteAnecdote?: (anecdoteId: string) => void;
+    likeAnecdote: (anecdoteId: string, likeStatus: {likeCount: number, dislikeCount: number, likeStatus: 'liked' | 'dislike' | 'none';}) => void;
+}
+
+const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote, likeAnecdote }: AnecdoteProps) => {
     const { id, title, content, categories, isSaved} = anecdote;
     const pathname = usePathname();
-    const [likeCount, setLikeCount] = useState(anecdote.likeCount);
-    const [dislikeCount, setDislikeCount] = useState(anecdote.dislikeCount);
     const cornerColors: string[] = ['#CFFCC0', '#BEAEFB', '#FF99C8']
-
-    useEffect(() => {
-        setLikeCount(anecdote.likeCount);
-        setDislikeCount(anecdote.dislikeCount);
-    }, [anecdote]);
 
     const handleLike = async (isLiked: boolean) => {
         try {
@@ -54,8 +55,13 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
 
             if (res.ok) {
                 const data = await res.json();
-                setLikeCount(data.likeCount);
-                setDislikeCount(data.dislikeCount);
+                const likeInfo = {
+                    likeCount: data.likeCount,
+                    dislikeCount: data.dislikeCount,
+                    likeStatus: data.likeStatus
+                }
+
+                likeAnecdote(id, likeInfo)
             }
         } catch (error) {
             console.error('Error liking the anecdote:', error);
@@ -64,14 +70,13 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
     const { requireAuth, AuthModalComponent } = useRequireAuth();
     const [cornerColor] = useState(cornerColors[Math.floor(Math.random() * cornerColors.length)]);
 
-
     const truncatedContent = content.length > 200 ? content.slice(0, 200) + '...' : content;
 
     return (
         <div className="group relative h-fit w-full lg:w-fit">
             <Card
                 className="flex flex-col justify-between rounded-[15px] relative w-full lg:w-[250px] lg:h-[250px] cursor-pointer hover:shadow-[0px_7px_23.700000762939453px_-15px_rgba(0,0,0,0.25)] shadow-[0px_7px_7.599999904632568px_-13px_rgba(0,0,0,0.10)] transition"
-                onClick={openPopup}>
+                onClick={() => openPopup(id)}>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle
                         className="text-blackPrimary w-fit break-words text-base font-bold font-['Manrope']">
@@ -84,7 +89,7 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
                                     <MoreVertical/>
                             </PopoverTrigger>
                             <PopoverContent className="absolute p-3 -top-10 right-4 w-fit">
-                                <div className="flex gap-1 items-center justify-start" onClick={() => requireAuth(saveAnecdote)}>
+                                <div className="flex gap-1 items-center justify-start" onClick={() => requireAuth(() => saveAnecdote(id))}>
                                     <Bookmark fill={isSaved ? 'black' : 'white'} stroke={isSaved ? 'black' : 'black'}/>
                                     <span className="text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-tight">Зберегти</span>
                                 </div>
@@ -126,16 +131,23 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
                             <ActionButton
                                 onClick={() => requireAuth(() => handleLike(true))}
                                 variant="ghost"
-                                className="flex h-fit p-0 gap-2 items-center"
+                                className="flex h-fit p-0 gap-2 items-center hover:bg-white"
                             >
-                                <ThumbsUp stroke="black" fill="white"/> {likeCount}
+                                <ThumbsUp
+                                    stroke={anecdote.userLike === 'none' ? 'black' : anecdote.userLike === 'liked' ? 'green' : 'black'}
+                                />
+                                {anecdote.likeCount}
                             </ActionButton>
+
                             <ActionButton
                                 onClick={() => requireAuth(() => handleLike(false))}
                                 variant="ghost"
-                                className="flex h-fit p-0 gap-2 items-center"
+                                className="flex h-fit p-0 gap-2 items-center hover:bg-white"
                             >
-                                <ThumbsDown/> {dislikeCount}
+                                <ThumbsDown
+                                    stroke={anecdote.userLike === 'none' ? 'black' : anecdote.userLike === 'dislike' ? 'red' : 'black'}
+                                />{anecdote.dislikeCount}
+
                             </ActionButton>
                             <div className="flex h-fit gap-2 pl-1 items-center">
                                 <MessageSquare className="w-4 h-5"/>
@@ -148,7 +160,7 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote }: { anecd
                     <ActionButton
                         className="hidden md:flex absolute bg-black hover:bg-initial rounded-[10px] border-none h-11 w-11 items-center justify-center -top-5 -right-5 p-0 opacity-0 group-hover:opacity-100 transition-all"
                         variant="outline"
-                        onClick={() => requireAuth(saveAnecdote)}
+                        onClick={() => requireAuth(() => saveAnecdote(id))}
                     >
                         <Bookmark fill={isSaved ? 'white' : 'black'} stroke="white"/>
                     </ActionButton>

@@ -4,7 +4,7 @@ import {Mail, Send} from "react-feather";
 
 const Footer = () => {
     return (
-        <footer className="flex justify-center items-center h-fit sm:h-[69px] w-full bg-[#1E1E1E] z-10 ">
+        <footer className="flex justify-center items-center h-fit sm:min-h-[69px] w-full bg-[#1E1E1E] z-10 ">
             <div
                 className='flex justify-between md:flex-row-reverse py-6 md:py-0 items-center flex-col sm:flex-row w-full gap-8 mx-auto  max-w-[1440px] px-12'>
                 <div className="flex flex-col md:flex-row md:gap-8 items-center gap-2.5">

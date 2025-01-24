@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {Bookmark, HelpCircle, Send, ThumbsUp, X} from 'react-feather';
 import {Input} from "@/components/ui/input";
 import Comment from "@/components/Comment"
-import {usePathname} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import Dice from "@/components/Loaders/Dice";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Loader2} from "lucide-react";
@@ -134,6 +134,21 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
         }, 2000)
     }, []);
 
+    const router = useRouter();
+
+    const handleRandomAnecdote = async () => {
+        try {
+            const response = await fetch('/api/anecdotes/random');
+            if (!response.ok) throw new Error('Failed to fetch random anecdote');
+            const data = await response.json();
+            if (data?.id) {
+                router.push(`?id=${data.id}&isRandom=true`);
+            }
+        } catch (error) {
+            console.error('Error fetching random anecdote:', error);
+        }
+    };
+
     return (
         <section
             onClick={closePopup}
@@ -143,16 +158,28 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                 className="flex flex-col w-full max-w-[600px] pt-20 pb-10 md:py-40 overflow-y-auto scrollbar-hidden">
                 <div className="relative mb-6">
                     <div className="bg-white px-6 pt-6 pb-2">
-                        <div onClick={closePopup}
-                             className="absolute p-2.5 bg-white rounded-[10px] top-[-60px] left-[0px] cursor-pointer">
-                            <X/>
+                        <div>
+                            <div onClick={closePopup}
+                                 className="absolute p-2.5 bg-white rounded-[10px] top-[-60px] left-[0px] cursor-pointer">
+                                <X/>
+                            </div>
+                            <div
+                                onClick={handleRandomAnecdote}
+                                className="absolute top-[-60px] right-0 flex xl:gap-2 cursor-pointer px-3 xl:px-5 py-2.5 rounded-[10px] bg-random-anecdote-button-gradient-anim animate-gradientAnimation bg-[length:300%_300%]"
+                            >
+                                <span
+                                    className="text-[#1e1e1e] text-base font-medium font-['Manrope'] leading-[30px] hidden xl:block">Мені пощастить</span>
+                                <img src="/random-joke-cube.svg" alt=""/>
+                            </div>
                         </div>
+
+
                         <div className="flex items-center justify-between border-b-[1px] pb-4">
                             <div className="flex items-center gap-2">
                                 <Avatar>
                                     {anecdote.user.image !== undefined && <AvatarImage
                                         className="w-[30px] h-[30px] rounded-md object-cover"
-                                        src={anecdote.user.image} alt="@shadcn" />}
+                                        src={anecdote.user.image} alt="@shadcn"/>}
 
                                     <AvatarFallback>
                                         {anecdote?.user.name.slice(0, 2).toUpperCase()}
@@ -241,7 +268,7 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                 : isRandom ? <Dice/> : <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                     <Loader2
                         className="animate-spin"
-                        size={22}
+                        size={40}
                     />
                 </div>}
         </section>

@@ -117,11 +117,23 @@ export const POST = async (req: NextRequest) => {
         const likeCount = updatedAnecdote.likes.filter(like => like.isLiked).length;
         const dislikeCount = updatedAnecdote.likes.filter(like => !like.isLiked).length;
 
+        const likeStatus =
+            existingLike === null
+                ? isLiked
+                    ? 'liked'
+                    : 'dislike'
+                : existingLike.isLiked === isLiked
+                    ? 'null'
+                    : isLiked
+                        ? 'liked'
+                        : 'dislike';
+
+
         return new NextResponse(JSON.stringify({
             message: 'ok',
             likeCount,
             dislikeCount,
-            isLiked: existingLike?.isLiked === isLiked ? null : isLiked
+            likeStatus
         }), { status: 200 });
     } catch (e) {
         console.log(e);

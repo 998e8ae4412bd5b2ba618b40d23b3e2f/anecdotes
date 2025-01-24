@@ -93,6 +93,7 @@ model Anecdote {
   likes      Like[]
   categories Category[] @relation("AnecdoteToCategory")
   saved      Saved[]
+  createdAt  DateTime   @default(now())
 }
 
 model Saved {

@@ -7,6 +7,7 @@ interface AnecdoteBase  {
     categories: Category[]
     isSaved: boolean
     commentsAmount: number;
+    userLike: 'liked' | 'dislike' | 'none';
 }
 
 

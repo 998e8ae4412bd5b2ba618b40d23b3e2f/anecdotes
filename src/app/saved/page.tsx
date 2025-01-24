@@ -96,7 +96,7 @@ const Page = () => {
 
 
     return (
-        <section className="flex flex-col sm:flex-row justify-start pt-6 sm:pt-24 gap-12">
+        <section className="flex flex-col sm:flex-row justify-start pt-6 md:mt-11 gap-12">
             {/*<Filter></Filter>*/}
 
             {anecdotes.length === 0 && !loading.anecdotes ?
