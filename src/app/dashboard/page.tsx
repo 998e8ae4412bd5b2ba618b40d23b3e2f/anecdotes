@@ -5,12 +5,13 @@ import AnecdoteGridLayout from "@/components/AnecdoteGrid/AnecdoteGridLayout";
 import EmptyMessage from "@/components/EmptyMessage";
 import Filter from "@/components/Filter/Filter";
 import { useSearchParams} from "next/navigation";
+import {AnecdoteBase} from "@/types/anecdote.types";
 
 
 const getAnecdotes = async (page: number, categories: string[]) => {
     const categoryParams = categories.length > 0 ? `&categories=${categories.join(',')}` : '';
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes?page=${page}${categoryParams}`, {
+        const res = await fetch(`/api/anecdotes?page=${page}${categoryParams}`, {
             cache: 'no-cache',
             headers: {
                 'Content-Type': 'application/json',

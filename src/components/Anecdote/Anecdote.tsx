@@ -7,6 +7,7 @@ import {Bookmark, MessageSquare, MoreVertical, ThumbsDown, ThumbsUp, Trash2} fro
 import {usePathname} from "next/navigation";
 import {useRequireAuth} from "@/hooks/useRequireAuth";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
+import {AnecdoteBase} from "@/types/anecdote.types";
 
 const ActionButton = ({ onClick, className, variant, children }: {
     onClick?: (e: React.MouseEvent) => void,

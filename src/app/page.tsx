@@ -3,7 +3,9 @@ import Link from "next/link";
 import {ArrowUpRight} from "react-feather";
 
 export default async function Home() {
-    return <div className="flex-1 flex flex-row flex-wrap gap-5">
+    return <div
+        className="flex flex-row flex-wrap gap-5 bg-cover bg-center"
+    >
         <div className="flex flex-col mb-[10%] mt-[10%]">
             <div className="flex flex-col max-w-[40rem] mb-40">
                 <h1 className="text-[#1e1e1e] text-4xl font-bold leading-[39px] mb-5">Ласкаво просимо на сайт
@@ -45,7 +47,8 @@ export default async function Home() {
             <img src="/images/main/anecdotes-bg.png" alt="anecdotes-bg"/>
         </div>
 
-        <img className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-screen w-screen -z-10" src="/images/main/gradient-bg.webp"
-             alt="gradient-bg"/>
+        {/*<img className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-full w-screen -z-10"*/}
+        {/*     src="/images/main/gradient-bg.webp"*/}
+        {/*     alt="gradient-bg"/>*/}
     </div>
 }

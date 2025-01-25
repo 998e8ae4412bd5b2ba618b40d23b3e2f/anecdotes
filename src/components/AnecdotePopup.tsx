@@ -7,23 +7,12 @@ import {usePathname, useRouter} from "next/navigation";
 import Dice from "@/components/Loaders/Dice";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Loader2} from "lucide-react";
+import {Anecdote, Comment as CommentType} from "@/types/anecdote.types"
+import {useRequireAuth} from "@/hooks/useRequireAuth";
 
 const fetchAnecdote = async (id: string): Promise<Anecdote> => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes/${id}`);
     const { data } = await res.json();
-    return data;
-};
-
-const postComment = async (content: string, anecdoteId: string) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/comments`, {
-        method: 'POST',
-        body: JSON.stringify({
-            content,
-            anecdoteId,
-        }),
-    });
-
-    const data = await res.json();
     return data;
 };
 
@@ -33,17 +22,16 @@ const Add = () => {
 }
 
 
-const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, saveAnecdote}:
+const AnecdotePopup = ({anecdoteId, closePopup, saveAnecdote, likeAnecdote, handlePostComment}:
                            {
                                anecdoteId: string,
-                               anecdotes: AnecdoteBase[],
-                               setNewAnecdotes: (anecdotes: AnecdoteBase[]) => void,
                                closePopup: () => void,
-                               saveAnecdote: () => void}) => {
+                               saveAnecdote: () => void
+                               likeAnecdote: (anecdoteId: string, likeStatus: {likeCount: number, dislikeCount: number, likeStatus: 'liked' | 'dislike' | 'none';}) => void;
+                               handlePostComment: (commentContent: string, anecdoteId: string) => Promise<CommentType>;
+                           }) => {
     const [anecdote, setAnecdote] = useState<Anecdote>();
     const [commentContent, setCommentContent] = useState<string>('');
-    const [likeCount, setLikeCount] = useState(0);
-    const [dislikeCount, setDislikeCount] = useState(0);
     const pathname = usePathname();
     const cornerColors: string[] = ['#CFFCC0', '#BEAEFB', '#FF99C8']
     const [cornerColor] = useState(cornerColors[Math.floor(Math.random() * cornerColors.length)]);
@@ -51,6 +39,7 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
     const urlParams = new URLSearchParams(window.location.search);
     const isRandom = urlParams.get('isRandom');
 
+    const { requireAuth, AuthModalComponent } = useRequireAuth();
     const handleLike = async (isLiked: boolean) => {
         try {
             const res = await fetch(`/api/anecdotes/${anecdoteId}`, {
@@ -65,36 +54,42 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
 
             if (res.ok) {
                 const data = await res.json();
-                setLikeCount(data.likeCount);
-                setDislikeCount(data.dislikeCount);
+                const likeInfo = {
+                    likeCount: data.likeCount,
+                    dislikeCount: data.dislikeCount,
+                    likeStatus: data.likeStatus
+                }
 
-                const updatedAnecdotes = anecdotes.map((a) =>
-                    a.id === anecdoteId ? { ...a, likeCount: data.likeCount, dislikeCount: data.dislikeCount } : a
-                );
-                setNewAnecdotes(updatedAnecdotes);
+                likeAnecdote(anecdoteId, likeInfo)
             }
+
+            const getAnecdote = async () => {
+                const anecdoteRes = await fetchAnecdote(anecdoteId);
+                setAnecdote(anecdoteRes);
+            };
+
+            getAnecdote();
         } catch (error) {
             console.error('Error liking the anecdote:', error);
         }
     };
 
-    const handlePostComment = async () => {
+    const postComment = async () => {
         if (commentContent === '') return
-        const response = await postComment(commentContent, anecdoteId);
-        const comment = response.data;
 
-        setAnecdote((prevState) => {
-            if (!prevState) return prevState;
+        const comment = await handlePostComment(commentContent, anecdoteId)
+
+        setAnecdote((prevState: Anecdote | undefined) => {
+            if (!prevState) {
+                return undefined;
+            }
+
             return {
                 ...prevState,
                 comments: [...prevState.comments, comment],
             };
         });
 
-        const updatedAnecdotes = anecdotes.map((a) =>
-            a.id === anecdoteId ? { ...a, commentsAmount: (anecdote?.comments?.length ?? 0) + 1 } : a
-        );
-        setNewAnecdotes(updatedAnecdotes)
 
         setCommentContent('');
     };
@@ -117,15 +112,13 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
         const getAnecdote = async () => {
             const anecdoteRes = await fetchAnecdote(anecdoteId);
             setAnecdote(anecdoteRes);
-            setLikeCount(anecdoteRes.likeCount);
-            setDislikeCount(anecdoteRes.dislikeCount);
         };
 
         getAnecdote();
-        if (pathname === '/()') {
-            const isReadyUrl = isRandom ? "&isRandom=true" : "";
-            window.history.replaceState({}, '', `${process.env.NEXT_PUBLIC_URL}/dashboard/?id=${anecdoteId}${isReadyUrl}`);
-        }
+        // if (pathname === '/()') {
+        //     const isReadyUrl = isRandom ? "&isRandom=true" : "";
+        //     window.history.replaceState({}, '', `${process.env.NEXT_PUBLIC_URL}/dashboard/?id=${anecdoteId}${isReadyUrl}`);
+        // }
     }, [anecdoteId]);
 
     useEffect(() => {
@@ -209,16 +202,20 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                                 </div>
                                 <div className="flex w-full md:w-fit gap-4 items-center justify-end">
                                     <div
-                                        onClick={() => handleLike(true)}
+                                        onClick={() => requireAuth(() => handleLike(true))}
                                         className="flex gap-2 items-center text-[12px] cursor-pointer">
-                                        <ThumbsUp className="w-5 h-5"/>
-                                        {likeCount}
+                                        <ThumbsUp
+                                            stroke={anecdote.userLike === 'none' ? 'black' : anecdote.userLike === 'liked' ? 'green' : 'black'}
+                                            className="w-5 h-5"/>
+                                        {anecdote.likeCount}
                                     </div>
                                     <div
-                                        onClick={() => handleLike(false)}
+                                        onClick={() => requireAuth(() => handleLike(false))}
                                         className="flex gap-2 items-center text-[12px] cursor-pointer">
-                                        <ThumbsUp className="w-5 h-5 rotate-180"/>
-                                        {dislikeCount}
+                                        <ThumbsUp
+                                            stroke={anecdote.userLike === 'none' ? 'black' : anecdote.userLike === 'dislike' ? 'red' : 'black'}
+                                            className="w-5 h-5 rotate-180"/>
+                                        {anecdote.dislikeCount}
                                     </div>
                                 </div>
                             </div>
@@ -252,13 +249,13 @@ const AnecdotePopup = ({anecdoteId, anecdotes, setNewAnecdotes, closePopup, save
                             value={commentContent}
                             onChange={(e) => setCommentContent(e.target.value)}
                         />
-                        <div onClick={handlePostComment} className="rotate-45 pr-4 cursor-pointer">
+                        <div onClick={postComment} className="rotate-45 pr-4 cursor-pointer">
                             <Send/>
                         </div>
                     </div>
                     <div className="flex flex-col gap-6 md:gap-10 mt-6 md:mt-3.5">
                         {anecdote &&
-                            anecdote.comments.map((comment: Comment) => (
+                            anecdote.comments.map((comment: CommentType) => (
                                 <Comment key={comment.id} user={comment.user} content={comment.content}
                                          date={comment.date}/>
                             ))}

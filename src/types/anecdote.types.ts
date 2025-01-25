@@ -1,4 +1,4 @@
-interface AnecdoteBase  {
+export interface AnecdoteBase  {
     id: string
     title: string
     content: string
@@ -11,7 +11,7 @@ interface AnecdoteBase  {
 }
 
 
-interface Anecdote extends AnecdoteBase {
+export interface Anecdote extends AnecdoteBase {
     comments: Comment[]
     user: {
         name: string
@@ -23,12 +23,12 @@ interface Anecdote extends AnecdoteBase {
 
 
 
-interface Category {
+export interface Category {
     id: string
     title: string
 }
 
-interface Comment {
+export interface Comment {
     id: string
     date: string
     content: string

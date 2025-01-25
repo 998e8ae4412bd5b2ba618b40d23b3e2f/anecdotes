@@ -11,9 +11,10 @@ import {
     PaginationLink,
 } from "@/components/ui/pagination"
 import AnecdoteSkeleton from "@/components/Anecdote/AnecdoteSkeleton";
+import {AnecdoteBase} from "@/types/anecdote.types";
 
 const saveAnecdote = async (id: string) => {
-    return await fetch(`${process.env.NEXT_PUBLIC_URL}/api/saved`, {
+    return await fetch(`/api/saved`, {
         cache: 'no-cache',
         method: 'POST',
         headers: {
@@ -26,7 +27,7 @@ const saveAnecdote = async (id: string) => {
 }
 
 const deleteAnecdote = async (id: string) => {
-    return await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes/${id}`, {
+    return await fetch(`/api/anecdotes/${id}`, {
         cache: 'no-cache',
         method: 'DELETE',
         headers: {
@@ -34,6 +35,19 @@ const deleteAnecdote = async (id: string) => {
         }
     });
 }
+
+const postComment = async (content: string, anecdoteId: string) => {
+    const res = await fetch(`/api/comments`, {
+        method: 'POST',
+        body: JSON.stringify({
+            content,
+            anecdoteId,
+        }),
+    });
+
+    const data = await res.json();
+    return data;
+};
 
 const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, setAnecdotes }:
                            {
@@ -45,7 +59,8 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
 
     const [openAnecdotePopup, setOpenAnecdotePopup] = useState<boolean>(false);
     const [popupAnecdote, setPopupAnecdote] = useState<string>('');
-
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
 
     const handleLike = (anecdoteId: string, likeInfo: {likeCount: number, dislikeCount: number, likeStatus: 'liked' | 'dislike' | 'none';}) => {
         const updatedAnecdotes: AnecdoteBase[] = anecdotes.map((a) =>
@@ -54,7 +69,6 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
 
         setAnecdotes(updatedAnecdotes)
     }
-
     const handelSave = (anecdoteId?: string) => {
         const id = anecdoteId || popupAnecdote;
         saveAnecdote(id);
@@ -68,6 +82,18 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
             setAnecdotes(updatedAnecdotes);
         }
     };
+
+    const handlePostComment = async (commentContent: string, anecdoteId: string) => {
+        const response = await postComment(commentContent, anecdoteId);
+        const comment = response.data;
+
+        const updatedAnecdotes = anecdotes.map((a) =>
+            a.id === anecdoteId ? { ...a, commentsAmount: (a.commentsAmount ?? 0) + 1 } : a
+        );
+        updateAnecdotes(updatedAnecdotes)
+
+        return comment;
+    }
 
 
     const handleDeleteAnecdote = (id: string) => {
@@ -93,8 +119,7 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
     const updateAnecdotes = (newAnecdotes: AnecdoteBase[]) => {
         setAnecdotes([...newAnecdotes])
     }
-    const searchParams = useSearchParams();
-    const pathname = usePathname();
+
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
@@ -108,10 +133,10 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
             {openAnecdotePopup &&
                 <AnecdotePopup
                     anecdoteId={popupAnecdote}
-                    anecdotes={anecdotes}
-                    setNewAnecdotes={updateAnecdotes}
                     closePopup={handleClosePopup}
                     saveAnecdote={handelSave}
+                    likeAnecdote={handleLike}
+                    handlePostComment={handlePostComment}
                 />}
             {<div className="flex justify-between w-full">
                 <div className="flex flex-col justify-start items-start gap-8 w-full lg:w-fit">

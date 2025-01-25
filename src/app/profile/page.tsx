@@ -10,7 +10,7 @@ import {Settings} from "react-feather";
 import EmptyMessage from "@/components/EmptyMessage";
 import AnecdoteGridLayout from "@/components/AnecdoteGrid/AnecdoteGridLayout";
 import {Skeleton} from "@/components/ui/skeleton";
-import Loader from "@/components/Loaders/Loader";
+import {AnecdoteBase} from "@/types/anecdote.types";
 
 const getUser = async (id: string) => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/user?userId=${id}`);

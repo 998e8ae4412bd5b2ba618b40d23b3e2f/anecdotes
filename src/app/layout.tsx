@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import AdSense from "@/components/GoogleAd/AdSense";
 import GoogleAnalytic from "@/components/GoogleAd/GoogleAnalytic";
+import {PageLimiter} from "@/components/PageLimiter";
 
 const manrope = Manrope({
     subsets: ["cyrillic"],
@@ -30,12 +31,11 @@ export default function RootLayout({
         >
         <NextAuthProvider>
             <Header />
-            <div className="flex-1 px-4 pr-8 sm:px-12 w-full max-w-[1440px] mx-auto">
-                {children}
-            </div>
+                <PageLimiter>
+                    {children}
+                </PageLimiter>
             <Toaster />
             <Footer />
-
         </NextAuthProvider>
         </body>
         </html>
