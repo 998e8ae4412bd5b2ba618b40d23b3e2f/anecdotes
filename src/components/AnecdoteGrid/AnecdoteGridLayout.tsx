@@ -1,5 +1,6 @@
 import React, {Suspense} from 'react';
 import AnecdotesGrid from "@/components/AnecdoteGrid/AnecdotesGrid";
+import {AnecdoteBase} from "@/types/anecdote.types";
 
 const AnecdoteGridLayout = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, setAnecdotes }:
                            {

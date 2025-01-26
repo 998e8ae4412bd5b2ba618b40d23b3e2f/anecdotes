@@ -122,7 +122,7 @@ const Page = () => {
                     повідомлять на електронну пошту.</p>
 
                 <Link
-                    href="/create/anecdote"
+                    href="/anecdote/create"
                     className="inline-flex items-center xl:gap-2 cursor-pointer px-3 xl:px-5 py-2.5 rounded-[10px] bg-random-anecdote-button-gradient-anim animate-gradientAnimation bg-[length:300%_300%] mb-24"
                 >
                     <span

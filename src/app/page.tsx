@@ -20,14 +20,14 @@ export default async function Home() {
                     підконтекст*</p>
 
                 <Link
-                    href=""
+                    href="/dashboard"
                     className="inline-block justify-self-end  px-12 bg-black text-white py-3 ml-auto  text-base font-medium font-['Manrope'] rounded-[10px]"
                 >Стати щасливим
                 </Link>
             </div>
 
             <Link
-                href="/"
+                href="/tender"
                 className="relative w-fit flex flex-col h-fit p-5 bg-random-anecdote-button-gradient-anim rounded-[20px] justify-center items-start">
                 <h2 className="text-[#1e1e1e] text-2xl font-extrabold leading-[30px] mb-2">Конкурс анекдотів!</h2>
                 <p className="text-[#1e1e1e] text-base font-medium font-['Manrope'] leading-7"> Розкажи свій
@@ -43,7 +43,7 @@ export default async function Home() {
         </div>
 
 
-        <div className="hidden md:block absolute top-1/2 -z-10 -translate-y-1/2 right-0 ">
+        <div className="hidden md:block absolute top-20 -z-10 right-0 ">
             <img src="/images/main/anecdotes-bg.png" alt="anecdotes-bg"/>
         </div>
 

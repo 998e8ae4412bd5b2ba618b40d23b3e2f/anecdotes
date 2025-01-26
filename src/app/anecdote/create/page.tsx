@@ -9,15 +9,17 @@ import {ChevronsUpDown} from "lucide-react";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 import {Dialog, DialogContent, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
 import {Input} from "@/components/ui/input";
-import {HelpCircle, X} from "react-feather";
+import {ChevronDown, ChevronsDown, HelpCircle, X} from "react-feather";
 import Link from "next/link";
 import {toast} from "sonner";
 import {NextResponse} from "next/server";
+import {Category} from "@/types/anecdote.types";
 
 interface AnecdoteCreateData {
     title: string
     content: string
     categories: Category[]
+    forContest?: boolean
 }
 
 const createCategory = async (title: string) => {
@@ -53,7 +55,7 @@ const getCategories = async () => {
 }
 
 const publishAnecdote = async (anecdote: AnecdoteCreateData) => {
-    const { title, content, categories } = anecdote;
+    const { title, content, categories, forContest } = anecdote;
 
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes`, {
@@ -67,7 +69,8 @@ const publishAnecdote = async (anecdote: AnecdoteCreateData) => {
                 content,
                 categories: {
                     connect: categories.map((category: Category) => ({ id: category.id }))
-                }
+                },
+                forContest
             })
         });
 
@@ -108,6 +111,8 @@ const Page = () => {
     const [categories, setCategories] = React.useState<Category[]>([])
     const [categoryToCreate, setCategoryToCreate] = useState<string>("")
     const [errorMessage, setErrorMessage] = useState<string>('');
+    const [takePartInTender, setTakePartInTender] = useState(false);
+
 
     const [title, setTitle] = useState('');
     const [editorState, setEditorState] = useState(() =>
@@ -148,9 +153,13 @@ const Page = () => {
                 setCategoryToCreate('')
                 return;
             }
-
             if (message === "Category title must be 10 characters or less") {
                 setErrorMessage("Максимальна кількість символів рівна 10 або менше");
+                setCategoryToCreate('')
+                return;
+            }
+            if (message === "User can create only 5 categories") {
+                setErrorMessage("Ви уже створили максимальну кількість категоірй! Тобто 5");
                 setCategoryToCreate('')
                 return;
             }
@@ -165,15 +174,40 @@ const Page = () => {
     }
     const handlePublishAnecdote = async () => {
         try {
-            await publishAnecdote({
+            const data = await publishAnecdote({
                 ...anecdoteDraft,
-                categories: anecdoteCategories,
+                forContest: takePartInTender,
+                categories: anecdoteCategories
             });
+
+
+            if (data.message === "You can only create up to 5 anecdotes in a 24-hour period") {
+                toast("Ви вичерпали ліміт у 5 створених анекдотів за день!", {
+                    description: "Зате як завжди дані було передано у СБУ та ТЦК 😆",
+                    action: {
+                        label: "Сумно...",
+                        onClick: () => handlePublishAnecdote(),
+                    },
+                });
+
+                return
+            }
+
+            if (data.message === "You have already 3 anecdotes for contest") {
+                toast("У вас уже 3 анекдоти для конкурсу!", {
+                    description: "Танцювала риба з раком",
+                    action: {
+                        label: "Путін хуйло",
+                        onClick: () => handlePublishAnecdote(),
+                    },
+                });
+
+                return
+            }
 
             setTitle('');
             setEditorState(EditorState.createEmpty());
             setAnecdoteCategories([]);
-
             toast("Анекдот був успішно створений", {
                 description: "Ваші дані було передано у СБУ та ТЦК 😆",
                 action: {
@@ -191,7 +225,9 @@ const Page = () => {
             });
         }
     };
-
+    const handleToggle = (checked: boolean) => {
+        setTakePartInTender(checked);
+    };
 
     useEffect(() => {
         const fetchAnecdotes = async () => {
@@ -209,8 +245,8 @@ const Page = () => {
 
 
     return (
-        <div className="flex-1 flex w-full pt-6 ms:p-24 gap-8 justify-center">
-            <div className="flex flex-1 max-w-[569px] flex-col gap-4">
+        <div className="flex w-full pt-6 pb-12 ms:p-24 gap-8 justify-center">
+            <div className="flex w-full max-w-[569px] flex-col gap-4">
                 <div>
                     <h1 className="text-[#1e1e1e] text-[28px] font-bold font-['Manrope']">Створення анекдоту</h1>
                     <Link href='/rules' className="flex gap-1 pt-1 ms:pt-3">
@@ -227,33 +263,41 @@ const Page = () => {
                     setEditorState={setEditorState}
                     onSave={handleSaveContent}/>
 
-                <div className="ms:hidden flex flex-wrap gap-4">
-                    {
-                        anecdoteCategories.map(category => (
-                            <Button
-                                onClick={() => handleCategory(category)}
-                                variant="outline"
-                                className="border border-[#1e1e1e]"
-                                key={category.id}>
-                                {category.title}
-                                <X/>
-                            </Button>
-                        ))
-                    }
-                </div>
 
-                <div className="flex justify-between flex-wrap gap-3 sm:gap-5">
+                <div className="flex flex-col justify-between flex-wrap gap-3 sm:gap-5">
+                    <div className="flex items-center gap-4">
+                        <span className="text-[#1e1e1e] text-sm font-medium">Взяти участь в конкурсі</span>
+                        <label
+                            className={`relative flex items-center w-12 h-6 rounded-[7px] transition-colors duration-300 ${
+                                takePartInTender ? "bg-random-anecdote-button-gradient-anim animate-gradientAnimation bg-[length:105%_105%]" : "bg-black"
+                            }`}
+                        >
+                            <input
+                                type="checkbox"
+                                className="peer sr-only"
+                                checked={takePartInTender}
+                                onChange={(e) => handleToggle(e.target.checked)}
+                            />
+                            <span
+                                className={`absolute left-1 top-1 h-4 w-4 bg-white rounded-[7px] transition-all duration-300 ${
+                                    takePartInTender ? "peer-checked:bg-black top-[0px] left-6 h-6 w-6" : "peer-checked:bg-white"
+                                }`}
+                            ></span>
+                        </label>
+                    </div>
+
+
                     <Popover open={openCategorySelect} onOpenChange={setOpenCategorySelect}>
                         <PopoverTrigger asChild>
                             <Button
                                 role="combobox"
-                                className="w-full sm:w-[200px] h-[50px] justify-between"
+                                className="w-full h-[50px] justify-between"
                             >
                                 Додати категорію
-                                <ChevronsUpDown className="opacity-50"/>
+                                <ChevronDown/>
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[93vw] sm:w-[200px] p-0">
+                        <PopoverContent className="w-[93vw] sm:max-w-[569px] p-0">
                             <Command>
                                 <CommandInput placeholder="Знайти категорію..."/>
                                 <CommandList>
@@ -277,7 +321,7 @@ const Page = () => {
                         </PopoverContent>
                     </Popover>
 
-                    <div className="ms:flex hidden flex-wrap gap-4">
+                    {anecdoteCategories.length !== 0 && <div className="flex flex-wrap gap-4">
                         {
                             anecdoteCategories.map(category => (
                                 <Button
@@ -290,12 +334,12 @@ const Page = () => {
                                 </Button>
                             ))
                         }
-                    </div>
+                    </div>}
 
                     <Dialog open={openCategoryCreate} onOpenChange={setOpenCategoryCreate}>
                         <DialogTrigger asChild>
                             <Button
-                                className="flex w-full items-center justify-center h-[50px] sm:w-fit bg-random-anecdote-button-gradient text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-[30px]"
+                                className="flex w-full items-center justify-center h-[50px] bg-[#E8E8E8] text-[#1e1e1e] text-sm font-medium hover:bg-[#E8E8E8]"
                                 variant="ghost"
                             >
                                 Створити власну категорію

@@ -77,7 +77,7 @@ export const POST = async (req: NextRequest) => {
 
 
         if (categoriesCreateByUser.length > 5) {
-            return new NextResponse(JSON.stringify({ message: "User can create only 5 categories" }), { status: 429 });
+            return new NextResponse(JSON.stringify({ message: "User can create only 5 categories" }), { status: 200 });
         }
 
         const body = await req.json();

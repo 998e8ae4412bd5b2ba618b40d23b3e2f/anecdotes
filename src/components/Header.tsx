@@ -82,7 +82,7 @@ const Header =  () => {
 
             <nav className="hidden lg:flex items-center gap-8 xl:gap-12 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ">
                 <Link
-                    href="/dashboard"
+                    href="/"
                     className="text-blackPrimary text-base font-medium font-['Manrope'] leading-[30px]"
                 >Головна</Link>
                 <Link

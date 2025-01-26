@@ -5,6 +5,7 @@ import {Button} from "@/components/ui/button";
 import AnecdoteGridLayout from "@/components/AnecdoteGrid/AnecdoteGridLayout";
 import EmptyMessage from "@/components/EmptyMessage";
 import Filter from "@/components/Filter/Filter";
+import {AnecdoteBase} from "@/types/anecdote.types";
 
 const getCategories = async () => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/categories`, {

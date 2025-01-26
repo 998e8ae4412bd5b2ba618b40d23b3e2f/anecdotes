@@ -1,3 +1,5 @@
+import {Category} from "@/types/anecdote.types";
+
 interface Anecdote {
     id: string;
     title: string;
