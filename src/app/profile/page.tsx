@@ -205,8 +205,8 @@ const Page = () => {
                         classname="xl:mt-20 xl:ml-20"
                         title='На жаль, ви не створили жодного анекдоту :('
                         content='I am the man who sold the world'
-                        linkUrl='/'
-                        linkTitle='створити анекдот'
+                        linkUrl='/anecdote/create'
+                        linkTitle='Створити анекдот'
                     /> : <AnecdoteGridLayout
                         currentPage={currentPage}
                         pagesAmount={pagesAmount}

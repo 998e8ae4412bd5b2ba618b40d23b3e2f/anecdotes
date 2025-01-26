@@ -183,11 +183,11 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote, likeAnecd
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>
-                            <DialogTitle>Are you sure you want to delete?</DialogTitle>
+                            <DialogTitle>Ви точно хочете видалити анекдот???</DialogTitle>
                         </DialogHeader>
                         {deleteAnecdote && <div>
                             <Button onClick={() => requireAuth(() => deleteAnecdote(id))}>
-                                Delete
+                                Удалити
                             </Button>
                         </div>}
                     </DialogContent>

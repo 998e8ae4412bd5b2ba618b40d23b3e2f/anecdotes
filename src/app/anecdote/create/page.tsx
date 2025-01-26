@@ -153,8 +153,8 @@ const Page = () => {
                 setCategoryToCreate('')
                 return;
             }
-            if (message === "Category title must be 10 characters or less") {
-                setErrorMessage("Максимальна кількість символів рівна 10 або менше");
+            if (message === "Category title must be 17 characters or less") {
+                setErrorMessage("Максимальна кількість символів рівна 17 або менше");
                 setCategoryToCreate('')
                 return;
             }

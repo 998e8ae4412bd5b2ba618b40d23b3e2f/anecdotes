@@ -83,9 +83,9 @@ export const POST = async (req: NextRequest) => {
         const body = await req.json();
         const categoryTitle = body.categoryTitle;
 
-        if (!categoryTitle || categoryTitle.length > 10) {
+        if (!categoryTitle || categoryTitle.length > 17) {
             return new NextResponse(
-                JSON.stringify({ message: "Category title must be 10 characters or less" }),
+                JSON.stringify({ message: "Category title must be 17 characters or less" }),
                 { status: 200 }
             );
         }
