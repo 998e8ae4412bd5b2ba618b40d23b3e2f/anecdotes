@@ -124,7 +124,7 @@ const AnecdotePopup = ({anecdoteId, closePopup, saveAnecdote, likeAnecdote, hand
     useEffect(() => {
         setTimeout(() => {
             setShow(true)
-        }, 2000)
+        }, 500)
     }, []);
 
     const router = useRouter();
