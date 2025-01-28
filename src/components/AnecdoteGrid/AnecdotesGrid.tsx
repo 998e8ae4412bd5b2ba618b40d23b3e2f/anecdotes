@@ -140,7 +140,7 @@ const AnecdotesGrid = ({ currentPage, pagesAmount, setCurrentPage, anecdotes, se
                 />}
             {<div className="flex justify-between w-full">
                 <div className="flex flex-col justify-start items-start gap-8 w-full lg:w-fit">
-                    <div className="grid grid-cols-1 [@media(min-width:1140px)]:grid-cols-2 [@media(min-width:1425px)]:grid-cols-3 grid-rows-4 w-full sm:w-fit gap-8 mb-8 min-h-[1000px]">
+                    <div className="grid grid-cols-1 [@media(min-width:1140px)]:grid-cols-2 [@media(min-width:1425px)]:grid-cols-3 grid-rows-4 w-full sm:w-fit gap-8 mb-8 sm:min-h-[1000px]">
                         {
                             anecdotes.length === 0 ?
                                 Array.from({length: 12}, (_, i: number) => (

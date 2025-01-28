@@ -141,7 +141,7 @@ model Contest {
 model ContestSubmission {
   id         String   @id @default(cuid())
   contestId  String
-  anecdoteId String
+  anecdoteId String   @unique
   isWinner   Boolean  @default(false)
   createdAt  DateTime @default(now())
   contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)

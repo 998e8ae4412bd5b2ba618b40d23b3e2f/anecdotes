@@ -8,19 +8,20 @@ const Page = () => {
         <>
             <section className="flex flex-col xl:flex-row justify-between items-center pt-20 pb-48">
                 <div className="flex flex-col lg:max-w-[535px] mb-20 xl:mb-0">
-                    <h1 className="text-[#1e1e1e] text-4xl font-bold leading-[39px] mb-2">100 гривень<span
-                        className="text-[#1e1e1e"> за найсмішніший анекдот!</span>
+                    <h1 className="text-[#1e1e1e] text-4xl font-bold leading-[39px] mb-2">
+                        <span className="bg-gradient-to-r from-[#EB748E] via-[#8E77E4] to-[#D50C69] inline-block text-transparent bg-clip-text">100 гривень</span> за найсмішніший анекдот!
                     </h1>
                     <p className="text-[#1e1e1e] text-lg font-medium font-['Manrope'] leading-7 mb-6">
                         Долучайся до конкурсу анекдотів на платформі єАнекдоти! Надішли свій найкращий жарт, збери лайки
                         та
                         вигравай 100 гривень.
                         <br/>
+                        <br/>
                         <span className="font-bold">Гумор винагороджується!</span>
                     </p>
 
                     <Link
-                        href="/anecdotes/create"
+                        href="/anecdote/create"
                         className="inline-flex justify-self-end bg-black text-white px-5 py-3.5 ml-auto  text-base font-medium font-['Manrope'] rounded-[10px] gap-2.5"
                     >
                         Створити анекдот

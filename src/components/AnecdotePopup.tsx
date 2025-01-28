@@ -1,12 +1,12 @@
 'use client'
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Bookmark, HelpCircle, Send, ThumbsUp, X} from 'react-feather';
 import {Input} from "@/components/ui/input";
 import Comment from "@/components/Comment"
 import {usePathname, useRouter} from "next/navigation";
 import Dice from "@/components/Loaders/Dice";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
-import {Loader2} from "lucide-react";
+import {Loader2, SearchIcon} from "lucide-react";
 import {Anecdote, Comment as CommentType} from "@/types/anecdote.types"
 import {useRequireAuth} from "@/hooks/useRequireAuth";
 
@@ -20,7 +20,6 @@ const fetchAnecdote = async (id: string): Promise<Anecdote> => {
 const Add = () => {
     return <div className="h-[600px] min-w-[300px] bg-black mt-40 opacity-5"/>
 }
-
 
 const AnecdotePopup = ({anecdoteId, closePopup, saveAnecdote, likeAnecdote, handlePostComment}:
                            {
@@ -38,7 +37,7 @@ const AnecdotePopup = ({anecdoteId, closePopup, saveAnecdote, likeAnecdote, hand
     const [show, setShow] = useState<boolean>(false)
     const urlParams = new URLSearchParams(window.location.search);
     const isRandom = urlParams.get('isRandom');
-
+    const [takePartInTender, setTakePartInTender] = useState(false);
     const { requireAuth, AuthModalComponent } = useRequireAuth();
     const handleLike = async (isLiked: boolean) => {
         try {
@@ -111,6 +110,7 @@ const AnecdotePopup = ({anecdoteId, closePopup, saveAnecdote, likeAnecdote, hand
     useEffect(() => {
         const getAnecdote = async () => {
             const anecdoteRes = await fetchAnecdote(anecdoteId);
+            setTakePartInTender(anecdoteRes.isInContest || false)
             setAnecdote(anecdoteRes);
         };
 
@@ -142,9 +142,30 @@ const AnecdotePopup = ({anecdoteId, closePopup, saveAnecdote, likeAnecdote, hand
         }
     };
 
+
+    const submitAnecdoteToContest = () => {
+        setTakePartInTender(prevState => !prevState);
+    }
+
+
+    const handleClosePopup = () => {
+        try {
+            if (anecdote?.isInContest !== takePartInTender) {
+                fetch('/api/contests/cm6celwpp0000w40soggz8aet/submissions', {
+                    method: 'POST',
+                    body: JSON.stringify({ anecdoteId }),
+                })
+            }
+        } catch (e) {
+            console.log(e)
+        }
+
+        closePopup()
+    }
+
     return (
         <section
-            onClick={closePopup}
+            onClick={handleClosePopup}
             className="flex justify-center gap-24 h-full w-full fixed top-0 left-0 bg-[rgba(30,30,30,0.83)] px-4 md:px-12 z-30">
             {anecdote && show ? <div
                 onClick={e => e.stopPropagation()}
@@ -152,18 +173,40 @@ const AnecdotePopup = ({anecdoteId, closePopup, saveAnecdote, likeAnecdote, hand
                 <div className="relative mb-6">
                     <div className="bg-white px-6 pt-6 pb-2">
                         <div>
-                            <div onClick={closePopup}
+                            <div onClick={handleClosePopup}
                                  className="absolute p-2.5 bg-white rounded-[10px] top-[-60px] left-[0px] cursor-pointer">
                                 <X/>
                             </div>
-                            <div
+                            {pathname !== '/profile' && <div
                                 onClick={handleRandomAnecdote}
                                 className="absolute top-[-60px] right-0 flex xl:gap-2 cursor-pointer px-3 xl:px-5 py-2.5 rounded-[10px] bg-random-anecdote-button-gradient-anim animate-gradientAnimation bg-[length:300%_300%]"
                             >
                                 <span
                                     className="text-[#1e1e1e] text-base font-medium font-['Manrope'] leading-[30px] hidden xl:block">Мені пощастить</span>
                                 <img src="/random-joke-cube.svg" alt=""/>
-                            </div>
+                            </div>}
+
+                            {pathname === '/profile' && <div className="absolute top-[-60px] right-0 flex items-center gap-4 bg-white px-3 xl:px-5 py-2.5 rounded-[10px]">
+                                    <span className="text-[#1e1e1e] text-sm font-medium">{anecdote.reachedAnecdoteLimit && !anecdote.isInContest ? 'У вас уже подано 3 анекдоти' : 'Взяти участь в конкурсі'}</span>
+                                    {!(anecdote.reachedAnecdoteLimit && !anecdote.isInContest) ? <label
+                                        className={`relative flex items-center w-12 h-6 rounded-[7px] transition-colors duration-300 ${
+                                            takePartInTender ? "bg-random-anecdote-button-gradient-anim animate-gradientAnimation bg-[length:105%_105%]" : "bg-black"
+                                        }`}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            className="peer sr-only"
+                                            checked={takePartInTender}
+                                            onChange={submitAnecdoteToContest}
+                                        />
+                                        <span
+                                            className={`absolute left-1 top-1 h-4 w-4 bg-white rounded-[7px] transition-all duration-300 ${
+                                                takePartInTender ? "peer-checked:bg-black top-[0px] left-6 h-6 w-6" : "peer-checked:bg-white"
+                                            }`}
+                                        ></span>
+                                    </label> : <></>}
+                                </div>
+                            }
                         </div>
 
 

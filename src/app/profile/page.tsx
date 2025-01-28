@@ -2,7 +2,7 @@
 import React, {Suspense, useEffect, useState} from 'react';
 import {Card, CardContent, CardFooter, CardHeader} from "@/components/ui/card";
 import {signOut, useSession} from "next-auth/react";
-import { useRouter } from 'next/navigation';
+import {usePathname, useRouter} from 'next/navigation';
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import Image from "next/image";
@@ -83,6 +83,7 @@ const Page = () => {
     const [pagesAmount, setPagesAmount] = useState<number>(1);
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [loading, setLoading] = useState<boolean>(true)
+    const pathname = usePathname();
 
     const handleUpdateUser = async () => {
         await updateUser(userEditData.name, userEditData.image)
@@ -179,13 +180,13 @@ const Page = () => {
                                     <Button
                                         className="w-full"
                                         variant='link'
-                                        onClick={handleUpdateUser}
+                                        onClick={() => setIsEdit(false)}
                                     >
                                         Скасувати
                                     </Button>
                                     <Button
                                         className="w-full"
-                                        onClick={() => setIsEdit(false)}
+                                        onClick={handleUpdateUser}
                                     >
                                         Зберегти
                                     </Button>

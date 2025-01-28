@@ -80,7 +80,7 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote, likeAnecd
                 onClick={() => openPopup(id)}>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle
-                        className="text-blackPrimary w-fit break-words text-base font-bold font-['Manrope']">
+                        className="text-blackPrimary w-fit break-words text-base font-bold">
                         {title}
                     </CardTitle>
 
@@ -105,18 +105,19 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote, likeAnecd
                                         </ActionButton>
                                     </DialogTrigger>
 
-                                    <DialogContent className="sm:max-w-[425px]">
+                                    <DialogContent className="sm:max-w-[425px] w-[90vw] rounded-2xl">
                                         <DialogHeader>
                                             <DialogTitle>Ви точно хочете удалити анекдот?</DialogTitle>
                                         </DialogHeader>
                                         {deleteAnecdote && <div>
-                                            <Button onClick={() => requireAuth(() => deleteAnecdote(id))}>
+                                            <Button
+                                                className="w-full"
+                                                onClick={() => requireAuth(() => deleteAnecdote(id))}>
                                                 Видалити
                                             </Button>
                                         </div>}
                                     </DialogContent>
                                 </Dialog>}
-
                             </PopoverContent>
                         </Popover>
                     </div>
@@ -181,7 +182,7 @@ const Anecdote = ({ anecdote, saveAnecdote, openPopup, deleteAnecdote, likeAnecd
                             <Trash2 stroke='red'/>
                         </ActionButton>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
+                    <DialogContent className="max-w-[425px]">
                         <DialogHeader>
                             <DialogTitle>Ви точно хочете видалити анекдот???</DialogTitle>
                         </DialogHeader>

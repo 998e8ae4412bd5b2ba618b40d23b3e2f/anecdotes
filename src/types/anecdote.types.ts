@@ -13,6 +13,8 @@ export interface AnecdoteBase  {
 
 export interface Anecdote extends AnecdoteBase {
     comments: Comment[]
+    isInContest?: boolean
+    reachedAnecdoteLimit?: boolean
     user: {
         name: string
         image: string
