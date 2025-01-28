@@ -89,7 +89,7 @@ export const GET = async (req: NextRequest) => {
         return new NextResponse(JSON.stringify({
             data: anecdotesWithCounts,
             totalPages,
-            newest: includeNew ? newestAnecdotesWithCounts : [], // Передаємо найновіші анекдоти, якщо потрібно
+            newest: includeNew ? newestAnecdotesWithCounts : []
         }), { status: 200 });
     } catch (e) {
         console.log(e);
@@ -101,6 +101,7 @@ export const GET = async (req: NextRequest) => {
 
 export const POST = async (req: NextRequest) => {
     try {
+        const whiteList: string[] = ['cm5fcdt400000w474yzlw7m25', 'cm5fvyt9i0000jp035ng70hak', 'cm6gmrtpp0000ih03m3unz9zo']
         const session = await getAuthSession();
 
         if (!session) {
@@ -119,9 +120,12 @@ export const POST = async (req: NextRequest) => {
             },
         });
 
-        if (anecdoteCount >= 5) {
-            return new NextResponse(JSON.stringify({ message: "You can only create up to 5 anecdotes in a 24-hour period" }), { status: 200 });
+        if (!whiteList.includes(session.user.id)) {
+            if (anecdoteCount >= 15) {
+                return new NextResponse(JSON.stringify({ message: "You can only create up to 15 anecdotes in a 24-hour period" }), { status: 200 });
+            }
         }
+
         const { title, content, categories, forContest} = await req.json()
 
         if (forContest){
