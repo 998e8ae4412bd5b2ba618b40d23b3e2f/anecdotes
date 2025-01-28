@@ -8,7 +8,7 @@ import { Anecdote } from "@prisma/client";
 export const GET = async (req: NextRequest) => {
     try {
         const session = await getAuthSession();
-        const POST_PER_PAGE = 12;
+        const POST_PER_PAGE = 16;
         const url = new URL(req.url);
 
         const page = parseInt(url.searchParams.get("page") || "1", 10);

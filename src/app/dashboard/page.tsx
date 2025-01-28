@@ -34,7 +34,6 @@ const getAnecdotes = async (page: number, categories: string[]) => {
 const PageContent = () => {
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [anecdotes, setAnecdotes] = useState<AnecdoteBase[]>([]);
-    const [newAnecdotes, setNewAnecdotes] = useState<AnecdoteBase[]>([]);
     const [pagesAmount, setPagesAmount] = useState<number>(0);
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [loading, setLoading] = useState({
@@ -54,7 +53,6 @@ const PageContent = () => {
             try {
                 setLoading(prev => ({ ...prev, anecdotes: true }));
                 const userAnecdotes = await getAnecdotes(currentPage, selectedCategories);
-                setNewAnecdotes(userAnecdotes.newest)
                 setAnecdotes(userAnecdotes.data);
                 setPagesAmount(userAnecdotes.totalPages);
             } catch (error) {

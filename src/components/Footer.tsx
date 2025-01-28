@@ -33,7 +33,7 @@ const Footer = () => {
                 <div
                     className="text-center text-white text-xs font-normal font-['Manrope'] leading-none"
                 >
-                    ©{new Date().getFullYear()} Веселі анекдоти. Всі права захищено. на ©2025 єАнекдоти. Всі права захищено.
+                    ©{new Date().getFullYear()} єАнекдоти. Всі права захищено.
                 </div>
 
             </div>
