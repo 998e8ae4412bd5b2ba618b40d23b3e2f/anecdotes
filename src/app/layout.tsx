@@ -51,8 +51,8 @@ export async function generateMetadata(): Promise<Metadata> {
             siteName: "єАнекдоти - найсмішніші анекдоти",
             images: [
                 {
-                    url: "https://buskanini-fe.vercel.app/og_image.png",
-                    secureUrl: "https://buskanini-fe.vercel.app/og_image.png",
+                    url: "https://yeanecdoty.com/og_image.png",
+                    secureUrl: "https://yeanecdoty.com//og_image.png",
                     alt: "єАнекдоти - найсмішніші анекдоти",
                     type: "website",
                     width: "1200px",
@@ -64,9 +64,9 @@ export async function generateMetadata(): Promise<Metadata> {
             card: "summary_large_image",
             site: "@site",
             creator: "Frant team",
-            title: "main_title",
+            title: "єАнекдоти - найсмішніші анекдоти",
             description: "",
-            images: "https://buskanini-fe.vercel.app//og_image.png"
+            images: "https://yeanecdoty.com/og_image.png"
         }
     }
 }

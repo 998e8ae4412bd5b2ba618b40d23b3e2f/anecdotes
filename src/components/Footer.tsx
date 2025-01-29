@@ -8,12 +8,8 @@ const Footer = () => {
             <div className='flex justify-between md:flex-row-reverse py-6 md:py-0 items-center flex-col sm:flex-row w-full gap-8 mx-auto  max-w-[1440px] px-12'>
                 <div className="flex flex-col md:flex-row md:gap-8 items-center gap-2.5">
                     <Link
-                        className="flex gap-1.5 items-center jus text-center text-white text-sm font-normal"
-                        href="mailto:yeanecdoty@gmail.com"
-                    >
-                        <Mail size={16}/>
-                        yeanecdoty@gmail.com
-                    </Link>
+                        className="text-white text-sm font-normal"
+                        href={'/policy'}>Політика конфіденційностіs</Link>
                     <Link
                         className="flex gap-1.5 items-center text-center text-white text-sm font-normal"
                         href="https://t.me/yeanekdoty"
@@ -42,7 +38,7 @@ const Footer = () => {
                 <div
                     className="text-center text-white text-xs font-normal font-['Manrope'] leading-none"
                 >
-                    ©{new Date().getFullYear()} єАнекдоти. Всі права захищено. <Link href={'/policy'}>Права користувача</Link>
+                    ©{new Date().getFullYear()} єАнекдоти. Всі права захищено.
                 </div>
 
             </div>

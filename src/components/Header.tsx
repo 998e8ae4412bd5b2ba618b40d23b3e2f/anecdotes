@@ -174,7 +174,7 @@ const Header =  () => {
                         </Link>
                     </nav>
 
-                    <div className="pb-1 flex justify-between pt-8">
+                    <div className="pb-1 grid grid-cols-2 justify-between pt-8">
                         {sessionStatus === 'loading' ? null : !sessionData && <LoginOrRegForm/>}
 
                         {sessionStatus === 'loading' ? null : sessionData && <div className="flex gap-4 items-center">
@@ -198,7 +198,7 @@ const Header =  () => {
 
                         {sessionStatus === 'loading' ? null : sessionData &&  <Link
                             href="/saved"
-                            className="text-[#343434] text-base font-medium font-['Manrope'] leading-[30px] flex items-center gap-2 pr-2">
+                            className="text-[#343434] text-base font-medium justify-end leading-[30px] flex items-center gap-2 pr-2">
                             Збережені
                             <Bookmark fill='black'/>
                         </Link>}
