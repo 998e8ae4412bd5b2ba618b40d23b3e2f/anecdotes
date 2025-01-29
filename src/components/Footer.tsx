@@ -12,7 +12,7 @@ const Footer = () => {
                         href={'/policy'}>Політика конфіденційностіs</Link>
                     <Link
                         className="flex gap-1.5 items-center text-center text-white text-sm font-normal"
-                        href="https://t.me/yeanekdoty"
+                        href="https://t.me/yeaneсdoty"
                     >
                         <Send size={16}/>
                         Telegram
