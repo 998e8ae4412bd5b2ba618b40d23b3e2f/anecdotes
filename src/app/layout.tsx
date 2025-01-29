@@ -8,6 +8,7 @@ import AdSense from "@/components/GoogleAd/AdSense";
 import GoogleAnalytic from "@/components/GoogleAd/GoogleAnalytic";
 import {PageLimiter} from "@/components/PageLimiter";
 import {Metadata} from "next";
+import Cookie from "@/components/Cookie";
 
 const manrope = Manrope({
     subsets: ["cyrillic"],
@@ -91,6 +92,7 @@ export default function RootLayout({
                 </PageLimiter>
             <Toaster />
             <Footer />
+            <Cookie/>
         </NextAuthProvider>
         </body>
         </html>
