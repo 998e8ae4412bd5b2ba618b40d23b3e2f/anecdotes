@@ -12,6 +12,7 @@ import {ChevronDown, HelpCircle, X} from "react-feather";
 import Link from "next/link";
 import {toast} from "sonner";
 import {Category} from "@/types/anecdote.types";
+import {useRequireAuth} from "@/hooks/useRequireAuth";
 
 interface AnecdoteCreateData {
     title: string
@@ -103,7 +104,7 @@ const Page = () => {
         categories: [],
         newCategories: []
     }
-
+    const { requireAuth, AuthModalComponent } = useRequireAuth();
     const [anecdoteDraft, setAnecdoteDraft] = useState<AnecdoteCreateData>(draftData);
     const [anecdoteCategories, setAnecdoteCategories] = React.useState<Category[]>([]);
     const [pendingCategories, setPendingCategories] = React.useState<string[]>([]);
@@ -397,12 +398,13 @@ const Page = () => {
 
                 <Button
                     className="w-full h-[50px] mt-8 sm:mt-0"
-                    onClick={handlePublishAnecdote}
+                    onClick={() => requireAuth(() => handlePublishAnecdote())}
                     disabled={isReadyToPublish}
                 >
                     Створити анекдот
                 </Button>
             </div>
+            {AuthModalComponent}
         </div>
     );
 };
