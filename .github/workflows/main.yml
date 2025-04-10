@@ -19,6 +19,12 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: "just-a-place-holder-so-we-dont-get-errors"
 
+      - name: Debug environment variables
+        run: |
+            echo "Server User: ${{ env.SERVER_USER }}"
+            echo "Server Host: ${{ env.SERVER_HOST }}"
+            echo "Deploy Directory: ${{ env.DEPLOY_DIR }}"
+            
       - name: Copy files to server
         run: rsync --archive --compress --progress . ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:${{ env.DEPLOY_DIR }}
 
