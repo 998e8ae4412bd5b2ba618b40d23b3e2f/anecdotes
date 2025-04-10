@@ -1,0 +1,36 @@
+name: Deploy Next.js App via SSH and Docker
+
+on:
+  push:
+    branches: [main, dev]
+
+jobs:
+  deploy:
+    name: Build & Deploy to Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Copy files to server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
+            rm -rf ${{ secrets.DEPLOY_DIR }}/*
+          "
+          rsync -avz --exclude=node_modules --exclude=.next ./ \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_DIR }}
+
+      - name: Build and run Docker container on server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
+            cd ${{ secrets.DEPLOY_DIR }} &&
+            docker compose down &&
+            docker compose build &&
+            docker compose up -d
+          "
