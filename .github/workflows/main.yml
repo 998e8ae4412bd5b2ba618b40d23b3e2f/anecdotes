@@ -26,7 +26,7 @@ jobs:
             echo "Deploy Directory: ${{ secrets.DEPLOY_DIR }}"
             
       - name: Copy files to server
-        run: rsync --archive --compress --progress . ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_DIR }}
+        run: rsync -e "ssh -i ${{ secrets.SSH_PRIVATE_KEY }}" --archive --compress --progress . ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_DIR }}
 
       - name: Build and run Docker container on server
         run: |
