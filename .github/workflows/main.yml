@@ -21,12 +21,12 @@ jobs:
 
       - name: Debug environment variables
         run: |
-            echo "Server User: ${{ env.SERVER_USER }}"
-            echo "Server Host: ${{ env.SERVER_HOST }}"
-            echo "Deploy Directory: ${{ env.DEPLOY_DIR }}"
+            echo "Server User: ${{ secrets.SERVER_USER }}"
+            echo "Server Host: ${{ secrets.SERVER_HOST }}"
+            echo "Deploy Directory: ${{ secrets.DEPLOY_DIR }}"
             
       - name: Copy files to server
-        run: rsync --archive --compress --progress . ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:${{ env.DEPLOY_DIR }}
+        run: rsync --archive --compress --progress . ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_DIR }}
 
       - name: Build and run Docker container on server
         run: |
