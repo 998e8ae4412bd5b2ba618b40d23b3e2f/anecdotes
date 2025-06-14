@@ -69,12 +69,23 @@ export const POST = async (req: NextRequest) => {
             return new NextResponse(JSON.stringify({ message: "Unauthorized" }), { status: 403 });
         }
 
+        const categoriesCreateByUser = await prisma.category.findMany({
+            where: {
+                userId: session.user.id,
+            }
+        })
+
+
+        if (categoriesCreateByUser.length > 5) {
+            return new NextResponse(JSON.stringify({ message: "User can create only 5 categories" }), { status: 200 });
+        }
+
         const body = await req.json();
         const categoryTitle = body.categoryTitle;
 
-        if (!categoryTitle || categoryTitle.length > 10) {
+        if (!categoryTitle || categoryTitle.length > 17) {
             return new NextResponse(
-                JSON.stringify({ message: "Category title must be 10 characters or less" }),
+                JSON.stringify({ message: "Category title must be 17 characters or less" }),
                 { status: 200 }
             );
         }

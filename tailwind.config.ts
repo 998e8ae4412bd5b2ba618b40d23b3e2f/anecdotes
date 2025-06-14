@@ -60,6 +60,7 @@ export default {
 		backgroundImage: {
 			'random-anecdote-button-gradient': 'linear-gradient(133deg, rgba(195, 253, 254, 0.00) 1.65%, rgba(207, 252, 192, 0.00) 120.13%), linear-gradient(91deg, #F6C4CF -5.81%, #BEAEFB 54%, #FF99C8 104.99%)',
 			'random-anecdote-button-gradient-anim': 'linear-gradient(301deg,rgba(195, 253, 254, 0.00) 1.65%, rgba(207, 252, 192, 0.00) 120.13%), linear-gradient(91deg, #F6C4CF -5.81%, #BEAEFB 54%, #FF99C8 104.99%)',
+			'gradient-bg': "url('/images/main/gradient-bg.webp')",
 		},
 		boxShadow: {
 			cardShadow: '0px_7px_19.600000381469727px_-13px_rgba(0,0,0,0.25)',

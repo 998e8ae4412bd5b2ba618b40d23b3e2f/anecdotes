@@ -1,0 +1,38 @@
+name: Deploy Next.js App via SSH and Docker
+
+on:
+  push:
+    branches: [main, dev]
+
+jobs:
+  deploy:
+    name: Build & Deploy to Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: shimataro/ssh-key-action@v2.3.1
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: "just-a-place-holder-so-we-dont-get-errors"
+
+      - name: Debug environment variables
+        run: |
+            echo "Server User: ${{ secrets.SERVER_USER }}"
+            echo "Server Host: ${{ secrets.SERVER_HOST }}"
+            echo "Deploy Directory: ${{ secrets.DEPLOY_DIR }}"
+            
+      - name: Copy files to server
+        run: rsync --archive --compress --progress . ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_DIR }}
+
+      - name: Build and run Docker container on server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
+            cd ${{ secrets.DEPLOY_DIR }} &&
+            docker compose down &&
+            docker compose build &&
+            docker compose up -d
+          "

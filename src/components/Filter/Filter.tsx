@@ -4,10 +4,11 @@ import {Skeleton} from "@/components/ui/skeleton";
 import {Button} from "@/components/ui/button";
 import {ChevronDown, X} from "react-feather";
 import {usePathname, useRouter} from "next/navigation";
+import {Category} from "@/types/anecdote.types";
 
 const getCategories = async (query: string, size?: number) => {
     const searchParam = query === '' ? '' : `search=${query}`;
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/categories?${searchParam}&page=1&pageSize=${size}`, {
+    const res = await fetch(`/api/categories?${searchParam}&page=1&pageSize=${size}`, {
         cache: 'no-cache',
     });
 
@@ -41,7 +42,13 @@ const Filter = () => {
     };
 
     useEffect(() => {
-        const searchParams = new URLSearchParams();
+        // Отримуємо параметри запиту з поточного URL
+        const searchParams = new URLSearchParams(window.location.search);
+
+        if (searchParams.has("id")) {
+            return;
+        }
+
         if (selectedCategories.length > 0) {
             searchParams.set("categories", selectedCategories.join(","));
         } else {
@@ -78,7 +85,7 @@ const Filter = () => {
                 <SearchCategories onCategorySelect={(cat) => handleCategorySelect(cat)}/>
             </div>
 
-            <div className="flex flex-wrap gap-y-2 gap-x-4 pb-4">
+            {selectedCategories.length !== 0 && <div className="flex flex-wrap gap-y-2 gap-x-4 pb-4">
                 {
                     selectedCategories.map((cat) => (
                         <Button
@@ -103,7 +110,7 @@ const Filter = () => {
                         </Button>
                     ))
                 }
-            </div>
+            </div>}
 
             <div className="mb-2.5">
                 <span className="text-blackPrimary text-xs font-semibold font-['Manrope'] leading-[15px] mb-1.5 block">Топ категорії</span>

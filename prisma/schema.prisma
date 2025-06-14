@@ -84,15 +84,17 @@ model Category {
 }
 
 model Anecdote {
-  id         String     @id @default(cuid())
-  title      String
-  content    String
-  userId     String
-  user       User       @relation(fields: [userId], references: [id])
-  Comment    Comment[]
-  likes      Like[]
-  categories Category[] @relation("AnecdoteToCategory")
-  saved      Saved[]
+  id                String              @id @default(cuid())
+  title             String
+  content           String
+  userId            String
+  user              User                @relation(fields: [userId], references: [id])
+  Comment           Comment[]
+  likes             Like[]
+  categories        Category[]          @relation("AnecdoteToCategory")
+  saved             Saved[]
+  createdAt         DateTime            @default(now())
+  ContestSubmission ContestSubmission[]
 }
 
 model Saved {
@@ -124,4 +126,26 @@ model Like {
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, anecdoteId])
+}
+
+model Contest {
+  id          String              @id @default(cuid())
+  title       String
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  submissions ContestSubmission[]
+}
+
+model ContestSubmission {
+  id         String   @id @default(cuid())
+  contestId  String
+  anecdoteId String   @unique
+  isWinner   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  contest    Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  anecdote   Anecdote @relation(fields: [anecdoteId], references: [id], onDelete: Cascade)
+
+  @@unique([contestId, anecdoteId])
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/utils/connect";
 import {transformAnecdotesWithStats} from "@/utils/transformAnecdotesWithStats";
+import {hasReachedAnecdoteLimit} from "@/lib/contestHelpers";
 
 export const GET = async (req: NextRequest) => {
     try {
@@ -39,13 +40,25 @@ export const GET = async (req: NextRequest) => {
 
         const anecdotesWithCounts = transformAnecdotesWithStats([anecdote], session?.user.id || '');
 
+        let reachedAnecdoteLimit = false;
+        if (session) {
+            reachedAnecdoteLimit = await hasReachedAnecdoteLimit('cm6celwpp0000w40soggz8aet', session.user.id, 3)
+        }
+        const isInContest = await prisma.contestSubmission.findMany({
+            where: {
+                anecdoteId: anecdoteId
+            }
+        })
+
         const anecdotesWithCountsFull= {
             ...anecdotesWithCounts[0],
             comments,
             user: {
                 name: anecdote.user.name,
                 image: anecdote.user.image
-            }
+            },
+            isInContest: isInContest.length !== 0,
+            reachedAnecdoteLimit
         }
 
         return new NextResponse(JSON.stringify({data: anecdotesWithCountsFull}), { status: 200 });
@@ -117,11 +130,23 @@ export const POST = async (req: NextRequest) => {
         const likeCount = updatedAnecdote.likes.filter(like => like.isLiked).length;
         const dislikeCount = updatedAnecdote.likes.filter(like => !like.isLiked).length;
 
+        const likeStatus =
+            existingLike === null
+                ? isLiked
+                    ? 'liked'
+                    : 'dislike'
+                : existingLike.isLiked === isLiked
+                    ? 'null'
+                    : isLiked
+                        ? 'liked'
+                        : 'dislike';
+
+
         return new NextResponse(JSON.stringify({
             message: 'ok',
             likeCount,
             dislikeCount,
-            isLiked: existingLike?.isLiked === isLiked ? null : isLiked
+            likeStatus
         }), { status: 200 });
     } catch (e) {
         console.log(e);

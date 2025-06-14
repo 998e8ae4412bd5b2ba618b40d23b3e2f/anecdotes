@@ -2,7 +2,7 @@
 import React, {Suspense, useEffect, useState} from 'react';
 import {Card, CardContent, CardFooter, CardHeader} from "@/components/ui/card";
 import {signOut, useSession} from "next-auth/react";
-import { useRouter } from 'next/navigation';
+import {usePathname, useRouter} from 'next/navigation';
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import Image from "next/image";
@@ -10,7 +10,7 @@ import {Settings} from "react-feather";
 import EmptyMessage from "@/components/EmptyMessage";
 import AnecdoteGridLayout from "@/components/AnecdoteGrid/AnecdoteGridLayout";
 import {Skeleton} from "@/components/ui/skeleton";
-import Loader from "@/components/Loaders/Loader";
+import {AnecdoteBase} from "@/types/anecdote.types";
 
 const getUser = async (id: string) => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/user?userId=${id}`);
@@ -83,6 +83,7 @@ const Page = () => {
     const [pagesAmount, setPagesAmount] = useState<number>(1);
     const [currentPage, setCurrentPage] = useState<number>(1)
     const [loading, setLoading] = useState<boolean>(true)
+    const pathname = usePathname();
 
     const handleUpdateUser = async () => {
         await updateUser(userEditData.name, userEditData.image)
@@ -179,13 +180,13 @@ const Page = () => {
                                     <Button
                                         className="w-full"
                                         variant='link'
-                                        onClick={handleUpdateUser}
+                                        onClick={() => setIsEdit(false)}
                                     >
                                         Скасувати
                                     </Button>
                                     <Button
                                         className="w-full"
-                                        onClick={() => setIsEdit(false)}
+                                        onClick={handleUpdateUser}
                                     >
                                         Зберегти
                                     </Button>
@@ -205,8 +206,8 @@ const Page = () => {
                         classname="xl:mt-20 xl:ml-20"
                         title='На жаль, ви не створили жодного анекдоту :('
                         content='I am the man who sold the world'
-                        linkUrl='/'
-                        linkTitle='створити анекдот'
+                        linkUrl='/anecdote/create'
+                        linkTitle='Створити анекдот'
                     /> : <AnecdoteGridLayout
                         currentPage={currentPage}
                         pagesAmount={pagesAmount}

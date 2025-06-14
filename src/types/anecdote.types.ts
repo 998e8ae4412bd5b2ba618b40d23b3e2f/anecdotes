@@ -1,4 +1,4 @@
-interface AnecdoteBase  {
+export interface AnecdoteBase  {
     id: string
     title: string
     content: string
@@ -7,11 +7,14 @@ interface AnecdoteBase  {
     categories: Category[]
     isSaved: boolean
     commentsAmount: number;
+    userLike: 'liked' | 'dislike' | 'none';
 }
 
 
-interface Anecdote extends AnecdoteBase {
+export interface Anecdote extends AnecdoteBase {
     comments: Comment[]
+    isInContest?: boolean
+    reachedAnecdoteLimit?: boolean
     user: {
         name: string
         image: string
@@ -22,12 +25,12 @@ interface Anecdote extends AnecdoteBase {
 
 
 
-interface Category {
+export interface Category {
     id: string
     title: string
 }
 
-interface Comment {
+export interface Comment {
     id: string
     date: string
     content: string

@@ -5,19 +5,21 @@ import { stateToHTML } from 'draft-js-export-html';
 import ArticleEditor from "@/components/Editor";
 import {Button} from "@/components/ui/button";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
-import {ChevronsUpDown} from "lucide-react";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 import {Dialog, DialogContent, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
 import {Input} from "@/components/ui/input";
-import {HelpCircle, X} from "react-feather";
+import {ChevronDown, HelpCircle, X} from "react-feather";
 import Link from "next/link";
 import {toast} from "sonner";
-import {NextResponse} from "next/server";
+import {Category} from "@/types/anecdote.types";
+import {useRequireAuth} from "@/hooks/useRequireAuth";
 
 interface AnecdoteCreateData {
     title: string
     content: string
     categories: Category[]
+    newCategories: string[]
+    forContest?: boolean
 }
 
 const createCategory = async (title: string) => {
@@ -40,7 +42,7 @@ const createCategory = async (title: string) => {
 }
 
 const getCategories = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/categories`, {
+    const res = await fetch(`/api/categories?pageSize=40`, {
         cache: 'no-cache',
     })
 
@@ -53,10 +55,22 @@ const getCategories = async () => {
 }
 
 const publishAnecdote = async (anecdote: AnecdoteCreateData) => {
-    const { title, content, categories } = anecdote;
+    const { title, content, categories, newCategories, forContest } = anecdote;
 
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/anecdotes`, {
+        // First, create all new categories
+        const createdCategories = await Promise.all(
+            newCategories.map(async (categoryTitle) => {
+                const { data } = await createCategory(categoryTitle);
+                return data;
+            })
+        );
+
+        // Combine existing and newly created categories
+        const allCategories = [...categories, ...createdCategories];
+
+        // Then publish the anecdote with all categories
+        const res = await fetch(`/api/anecdotes`, {
             cache: 'no-cache',
             method: 'POST',
             headers: {
@@ -66,8 +80,9 @@ const publishAnecdote = async (anecdote: AnecdoteCreateData) => {
                 title,
                 content,
                 categories: {
-                    connect: categories.map((category: Category) => ({ id: category.id }))
-                }
+                    connect: allCategories.map((category: Category) => ({ id: category.id }))
+                },
+                forContest
             })
         });
 
@@ -82,32 +97,24 @@ const publishAnecdote = async (anecdote: AnecdoteCreateData) => {
     }
 };
 
-
 const Page = () => {
     const draftData = {
-        title: 'Lorem Ipsum is simply',
-        content: `<p><strong>Lorem Ipsum is simply</strong>&nbsp;</p>
-<p><em>dummy text of the printing</em></p>
-<p><u>and typesetting industry.&nbsp;</u></p>
-<p>Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions\\n of Lorem Ipsum.</p>`,
-        categories: [{
-            "id": "test",
-            "title": "test"
-        }]
+        title: '',
+        content: '',
+        categories: [],
+        newCategories: []
     }
-
-    const [anecdoteDraft, setAnecdoteDraft] = useState<AnecdoteCreateData>({
-        title: draftData.title,
-        content: draftData.content,
-        categories: draftData.categories
-    });
+    const { requireAuth, AuthModalComponent } = useRequireAuth();
+    const [anecdoteDraft, setAnecdoteDraft] = useState<AnecdoteCreateData>(draftData);
     const [anecdoteCategories, setAnecdoteCategories] = React.useState<Category[]>([]);
-    const isReadyToPublish = !(anecdoteDraft.title !== draftData.title && anecdoteDraft.content !== draftData.content && anecdoteCategories.length !== 0);
+    const [pendingCategories, setPendingCategories] = React.useState<string[]>([]);
+    const isReadyToPublish = !(anecdoteDraft.title !== draftData.title && anecdoteDraft.content !== draftData.content && (anecdoteCategories.length !== 0 || pendingCategories.length !== 0));
     const [openCategorySelect, setOpenCategorySelect] = React.useState(false);
     const [openCategoryCreate, setOpenCategoryCreate] = useState(false);
     const [categories, setCategories] = React.useState<Category[]>([])
     const [categoryToCreate, setCategoryToCreate] = useState<string>("")
     const [errorMessage, setErrorMessage] = useState<string>('');
+    const [takePartInTender, setTakePartInTender] = useState(false);
 
     const [title, setTitle] = useState('');
     const [editorState, setEditorState] = useState(() =>
@@ -124,9 +131,11 @@ const Page = () => {
             ...prevState,
             title: title,
             content: html,
-            categories: anecdoteCategories
+            categories: anecdoteCategories,
+            newCategories: pendingCategories
         }));
     };
+
     const handleCategory = (category: Category) => {
         const catIds = anecdoteCategories.map(category => category.id);
 
@@ -140,40 +149,73 @@ const Page = () => {
             ])
         }
     }
-    const handleCreateCategory = async (title: string) => {
-        try {
-            const {data, message} = await createCategory(title);
-            if (message === "Category already exists") {
-                setErrorMessage("Категорія із таким іменем уже існує!, bitch");
-                setCategoryToCreate('')
-                return;
-            }
 
-            if (message === "Category title must be 10 characters or less") {
-                setErrorMessage("Максимальна кількість символів рівна 10 або менше");
-                setCategoryToCreate('')
-                return;
-            }
-            setOpenCategoryCreate(false)
-            handleCategory(data)
-            setCategories([...categories, data])
-            setCategoryToCreate('')
-            setErrorMessage('');
-        } catch (e) {
-            console.log(e)
+    const handleCreateCategory = (title: string) => {
+        // Validation checks
+        if (title.length > 17) {
+            setErrorMessage("Максимальна кількість символів рівна 17 або менше");
+            setCategoryToCreate('');
+            return;
         }
+
+        if (pendingCategories.length >= 5) {
+            setErrorMessage("Ви уже створили максимальну кількість категоірй! Тобто 5");
+            setCategoryToCreate('');
+            return;
+        }
+
+        if (pendingCategories.includes(title) || categories.some(cat => cat.title === title)) {
+            setErrorMessage("Категорія із таким іменем уже існує!");
+            setCategoryToCreate('');
+            return;
+        }
+
+        setPendingCategories([...pendingCategories, title]);
+        setOpenCategoryCreate(false);
+        setCategoryToCreate('');
+        setErrorMessage('');
     }
+
+    const removePendingCategory = (categoryTitle: string) => {
+        setPendingCategories(pendingCategories.filter(cat => cat !== categoryTitle));
+    }
+
     const handlePublishAnecdote = async () => {
         try {
-            await publishAnecdote({
+            const data = await publishAnecdote({
                 ...anecdoteDraft,
+                forContest: takePartInTender,
                 categories: anecdoteCategories,
+                newCategories: pendingCategories
             });
 
+            if (data.message === "You can only create up to 5 anecdotes in a 24-hour period") {
+                toast("Ви вичерпали ліміт у 5 створених анекдотів за день!", {
+                    description: "Зате як завжди дані було передано у СБУ та ТЦК 😆",
+                    action: {
+                        label: "Сумно...",
+                        onClick: () => handlePublishAnecdote(),
+                    },
+                });
+                return;
+            }
+
+            if (data.message === "You have already 3 anecdotes for contest") {
+                toast("У вас уже 3 анекдоти для конкурсу!", {
+                    description: "Танцювала риба з раком",
+                    action: {
+                        label: "Путін хуйло",
+                        onClick: () => handlePublishAnecdote(),
+                    },
+                });
+                return;
+            }
+
+            // Reset form after successful publish
             setTitle('');
             setEditorState(EditorState.createEmpty());
             setAnecdoteCategories([]);
-
+            setPendingCategories([]);
             toast("Анекдот був успішно створений", {
                 description: "Ваші дані було передано у СБУ та ТЦК 😆",
                 action: {
@@ -192,6 +234,9 @@ const Page = () => {
         }
     };
 
+    const handleToggle = (checked: boolean) => {
+        setTakePartInTender(checked);
+    };
 
     useEffect(() => {
         const fetchAnecdotes = async () => {
@@ -209,8 +254,8 @@ const Page = () => {
 
 
     return (
-        <div className="flex w-full pt-6 ms:p-24 gap-8 justify-center">
-            <div className="flex flex-1 max-w-[569px] flex-col gap-4">
+        <div className="flex w-full pt-6 pb-12 ms:p-24 gap-8 justify-center">
+            <div className="flex w-full max-w-[569px] flex-col gap-4">
                 <div>
                     <h1 className="text-[#1e1e1e] text-[28px] font-bold font-['Manrope']">Створення анекдоту</h1>
                     <Link href='/rules' className="flex gap-1 pt-1 ms:pt-3">
@@ -227,33 +272,41 @@ const Page = () => {
                     setEditorState={setEditorState}
                     onSave={handleSaveContent}/>
 
-                <div className="ms:hidden flex flex-wrap gap-4">
-                    {
-                        anecdoteCategories.map(category => (
-                            <Button
-                                onClick={() => handleCategory(category)}
-                                variant="outline"
-                                className="border border-[#1e1e1e]"
-                                key={category.id}>
-                                {category.title}
-                                <X/>
-                            </Button>
-                        ))
-                    }
-                </div>
 
-                <div className="flex justify-between flex-wrap gap-3 sm:gap-5">
+                <div className="flex flex-col justify-between flex-wrap gap-3 sm:gap-5">
+                    <div className="flex items-center gap-4">
+                        <span className="text-[#1e1e1e] text-sm font-medium">Взяти участь в конкурсі</span>
+                        <label
+                            className={`relative flex items-center w-12 h-6 rounded-[7px] transition-colors duration-300 ${
+                                takePartInTender ? "bg-random-anecdote-button-gradient-anim animate-gradientAnimation bg-[length:105%_105%]" : "bg-black"
+                            }`}
+                        >
+                            <input
+                                type="checkbox"
+                                className="peer sr-only"
+                                checked={takePartInTender}
+                                onChange={(e) => handleToggle(e.target.checked)}
+                            />
+                            <span
+                                className={`absolute left-1 top-1 h-4 w-4 bg-white rounded-[7px] transition-all duration-300 ${
+                                    takePartInTender ? "peer-checked:bg-black top-[0px] left-6 h-6 w-6" : "peer-checked:bg-white"
+                                }`}
+                            ></span>
+                        </label>
+                    </div>
+
+
                     <Popover open={openCategorySelect} onOpenChange={setOpenCategorySelect}>
                         <PopoverTrigger asChild>
                             <Button
                                 role="combobox"
-                                className="w-full sm:w-[200px] h-[50px] justify-between"
+                                className="w-full h-[50px] justify-between"
                             >
                                 Додати категорію
-                                <ChevronsUpDown className="opacity-50"/>
+                                <ChevronDown/>
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[93vw] sm:w-[200px] p-0">
+                        <PopoverContent className="w-[93vw] sm:max-w-[569px] p-0">
                             <Command>
                                 <CommandInput placeholder="Знайти категорію..."/>
                                 <CommandList>
@@ -277,9 +330,9 @@ const Page = () => {
                         </PopoverContent>
                     </Popover>
 
-                    <div className="ms:flex hidden flex-wrap gap-4">
-                        {
-                            anecdoteCategories.map(category => (
+                    {(anecdoteCategories.length !== 0 || pendingCategories.length !== 0) && (
+                        <div className="flex flex-wrap gap-4">
+                            {anecdoteCategories.map(category => (
                                 <Button
                                     onClick={() => handleCategory(category)}
                                     variant="outline"
@@ -288,14 +341,24 @@ const Page = () => {
                                     {category.title}
                                     <X/>
                                 </Button>
-                            ))
-                        }
-                    </div>
+                            ))}
+                            {pendingCategories.map(categoryTitle => (
+                                <Button
+                                    onClick={() => removePendingCategory(categoryTitle)}
+                                    variant="outline"
+                                    className="border border-[#1e1e1e]"
+                                    key={categoryTitle}>
+                                    {categoryTitle} (нова)
+                                    <X/>
+                                </Button>
+                            ))}
+                        </div>
+                    )}
 
                     <Dialog open={openCategoryCreate} onOpenChange={setOpenCategoryCreate}>
                         <DialogTrigger asChild>
                             <Button
-                                className="flex w-full items-center justify-center h-[50px] sm:w-fit bg-random-anecdote-button-gradient text-[#1e1e1e] text-sm font-medium font-['Manrope'] leading-[30px]"
+                                className="flex w-full items-center justify-center h-[50px] bg-[#E8E8E8] text-[#1e1e1e] text-sm font-medium hover:bg-[#E8E8E8]"
                                 variant="ghost"
                             >
                                 Створити власну категорію
@@ -335,12 +398,13 @@ const Page = () => {
 
                 <Button
                     className="w-full h-[50px] mt-8 sm:mt-0"
-                    onClick={handlePublishAnecdote}
+                    onClick={() => requireAuth(() => handlePublishAnecdote())}
                     disabled={isReadyToPublish}
                 >
                     Створити анекдот
                 </Button>
             </div>
+            {AuthModalComponent}
         </div>
     );
 };

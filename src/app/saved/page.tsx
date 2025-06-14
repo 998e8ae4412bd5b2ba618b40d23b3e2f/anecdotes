@@ -5,6 +5,7 @@ import {Button} from "@/components/ui/button";
 import AnecdoteGridLayout from "@/components/AnecdoteGrid/AnecdoteGridLayout";
 import EmptyMessage from "@/components/EmptyMessage";
 import Filter from "@/components/Filter/Filter";
+import {AnecdoteBase} from "@/types/anecdote.types";
 
 const getCategories = async () => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/categories`, {
@@ -96,7 +97,7 @@ const Page = () => {
 
 
     return (
-        <section className="flex flex-col sm:flex-row justify-start pt-6 sm:pt-24 gap-12">
+        <section className="flex flex-col sm:flex-row justify-start pt-6 md:mt-11 gap-12">
             {/*<Filter></Filter>*/}
 
             {anecdotes.length === 0 && !loading.anecdotes ?
